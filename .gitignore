@@ -102,3 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# This is where settings that need to be customized belong.
+api/local_settings.py
