@@ -4,6 +4,7 @@ process.title = 'Music stream';
 
 const path = require('path');
 const http = require('http');
+const https = require('https');
 const express = require('express');
 const app = express();
 const favicon = require('serve-favicon');
@@ -47,9 +48,26 @@ app.use('/', function (req, res) {
     );
 });
 
-app.listen(webPort, (err) => {
-    if(err) {
-        return console.log("Error listening on port " + webPort + ': ', err);
-    }
-    console.log((new Date()) + ': Web Server is listening on port ' + webPort + '.');
-});
+
+
+const settings = require('./settings');
+
+if(settings['https']) {
+    https.createServer({
+        key: fs.readFileSync(settings['ssl_key_path']),
+        cert: fs.readFileSync(settings['ssl_cert_path']),
+    }, app)
+    .listen(webPort, (err) => {
+        if(err) {
+            return console.log("Error listening on port " + webPort + ': ', err);
+        }
+        console.log((new Date()) + ': Web Server is listening on port ' + webPort + '.');
+    });
+} else {
+    app.listen(webPort, (err) => {
+        if(err) {
+            return console.log("Error listening on port " + webPort + ': ', err);
+        }
+        console.log((new Date()) + ': Web Server is listening on port ' + webPort + '.');
+    });
+}
