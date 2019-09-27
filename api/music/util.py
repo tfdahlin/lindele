@@ -7,7 +7,7 @@ import eyed3
 import logging, threading, os
 
 from music.models import Song, RefreshState, engine
-from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE
+from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE, MUSIC_FOLDER
 
 Session = sessionmaker(bind=engine)
 
