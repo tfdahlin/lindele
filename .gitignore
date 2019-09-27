@@ -105,3 +105,5 @@ venv.bak/
 
 # This is where settings that need to be customized belong.
 api/local_settings.py
+api/music_stream.db
+api/test_music_stream.db
