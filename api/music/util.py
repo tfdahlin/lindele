@@ -7,7 +7,7 @@ import eyed3
 import logging, threading, os
 
 from music.models import Song, RefreshState, engine
-from settings import MOUNTED_FOLDER
+from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE
 
 Session = sessionmaker(bind=engine)
 
@@ -64,6 +64,20 @@ def fetch_track_path(songid):
                 logger.warn(f"No song found with id {songid}.")
                 return None
             return track.track_path
+
+def fetch_artwork_path(songid):
+    track_path = fetch_track_path(songid)
+    track_dir = os.path.dirname(track_path)
+    for f in os.listdir(track_dir):
+        full_path = os.path.join(track_dir, f)
+        if os.path.isfile(full_path):
+            print(f)
+            if full_path.endswith('.png'):
+                return full_path
+            if full_path.endswith('.jpg'):
+                return full_path
+    logger.info(f'Missing artwork for song with id {songid}')
+    return MISSING_ARTWORK_FILE
 
 def get_all_tracks():
     with access_db() as db_conn:

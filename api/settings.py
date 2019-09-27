@@ -56,6 +56,7 @@ if not MUSIC_FOLDER:
     MUSIC_FOLDER = MOUNTED_FOLDER
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+MISSING_ARTWORK_FILE = os.path.join(BASE_PATH, 'album_artwork_missing.png')
 
 db_dialect = 'sqlite'
 #db_username = 'foo'

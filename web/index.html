@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta property="og:site_name" content="Acommplice Music"/>
+        <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+        <!-- FIX THIS TO LOAD SONG IDS
+        <meta property="og:url" content="{{url}}{% if song_id %}?songid={{song_id}}{% endif %}"/>
+        -->
+        <link rel="shortcut icon" href="/favicon.ico">
+        <meta name="author" content="Dookerino"/>
+        <meta charset="utf-8"/>
+
+        <!-- FIX THIS FOR SONG INFO
+        {% if song_title %}
+        <title id="page_title">{{song_title}}{% if song_artist %} - {{song_artist}}{% endif %} | Music</title>
+        <meta name="description" content="{{song_title}}{% if song_artist %} - {{song_artist}}{% if song_album %} - {{song_album}}{% endif %}{% endif %}"/>
+        <meta property="og:title" content="{{song_title}}{% if song_artist %} - {{song_artist}}{% endif %} | Music"/>
+        <meta property="og:description" content="{{song_title}}{% if song_artist %} - {{song_artist}}{% if song_album %} - {{song_album}}{% endif %}{% endif %}"/>
+        {% else %}
+		<title id="page_title">Music</title>
+        <meta name="description" content="A simple music streaming service for my private library."/>
+		<meta property="og:title" content="Music">
+        <meta property="og:description" content="A simple music streaming service for my private library."/>
+        {% endif %}
+        -->
+
+
+        <!-- FIX THIS FOR STUFF
+        {% if song_id %}
+        <meta property="og:type" content="music.song"/>
+        <meta property="og:image" content="{{url}}/fetch_album_artwork?songid={{song_id}}"/>
+        <meta property="og:audio" content="{{url}}/get_song?songid={{song_id}}"/>
+        <meta property="og:audio:type" content="audio/mpeg"/>
+            {% if song_album %}
+            <meta property="og:image:alt" content="{{song_album}} album artwork."/>
+            {% endif %}
+        {% else %}
+        <meta property="og:image" content="/static/main/album_artwork_missing.png"/>
+        <meta property="og:image:alt" content="No album artwork available."/>
+        {% endif %}
+        -->
+	</head>
+	<body>
+        <div class="sidebar-container">
+            <div class="sidebar">
+                <div class="playlist-info-container">
+                    <div class="text playlist-info">
+                        <!--
+                        You're listening to {% if playlist %}{{playlist.name}} by {{playlist.owner.username}}{% else %}all songs{% endif %}.
+                        -->
+                    </div>
+                    <div class="text track-count">
+                        <!--
+                        ({{song_count}} tracks)
+                        -->
+                    </div>
+                </div>
+                <div id="album-artwork-container" class="album-artwork-container">
+                    <!--
+                    <img id="albumartwork" src="{% if song_id %}/fetch_album_artwork?songid={{song_id}}{% else %}{% static "main/album_artwork_missing.png" %}{% endif %}" class="album-artwork">
+                    -->
+                </div>
+                <div class="track-info-container">
+                    <div class="song-name-container">
+                        <!--
+                        <div id="song-name" class="song-name text">{% if song_title %}{{song_title}}{% endif %}</div>
+                        -->
+                    </div>
+                    <div class="artist-name-container">
+                        <!--
+                        <div id="artist-name" class="artist-name text">{% if song_artist %}{{song_artist}}{% endif %}</div>
+                        -->
+                    </div>
+                    <div class="album-name-container">
+                        <!--
+                        <div id="album-name" class="album-name text">{% if song_album %}{{song_album}}{% endif %}</div>
+                        -->
+                    </div>
+                </div>
+                <div class="playback-display-container">
+                    <div id="playbackcontainer" class="playback-container">
+                        <div id="playbackremainder" class="playback-progress-right" style="width: 100%;">
+                        </div>
+                        <div id="playbackprogress" class="playback-progress-left" style="width: 0%;">
+                        </div>
+                    </div>
+                    <div id="playbacktimercontainer" class="playback-timer-container text">
+                    </div>
+                </div>
+                <div class="audio-controls-container">
+                    <div class="previous-button-container">
+                        <img id="previous_button" class="previous-button" src="media/previous_button.png">
+                    </div>
+                    <div class="play-button-container">
+                        <img id="play_button" class="play-button" src="media/play_button.png">
+                    </div>
+                    <div class="next-button-container">
+                        <img id="next_button" class="next-button" src="media/next_button.png" >
+                    </div>
+                </div>
+                <div class="volume-container">
+                    <img id="volume_icon" class="volume-icon" src="media/high_volume.png">
+                    <input id="volume_slider" class="volume-slider" type="range" min="1" max="100" value="100">
+                    <!-- Need to get current user's volume level and set it accordingly. -->
+                    <!--
+                    <input id="volume_slider" class="volume-slider" type="range" min="1" max="100" value="{% if volume %}{{ volume }}{% else %}100{% endif %}">
+                    -->
+                </div>
+                <div class="misc-controls-container">
+                    <center>
+                        <img id="shufflebutton" class="shuffle-button-on" src="media/shuffle_icon.png">
+                        <img id="sharebutton"   class="share" src="media/share_icon.png">
+                        <img id="downloadbutton" class="download-button" src="media/download_icon.png">
+                    </center>
+                </div>
+                <div class="playlist-controls">
+                    <!--
+                    {% if all_playlists != None %}
+                        <div class="select-playlist">
+                            <select id="playlistoptions" class="playlist-dropdown">
+                                <option value="0">All songs</option>
+                                {% for playlist in all_playlists %}
+                                    <option value="{{playlist.id}}">
+                                        {{playlist.owner.username}}: {{playlist.name}} ({% if playlist.song_set.count %}{{playlist.song_set.count}}{% else %}0{% endif %}
+                                            track{% if playlist.song_set.count != 1 %}s{% endif %})</option>
+                                {% endfor %}
+                            </select>
+                            <button class="go-to-playlist" id="go_to_playlist_button" type="button">Go to playlist</button>
+                        </div>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <div class="create-playlist">
+                            <button id="new_playlist_button" class="create-playlist-button" type="button">New Playlist</button>
+                        </div>
+                    {% endif %}
+                    -->
+                    
+                    <b id="song_id" style="visibility: hidden;"></b>
+                </div>
+                <div class="search-bar-container">
+                    <input type="text" id="search_bar" placeholder="Search for a song...">
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <!--
+            {% if user.is_authenticated %}
+            <div class="header-logged-in">
+                <div class="greeting text">
+                    Hello, {% if user.name %}{{user.name}}{% else %}{{ user.get_username }}{% endif %}.
+                </div>
+                <div class="login-controls">
+                    <a href="/profile">Profile.</a>&nbsp;<a href="/logout">Logout.</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="header-logged-out">
+                <div class="register-link">
+                    <a href="/login/register">Register an account.</a>
+                </div>
+                <div class="login-form">
+                    <form method="post" id="login"> {% csrf_token %}
+                        <input type="text" placeholder="Username" name="username" autocomplete="username" required>
+                        <input type="password" placeholder="Password" name="password" autocomplete="current-password" required>
+                        <button type="submit" value="Submit">Login</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            -->
+            <div id="playlist-content" class="content">
+                <div id="loader-container" class="loader-container">
+                    <div id="loader" class="loader"></div>
+                    <div class="text">Loading, please wait...</div>
+                </div>
+            </div>
+        </div>
+        <!--
+        {% if user.is_authenticated %}
+        <div class="hide text" id="rmenu">
+            <table id="playlist-table">
+                {% if is_owner %}
+                    <tr style="background-color: " id="removetrack">
+                        <td id="{{playlist.id}}" class="removetrack">
+                            Remove song from {{ playlist.name }}
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr class="text" style="background-color: #181818;" id="rmenu-header-row">
+                    <th>
+                        Add song to a playlist
+                    </th>
+                </tr>
+                {% for playlist in my_playlists %}
+                    <tr class="{% if forloop.counter|divisibleby:2 %}evenrow{% else %}oddrow{% endif%} playlist text">
+                        <td id="{{playlist.id}}" class="playlist">
+                            {{ playlist.name }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        -->
+        
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        
+        <!-- PLAYLIST CONTROLS
+        {% if my_playlists %}
+        <script nonce={{ nonce }} src="{% static "main/playlist_controls.js" %}"> </script>
+
+        {% endif %}
+        -->
+
+        <!-- JAVASCRIPT FILES
+        <script nonce={{ nonce }} src="{% static "main/audio_player.js" %}"></script>
+        {% if user.is_authenticated %}
+        <script nonce={{ nonce }} src="{% static "main/volume_slider_save.js" %}"></script>
+        {% endif %}
+        -->
+    </body>
+</html>

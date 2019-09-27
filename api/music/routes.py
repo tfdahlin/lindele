@@ -1,11 +1,14 @@
 
-import logging, os
+import logging, os, io
 from wsgiref.util import FileWrapper
 
 from pycnic.core import Handler
 from pycnic.errors import HTTP_404
 
-from music.util import refresh_database, get_all_tracks, fetch_track_info, fetch_track_path
+from PIL import Image
+
+from music.util import refresh_database, get_all_tracks
+from music.util import fetch_track_info, fetch_track_path, fetch_artwork_path
 
 from util.util import success
 
@@ -18,7 +21,7 @@ class Songs(Handler):
             try:
                 data = fetch_track_info(int(songid))
             except:
-                logger.warn('Could not fetch track information.')
+                logger.warn(f'Could not fetch track information for song id {songid}')
                 return failure()
         else:
             tracks = get_all_tracks()
@@ -30,13 +33,14 @@ class Songs(Handler):
 class Audio(Handler):
     def get(self, songid=None):
         if not songid:
+            logger.warn('Request for audio made without a song id.')
             raise HTTP_404('Invalid song id.')
 
         try:
             track_file = fetch_track_path(int(songid))
         except:
-            logger.warn('Could not fetch track information.')
-            raise HTTP_404('Could not ')
+            logger.warn(f'Could not fetch track audio for song id: {songid}.')
+            raise HTTP_404('Invalid song id.')
 
         wrapper = FileWrapper(open(track_file, 'rb'))
         self.response.set_header('Content-Type', 'audio/mpeg')
@@ -44,6 +48,31 @@ class Audio(Handler):
         self.response.set_header('Accept-Ranges', 'bytes')
         return wrapper
 
+class Artwork(Handler):
+    def get(self, songid=None):
+        if not songid:
+            logger.warn('Request for artwork made without a song id.')
+            raise HTTP_404('Invalid song id.')
+
+        try:
+            artwork_file = fetch_artwork_path(int(songid))
+        except:
+            logger.warn(f'Could not fetch track artwork for song id: {songid}.')
+            raise HTTP_404('Invalid song id.')
+
+        if artwork_file.endswith('.png'):
+            self.response.set_header('Content-Type', 'image/png')
+            with open(artwork_file, 'rb') as f:
+                wrapper = FileWrapper(open(artwork_file, 'rb'))
+                return wrapper
+        elif artwork_file.endswith('.jpg'):
+            self.response.set_header('Content-Type', 'image/jpeg')
+            with open(artwork_file, 'rb') as f:
+                wrapper = FileWrapper(open(artwork_file, 'rb'))
+                return wrapper
+        else:
+            logger.warn(f'Error encountered while trying to fetch artwork for song with id {songid}.')
+            raise HTTP_404('Album artwork not found.')
 
 class BuildDatabase(Handler):
     def get(self):

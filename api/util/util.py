@@ -21,6 +21,11 @@ else
 fi
 """
 
+def mount_as_needed(directory: str) -> bool:
+    if is_mounted(directory):
+        return True
+    return mount_smb()
+
 def is_mounted(directory: str) -> bool:
     from settings import MOUNTED_FOLDER
 
@@ -28,21 +33,27 @@ def is_mounted(directory: str) -> bool:
     return p.is_mount()
 
 def mount_smb():
-    from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTING_SHARE_NAME, MOUNTING_FOLDER, MOUNTED_FOLDER
+    """Mount the SMB drive specified in the local_settings file.
 
-    if is_mounted(MOUNTED_FOLDER):
+    Returns:
+        success (bool): True if mounted successfully, false otherwise.
+    """
+    from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTING_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER
+
+    if is_mounted(MUSIC_FOLDER):
         logger.info("Folder already mounted.")
         return False
 
-    smbget_cmd_array = [
-        "!", "smbget", "-U",
-        f"{MOUNTING_USERNAME}{MOUNTING_PASSWORD}",
-        f"smb://{MOUNTING_IP}/{MOUNTING_FOLDER}",
-        '|', 'grep', '-q',  '\"is a directory\"'
-    ]
-    success = call(smbget_cmd_array, shell=True) == 0
-    #smbget_cmd = ' '.join(smbget_cmd_array)
+    #smbget_cmd_array = [
+    #    "!", "smbget", "-U",
+    #    f"{MOUNTING_USERNAME}{MOUNTING_PASSWORD}",
+    #    f"smb://{MOUNTING_IP}/{MOUNTING_FOLDER}",
+    #    '|', 'grep', '-q',  '\"is a directory\"'
+    #]
+    #success = call(smbget_cmd_array, shell=True) == 0
+    ##smbget_cmd = ' '.join(smbget_cmd_array)
 
+    # mount the drive
     mount_cmd_array = [
         'sudo', 'mount', '-t',
         'cifs', '-v', '-o',
@@ -50,7 +61,7 @@ def mount_smb():
         MOUNTING_SHARE_NAME, MOUNTED_FOLDER
     ]
     success = call(mount_cmd_array, shell=True) == 0
-    #mount_cmd = ' '.join(mount_cmd_array)
+    return success
 
 def success(data={}, status=None, status_code=None, error=None):
     """Create default 200 response, following the format pycnic uses.
