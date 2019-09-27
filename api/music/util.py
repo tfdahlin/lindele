@@ -71,7 +71,6 @@ def fetch_artwork_path(songid):
     for f in os.listdir(track_dir):
         full_path = os.path.join(track_dir, f)
         if os.path.isfile(full_path):
-            print(f)
             if full_path.endswith('.png'):
                 return full_path
             if full_path.endswith('.jpg'):
