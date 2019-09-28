@@ -5,9 +5,22 @@ import settings
 
 from pycnic.core import Handler
 
+from settings import allowed_origins
+
 class BaseHandler(Handler):
     def before(self):
-        pass
+        origin = self.request.get_header('Origin')
+        allowed_origins = [
+            '127.0.0.1',
+            'http://127.0.0.1',
+            'http://acommplice.com',
+            'https://acommplice.com',
+            'http://music.acommplice.com',
+            'https://music.acommplice.com',
+        ]
+        self.response.set_header('Vary', 'Origin')
+        if origin in allowed_origins:
+            self.response.set_header('Access-Control-Allow-Origin', origin)
 
     def success(self, data={}, status=None, status_code=None, error=None):
         """Create default 200 response, following the format pycnic uses.

@@ -52,6 +52,13 @@ except:
 else:
     MAGIC_PACKET_MAC_ADDRESS = None
 
+try:
+    ALLOWED_ORIGINS = local_settings.ALLOWED_ORIGINS
+except:
+    logger.info('ALLOWED_ORIGINS not specified in api/local_settings.py\n'
+                'You likely need to set this value in order to make cross-origin requests.')
+    ALLOWED_ORIGINS = []
+
 if not MUSIC_FOLDER:
     MUSIC_FOLDER = MOUNTED_FOLDER
 
