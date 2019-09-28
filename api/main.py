@@ -2,15 +2,15 @@ from pycnic.core import WSGI, Handler
 
 #from users.routes import UsersRoutes, Login, Logout, Register
 from music.routes import Songs, BuildDatabase, Audio, Artwork
-from util.util import success
+from util.util import BaseHandler
 
-class AcommpliceMusic(Handler):
+class AcommpliceMusic(BaseHandler):
     def get(self):
-        return success()
+        return self.success()
 
-class Ping(Handler):
+class Ping(BaseHandler):
     def get(self):
-        return success({'msg': 'Pong!'})
+        return self.success({'msg': 'Pong!'})
 
 class app(WSGI):
     """Acommplice API router main app.

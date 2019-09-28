@@ -3,6 +3,68 @@ from pathlib import Path
 from subprocess import call
 import settings
 
+from pycnic.core import Handler
+
+class BaseHandler(Handler):
+    def before(self):
+        pass
+
+    def success(self, data={}, status=None, status_code=None, error=None):
+        """Create default 200 response, following the format pycnic uses.
+
+        Arguments:
+            data (dict, optional): Data for response.
+            status (str, optional): Status message for response.
+            status_code (int, optional): Status code for response.
+            error (str, optional): Error string for response (typically empty).
+
+        Returns:
+            result (dict): Data formatted for a json response.
+        """
+        if not status_code:
+            status_code = 200
+        if not status:
+            status = f'{status_code} OK'
+        if 'version' not in data:
+            data['version'] = settings.API_VERSION
+        result = {
+            'status': status,
+            'status_code': status_code,
+            'data': data
+        }
+
+        if error:
+            result['error'] = error
+
+        return result
+
+    def failure(self, data={}, status=None, status_code=None, error=None):
+        """Create default 400 response, following the format pycnic uses.
+
+        Arguments:
+            data (dict, optional): Data for response.
+            status (str, optional): Status message for response.
+            status_code (int, optional): Status code for response.
+            error (str, optional): Error string for response.
+
+        Returns:
+            result (dict): Data formatted for a json response.
+        """
+        if not status_code:
+            status_code = 400
+        if not status:
+            status = f'{status_code} Failure'
+        if 'version' not in data:
+            data['version'] = settings.API_VERSION
+        result = {
+            'status': status,
+            'status_code': status_code,
+            'data': data,
+            'error': error
+        }
+
+        return result
+
 def reboot_machine():
     cmd = 'sudo systemctl reboot'
     os.system(cmd)
@@ -63,58 +125,3 @@ def mount_smb():
     success = call(mount_cmd_array, shell=True) == 0
     return success
 
-def success(data={}, status=None, status_code=None, error=None):
-    """Create default 200 response, following the format pycnic uses.
-
-    Arguments:
-        data (dict, optional): Data for response.
-        status (str, optional): Status message for response.
-        status_code (int, optional): Status code for response.
-        error (str, optional): Error string for response (typically empty).
-
-    Returns:
-        result (dict): Data formatted for a json response.
-    """
-    if not status_code:
-        status_code = 200
-    if not status:
-        status = f'{status_code} OK'
-    if 'version' not in data:
-        data['version'] = settings.API_VERSION
-    result = {
-        'status': status,
-        'status_code': status_code,
-        'data': data
-    }
-
-    if error:
-        result['error'] = error
-
-    return result
-
-def failure(data={}, status=None, status_code=None, error=None):
-    """Create default 400 response, following the format pycnic uses.
-
-    Arguments:
-        data (dict, optional): Data for response.
-        status (str, optional): Status message for response.
-        status_code (int, optional): Status code for response.
-        error (str, optional): Error string for response.
-
-    Returns:
-        result (dict): Data formatted for a json response.
-    """
-    if not status_code:
-        status_code = 400
-    if not status:
-        status = f'{status_code} Failure'
-    if 'version' not in data:
-        data['version'] = settings.API_VERSION
-    result = {
-        'status': status,
-        'status_code': status_code,
-        'data': data,
-        'error': error
-    }
-
-    return result

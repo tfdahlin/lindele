@@ -10,27 +10,32 @@ from PIL import Image
 from music.util import refresh_database, get_all_tracks
 from music.util import fetch_track_info, fetch_track_path, fetch_artwork_path
 
-from util.util import success
+from util.util import BaseHandler
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-class Songs(Handler):
+class Songs(BaseHandler):
     def get(self, songid=None):
         if songid:
             try:
                 data = fetch_track_info(int(songid))
             except:
                 logger.warn(f'Could not fetch track information for song id {songid}')
-                return failure()
+                return self.failure()
+            else:
+                if data:
+                    return self.success(data=data)
+                raise HTTP_404('Track not found.')
         else:
             tracks = get_all_tracks()
             data = {
                 'tracks': tracks
             }
-        return success(data=data)
 
-class Audio(Handler):
+        return self.success(data=data)
+
+class Audio(BaseHandler):
     def get(self, songid=None):
         if not songid:
             logger.warn('Request for audio made without a song id.')
@@ -48,7 +53,7 @@ class Audio(Handler):
         self.response.set_header('Accept-Ranges', 'bytes')
         return wrapper
 
-class Artwork(Handler):
+class Artwork(BaseHandler):
     def get(self, songid=None):
         if not songid:
             logger.warn('Request for artwork made without a song id.')
@@ -74,7 +79,7 @@ class Artwork(Handler):
             logger.warn(f'Error encountered while trying to fetch artwork for song with id {songid}.')
             raise HTTP_404('Album artwork not found.')
 
-class BuildDatabase(Handler):
+class BuildDatabase(BaseHandler):
     def get(self):
         refresh_database()
-        return success()
+        return self.success()
