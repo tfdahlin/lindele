@@ -8,7 +8,7 @@ from pycnic.errors import HTTP_404
 from PIL import Image
 
 from music.util import refresh_database, get_all_tracks
-from music.util import fetch_track_info, fetch_track_path, fetch_artwork_path
+from music.util import fetch_track_info, fetch_track_path, fetch_artwork_path, fetch_random_track_info
 
 from util.util import BaseHandler
 
@@ -34,6 +34,18 @@ class Songs(BaseHandler):
             }
 
         return self.success(data=data)
+
+class RandomSong(BaseHandler):
+    def get(self):
+        try:
+            data = fetch_random_track_info()
+        except:
+            logger.warn(f'Could not fetch random track.')
+            return self.failure()
+        else:
+            if data:
+                return self.success(data)
+            raise HTTP_404('No songs found.')
 
 class Audio(BaseHandler):
     def get(self, songid=None):

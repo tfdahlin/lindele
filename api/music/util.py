@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 import eyed3
 
-import logging, threading, os
+import logging, threading, os, random
 
 from music.models import Song, RefreshState, engine
 from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE, MUSIC_FOLDER
@@ -49,7 +49,8 @@ def fetch_track_info(songid):
                 'title': track.track_name,
                 'artist': track.artist_name,
                 'album': track.album_name,
-                'track_length': track.track_length
+                'track_length': track.track_length,
+                'id': track.id,
             }
 
 def fetch_track_path(songid):
@@ -77,6 +78,26 @@ def fetch_artwork_path(songid):
                 return full_path
     logger.info(f'Missing artwork for song with id {songid}')
     return MISSING_ARTWORK_FILE
+
+def fetch_random_track_info():
+    with access_db() as db_conn:
+        try:
+            track_num = random.randrange(0,db_conn.query(Song).count())
+            track = db_conn.query(Song)[track_num]
+        except:
+            logger.warn(f"Exception encountered while trying to fetch random song.")
+            return None
+        else:
+            if not track:
+                logger.warn(f"No songs found while fetching random song.")
+                return None
+            return {
+                'title': track.track_name,
+                'artist': track.artist_name,
+                'album': track.album_name,
+                'track_length': track.track_length,
+                'id': track.id,
+            }
 
 def get_all_tracks():
     with access_db() as db_conn:

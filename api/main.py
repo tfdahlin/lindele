@@ -1,7 +1,7 @@
 from pycnic.core import WSGI, Handler
 
 #from users.routes import UsersRoutes, Login, Logout, Register
-from music.routes import Songs, BuildDatabase, Audio, Artwork
+from music.routes import Songs, BuildDatabase, Audio, Artwork, RandomSong
 from util.util import BaseHandler
 
 class AcommpliceMusic(BaseHandler):
@@ -31,6 +31,7 @@ class app(WSGI):
         ('/songs/(\d+)', Songs()),
         ('/songs/(\d+)/audio', Audio()),
         ('/songs/(\d+)/artwork', Artwork()),
+        ('/songs/random', RandomSong()),
         ('/refresh', BuildDatabase()),
         #('/login', Login()),
         #('/logout', Logout()),
