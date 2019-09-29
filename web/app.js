@@ -9,8 +9,12 @@ const express = require('express');
 const app = express();
 const favicon = require('serve-favicon');
 const fs = require('fs');
+const mustache = require('mustache');
+const axios = require('axios');
 
-const webPort = 8080;
+const settings = require('./settings');
+
+const webPort = 80;
 
 const index_html = path.join(__dirname, 'index.html');
 
@@ -34,23 +38,91 @@ function fetch_main_html() {
     });
 }
 
+function render_html(context) {
+    return new Promise((resolve, reject) => {
+        fetch_main_html()
+        .then(html => {
+            try {
+                resolve(mustache.render(html, context));
+            } catch {
+                reject('Failed to render template.');
+            }
+        })
+        .catch(err => {
+            reject(err);
+        });
+    });
+}
+
+function has_song_id(req) {
+    if (!Object.keys(req.query).length) {
+        return false;
+    }
+    if (!req.query['songid']) {
+        return false;
+    }
+    if (req.query['songid'] === 'undefined') {
+        return false;
+    }
+    if (req.query['songid'] === undefined) {
+        return false;
+    }
+    return true;
+}
+
 app.use('/', function (req, res) {
-    console.log('Reached page: /');
-    fetch_main_html().then(
-        (contents) => {
-            res.status(200).send(contents);
-        }
-    ).catch(
-        (reason) => {
-            res.status(500).send('Error while loading page.');
-            console.log(reason);
-        }
-    );
+    if (has_song_id(req)) {
+        let songid = req.query['songid'];
+        console.log(songid)
+        console.log(typeof(songid));
+
+        let song_url = settings['api_url'] + '/songs/' + songid;
+
+        axios.get(song_url)
+        .then(response => {
+            console.log(response.data['data']);
+            let full_data = response.data['data'];
+            full_data['songid'] = songid;
+            full_data['artwork_url'] = settings['api_url'] + '/songs/' + songid + '/artwork';
+            full_data['api_url'] = settings['api_url'];
+            full_data['song_url'] = song_url;
+            render_html(full_data)
+            .then(html => {
+                res.status(200).send(html);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).send('Server error.');
+            });
+        })
+        .catch(error => {
+            console.log(error);
+            
+            // Load main page
+            fetch_main_html().then(
+                (contents) => {
+                    res.status(200).send(contents);
+                }
+            ).catch(
+                (reason) => {
+                    res.status(500).send('Error while loading page.');
+                    console.log(reason);
+                }
+            );
+        });
+    } else {
+        render_html({}).then(
+            (contents) => {
+                res.status(200).send(contents);
+            }
+        ).catch(
+            (reason) => {
+                res.status(500).send('Error while loading page.');
+                console.log(reason);
+            }
+        );
+    }
 });
-
-
-
-const settings = require('./settings');
 
 if(settings['https']) {
     https.createServer({
