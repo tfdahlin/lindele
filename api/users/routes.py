@@ -157,6 +157,8 @@ class CurrentUser(BaseHandler):
         pass
 
 class SetUserVolume(BaseHandler):
+    @requires_login()
+    @requires_params('volume')
     def post(self):
         user = get_user_from_request(self.request)
         if not user:

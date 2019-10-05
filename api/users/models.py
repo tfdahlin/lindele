@@ -50,7 +50,7 @@ class User(Base):
     email = Column(String)
     password_hash = Column(String)
     guid = Column(GUID, primary_key=True, nullable=False)
-    volume = Column(Integer)
+    volume = Column(Integer, default=100, nullable=False)
 
     last_registration_email = Column(DateTime)
 
