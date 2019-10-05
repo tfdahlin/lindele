@@ -396,4 +396,18 @@ def get_playlists_for_user(user_guid):
             result['playlists'].append(data)
     return result
 
+def get_playlists_owned_by_user(user_guid):
+    result = {'playlists': []}
+    with access_db() as db_conn:
+        accessible = db_conn.query(Playlist)\
+                       .filter(Playlist.owner_guid==user_guid)
+        for playlist in accessible:
+            data = {
+                'id': playlist.id,
+                'name': playlist.name,
+                'owner_name': playlist.owner_name,
+            }
+            result['playlists'].append(data)
+    return result
+
 from music.models import Song, RefreshState

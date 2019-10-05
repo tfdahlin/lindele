@@ -1,7 +1,7 @@
 from pycnic.core import WSGI, Handler
 
 from music.routes import Songs, BuildDatabase, Audio, Artwork, RandomSong, Playlists
-from music.routes import CreatePlaylist, AddToPlaylist, RemoveFromPlaylist
+from music.routes import CreatePlaylist, AddToPlaylist, RemoveFromPlaylist, OwnedPlaylists
 from users.routes import UsersRoutes, Register, Login, Logout, CurrentUser, SetUserVolume
 from util.util import BaseHandler
 
@@ -44,6 +44,7 @@ class app(WSGI):
         ('/playlists', Playlists()),
         ('/playlists/(\d+)', Playlists()),
         ('/playlists/create', CreatePlaylist()),
+        ('/playlists/owned', OwnedPlaylists()),
         ('/playlists/(\d+)/add', AddToPlaylist()),
         ('/playlists/(\d+)/remove', RemoveFromPlaylist()),
 

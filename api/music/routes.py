@@ -129,6 +129,14 @@ class Playlists(BaseHandler):
 
             # Check if the user can access the playlist.
 
+class OwnedPlaylists(BaseHandler):
+    def get(self):
+        if is_logged_in(self.request):
+            user = get_user_from_request(self.request)
+        else:
+            return self.success(data={'playlists': []})
+        return self.success(data=get_playlists_owned_by_user(user.guid))
+
 class CreatePlaylist(BaseHandler):
     @requires_login()
     @requires_params('playlist_name')
