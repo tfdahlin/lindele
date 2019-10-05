@@ -107,3 +107,6 @@ venv.bak/
 api/local_settings.py
 api/music_stream.db
 api/test_music_stream.db
+
+# Key shouldn't be uploaded anywhere lol
+api/users/.key
