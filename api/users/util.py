@@ -611,3 +611,21 @@ def get_user_from_request(request):
     user_gid = uuid.UUID(token_details['uuid'])
     user = fetch_user_by_uuid(user_gid)
     return user
+
+def set_user_volume(request, volume):
+    user = None
+    try:
+        session_cookie = request.cookies['session']
+    except KeyError:
+        return
+    token_details = interpret_session_token(session_cookie)
+    if not token_details:
+        return
+    user_guid = uuid.UUID(token_details['uuid'])
+    with access_db() as db_conn:
+        user = db_conn.query(User)\
+                        .filter(User.guid==input_uuid)\
+                        .first()
+        if user:
+            user.volume = volume
+            db_conn.commit()

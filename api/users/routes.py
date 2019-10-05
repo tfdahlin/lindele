@@ -154,3 +154,13 @@ class CurrentUser(BaseHandler):
         }
         return self.success(data={'logged_in': True, 'user': user_data})
         pass
+
+class SetUserVolume(BaseHandler):
+    def post(self):
+        user = get_user_from_request(self.request)
+        if not user:
+            return self.failure(status_code=401)
+
+        # Set user volume
+        set_user_volume(self.request)
+        return self.success()
