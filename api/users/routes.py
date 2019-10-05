@@ -147,5 +147,5 @@ class Register(BaseHandler):
 class CheckLoginStatus(BaseHandler):
     def get(self):
         if is_logged_in(self.request):
-            return success(data={'logged_in': True})
-        return success(data={'logged_in': False})
+            return self.success(data={'logged_in': True})
+        return self.success(data={'logged_in': False})
