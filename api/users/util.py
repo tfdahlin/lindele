@@ -631,7 +631,7 @@ def set_user_volume(request):
     user_guid = uuid.UUID(token_details['uuid'])
     with access_db() as db_conn:
         user = db_conn.query(User)\
-                        .filter(User.guid==input_uuid)\
+                        .filter(User.guid==user_guid)\
                         .first()
         if user:
             logger.info(f'Setting user {user.username}\'s volume to {volume}')
