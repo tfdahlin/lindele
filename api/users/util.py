@@ -615,15 +615,18 @@ def get_user_from_request(request):
 def set_user_volume(request):
     volume = request.data['volume']
     if not volume:
+        logger.info(f'No volume sent in request.')
         return
     volume = int(volume)
     user = None
     try:
         session_cookie = request.cookies['session']
     except KeyError:
+        logger.info(f'No session cookie in request to set volume.')
         return
     token_details = interpret_session_token(session_cookie)
     if not token_details:
+        logger.info(f'Could not get session token when trying to set user volume.')
         return
     user_guid = uuid.UUID(token_details['uuid'])
     with access_db() as db_conn:
@@ -631,5 +634,6 @@ def set_user_volume(request):
                         .filter(User.guid==input_uuid)\
                         .first()
         if user:
+            logger.info(f'Setting user {user.username}\'s volume to {volume}')
             user.volume = volume
             db_conn.commit()
