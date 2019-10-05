@@ -2,7 +2,7 @@ from pycnic.core import WSGI, Handler
 
 from music.routes import Songs, BuildDatabase, Audio, Artwork, RandomSong, Playlists
 from music.routes import CreatePlaylist, AddToPlaylist, RemoveFromPlaylist
-from users.routes import UsersRoutes, Register, Login, Logout
+from users.routes import UsersRoutes, Register, Login, Logout, CheckLoginStatus
 from util.util import BaseHandler
 
 class AcommpliceMusic(BaseHandler):
