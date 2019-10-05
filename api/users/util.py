@@ -612,7 +612,10 @@ def get_user_from_request(request):
     user = fetch_user_by_uuid(user_gid)
     return user
 
-def set_user_volume(request, volume):
+def set_user_volume(request):
+    volume = request.data['volume']
+    if not volume:
+        return
     user = None
     try:
         session_cookie = request.cookies['session']
