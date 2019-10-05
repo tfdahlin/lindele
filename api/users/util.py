@@ -17,8 +17,6 @@ from base64 import b64encode, b64decode
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_
 
-import pystache
-
 from users.models import User, LoginAttempt, engine
 from settings import hash_iterations, hash_algo
 #from config import EMAIL_USER, EMAIL_PASSWORD, do_not_reply_email
