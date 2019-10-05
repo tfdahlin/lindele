@@ -80,7 +80,7 @@ class Login(BaseHandler):
         self.response.set_cookie(
             'session',
             session_token,
-            #flags=['HttpOnly', 'Secure']
+            flags=['HttpOnly', 'Secure']
             )
         result = self.success({'msg': 'Logged in successfully'})
 
