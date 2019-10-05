@@ -144,8 +144,13 @@ class Register(BaseHandler):
 
         return self.success(status='Registration completed.')
 
-class CheckLoginStatus(BaseHandler):
+class CurrentUser(BaseHandler):
     def get(self):
-        if is_logged_in(self.request):
-            return self.success(data={'logged_in': True})
-        return self.success(data={'logged_in': False})
+        user = get_user_from_request(self.request)
+        if not user:
+            return self.success(data={'logged_in': False, 'user': {}})
+        user_data = {
+            'username': user.username,
+        }
+        return self.success(data={'logged_in': True, 'user': user_data})
+        pass
