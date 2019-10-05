@@ -1,13 +1,17 @@
 import sqlalchemy
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import or_
 
 import eyed3
 
 import logging, threading, os, random
 
-from music.models import Song, RefreshState, engine
 from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE, MUSIC_FOLDER
+
+from util.util import engine
+
+from music.models import Playlist
 
 Session = sessionmaker(bind=engine)
 
@@ -246,3 +250,146 @@ def load_track_data(track_path):
     result['track_path'] = track_path
 
     return result
+
+def create_new_playlist(playlist_name, owner_guid, owner_name):
+    with access_db() as db_conn:
+        new_playlist = Playlist(name=playlist_name, owner_guid=owner_guid, owner_name=owner_name)
+        db_conn.add(new_playlist)
+        db_conn.commit()
+
+def owns_playlist(playlistid, owner_guid):
+    if (not playlistid) or (not owner_guid):
+        logger.warn(f"Trying to check ownership with invalid playlistid of owner_guid.")
+        return False
+    with access_db() as db_conn:
+        try:
+            playlist = db_conn.query(Playlist).get(playlistid)
+        except:
+            logger.warn(f"Exception encountered while trying to access playlist id: {playlistid}.")
+            return False
+        else:
+            if not playlist:
+                logger.warn(f"No playlist found with id {playlistid}.")
+                return False
+            if playlist.owner_guid == owner_guid:
+                return True
+
+    logger.warn(f"User with guid {owner_guid} attempted to modify playlist they do not own with id {playlistid}.")
+    return False
+
+def get_playlist_from_id(playlistid):
+    if not playlistid:
+        logger.warn(f"Trying to access playlist without id.")
+        return None
+    with access_db() as db_conn:
+        try:
+            playlist = db_conn.query(Playlist).get(playlistid)
+        except:
+            logger.warn(f"Exception encountered while trying to access playlist with id {playlistid}")
+            return None
+        else:
+            return playlist
+
+    logger.warn(f"Fallthrough occurred while fetching playlist with id {playlistid}")
+    return None
+
+def get_playlist_data_from_id(playlistid):
+    if not playlistid:
+        logger.warn(f"Trying to access playlist without id.")
+        return None
+    with access_db() as db_conn:
+        try:
+            playlist = db_conn.query(Playlist).get(playlistid)
+        except:
+            logger.warn(f"Exception encountered while trying to access playlist with id {playlistid}")
+            return None
+        else:
+            playlist_data = {
+                'tracks': [],
+                'owner_name': playlist.owner_name,
+                'name': playlist.name,
+                'public': playlist.public,
+            }
+            if playlist.songs:
+                for track in playlist.songs:
+                    track_info = {
+                        'title': track.track_name,
+                        'artist': track.artist_name,
+                        'album': track.album_name,
+                        'id': track.id,
+                        'length': track.track_length
+                    }
+                    playlist_data['tracks'].append(track_info)
+            return playlist_data
+
+    logger.warn(f"Fallthrough occurred while fetching playlist with id {playlistid}")
+    return None
+
+def add_song_to_playlist(playlistid, songid):
+    with access_db() as db_conn:
+        try:
+            song = db_conn.query(Song).get(songid)
+            playlist = db_conn.query(Playlist).get(playlistid)
+        except:
+            logger.warn(f"Exception encountered while trying to access db to add song {songid} to playlst {playlistid}")
+            return
+        else:
+            if (not song):
+                logger.warn(f"Song {songid} does not exist.")
+                return
+            if (not song) or (not playlist):
+                logger.warn(f"Playlist {playlistid} does not exist.")
+                return
+            playlist.songs.append(song)
+            db_conn.commit()
+
+def remove_song_from_playlist(playlistid, songid):
+    with access_db() as db_conn:
+        try:
+            song = db_conn.query(Song).get(songid)
+            playlist = db_conn.query(Playlist).get(playlistid)
+        except:
+            logger.warn(f"Exception encountered while trying to access db to remove song {songid} from playlist {playlistid}")
+            return
+        else:
+            if (not song):
+                logger.warn(f"Song {songid} does not exist.")
+                return
+            if (not song) or (not playlist):
+                logger.warn(f"Playlist {playlistid} does not exist.")
+                return
+            playlist.songs.remove(song)
+            db_conn.commit()
+
+def get_public_playlists():
+    result = {'playlists': []}
+    with access_db() as db_conn:
+        public = db_conn.query(Playlist)\
+                       .filter(Playlist.public==True)
+        for playlist in public:
+            data = {
+                'id': playlist.id,
+                'name': playlist.name,
+                'owner_name': playlist.owner_name,
+            }
+            result['playlists'].append(data)
+    return result
+
+def get_playlists_for_user(user_guid):
+    result = {'playlists': []}
+    with access_db() as db_conn:
+        accessible = db_conn.query(Playlist)\
+                       .filter(
+                            or_(Playlist.owner_guid==user_guid,
+                                Playlist.public==True)
+                        )
+        for playlist in accessible:
+            data = {
+                'id': playlist.id,
+                'name': playlist.name,
+                'owner_name': playlist.owner_name,
+            }
+            result['playlists'].append(data)
+    return result
+
+from music.models import Song, RefreshState

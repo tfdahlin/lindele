@@ -3,13 +3,21 @@ import logging, os, io
 from wsgiref.util import FileWrapper
 
 from pycnic.core import Handler
-from pycnic.errors import HTTP_404
+from pycnic.errors import HTTP_404, HTTP_401
 
 from PIL import Image
 
+from music.util import create_new_playlist, get_playlist_data_from_id, owns_playlist
+from music.util import get_public_playlists, get_playlists_for_user
+from music.util import add_song_to_playlist, remove_song_from_playlist
 from music.util import refresh_database, get_all_tracks
 from music.util import fetch_track_info, fetch_track_path, fetch_artwork_path, fetch_random_track_info
+from music.models import Playlist
+from music.models import Song
 
+from users.util import get_user_from_request, is_logged_in
+
+from util.decorators import requires_params, requires_login
 from util.util import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -95,3 +103,64 @@ class BuildDatabase(BaseHandler):
     def get(self):
         refresh_database()
         return self.success()
+
+class Playlists(BaseHandler):
+    def get(self, playlistid=None):
+        if is_logged_in(self.request):
+            user = get_user_from_request(self.request)
+        else:
+            user = None
+
+        if not playlistid:
+            # Get public playlists, and any that belong to user
+            if user:
+                accessible_playlists = get_playlists_for_user(user.guid)
+            else:
+                accessible_playlists = get_public_playlists()
+            return self.success(data=accessible_playlists)
+        else:
+            # Fetch a specific playlist
+            playlist_data = get_playlist_data_from_id(playlistid)
+            if playlist_data['public'] or (user and owns_playlist(playlistid, user.guid)):
+                del(playlist_data['public'])
+                return self.success(data=playlist_data)
+            else:
+                raise HTTP_401('You cannot access this playlist.')
+
+            # Check if the user can access the playlist.
+
+class CreatePlaylist(BaseHandler):
+    @requires_login()
+    @requires_params('playlist_name')
+    def post(self):
+        user = get_user_from_request(self.request)
+        playlist_name = self.request.data['playlist_name']
+        create_new_playlist(playlist_name, user.guid, user.username)
+        logger.info(f"User {user.username} created new playlist: {playlist_name}")
+        return self.success(data={'msg': f'Playlist {playlist_name} successfully created.'})
+
+class AddToPlaylist(BaseHandler):
+    @requires_login()
+    @requires_params('songid')
+    def post(self, playlistid):
+        user = get_user_from_request(self.request)
+        if not owns_playlist(playlistid, user.guid):
+            raise HTTP_401('You don\'t own this playlist!')
+
+        songid = self.request.data['songid']
+        add_song_to_playlist(playlistid, songid)
+        # TODO: Add song to playlist
+        return self.success(data={'msg': f'success'})
+
+class RemoveFromPlaylist(BaseHandler):
+    @requires_login()
+    @requires_params('songid')
+    def post(self, playlistid):
+        user = get_user_from_request(self.request)
+        if not owns_playlist(playlistid, user.guid):
+            raise HTTP_401('You don\'t own this playlist!')
+
+        songid = self.request.data['songid']
+        remove_song_from_playlist(playlistid, songid)
+        # TODO: Remove song from playlist.
+        return self.success(data={'msg': f'success'})

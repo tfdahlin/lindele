@@ -3,6 +3,10 @@ from pathlib import Path
 from subprocess import call
 import settings
 
+from sqlalchemy import create_engine
+from settings import db_uri, debug_sql_output
+engine = create_engine(db_uri, echo=debug_sql_output)
+
 from pycnic.core import Handler
 
 from settings import ALLOWED_ORIGINS
@@ -35,8 +39,9 @@ class BaseHandler(Handler):
         result = {
             'status': status,
             'status_code': status_code,
-            'data': data
+            'data': data,
         }
+        self.response.status_code = status_code
 
         if error:
             result['error'] = error
@@ -65,9 +70,10 @@ class BaseHandler(Handler):
             'status': status,
             'status_code': status_code,
             'data': data,
-            'error': error
+            'error': error,
         }
 
+        self.response.status_code = status_code
         return result
 
 def reboot_machine():
@@ -90,7 +96,7 @@ fi
 
 def mount_as_needed(directory: str) -> bool:
     if is_mounted(directory):
-        return True
+        return False
     return mount_smb()
 
 def is_mounted(directory: str) -> bool:
@@ -99,7 +105,7 @@ def is_mounted(directory: str) -> bool:
     p = Path(MOUNTED_FOLDER)
     return p.is_mount()
 
-def mount_smb():
+def mount_smb() -> bool:
     """Mount the SMB drive specified in the local_settings file.
 
     Returns:
@@ -110,15 +116,6 @@ def mount_smb():
     if is_mounted(MUSIC_FOLDER):
         logger.info("Folder already mounted.")
         return False
-
-    #smbget_cmd_array = [
-    #    "!", "smbget", "-U",
-    #    f"{MOUNTING_USERNAME}{MOUNTING_PASSWORD}",
-    #    f"smb://{MOUNTING_IP}/{MOUNTING_FOLDER}",
-    #    '|', 'grep', '-q',  '\"is a directory\"'
-    #]
-    #success = call(smbget_cmd_array, shell=True) == 0
-    ##smbget_cmd = ' '.join(smbget_cmd_array)
 
     # mount the drive
     mount_cmd_array = [

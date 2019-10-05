@@ -1,17 +1,41 @@
 import sqlalchemy
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-#from users.models import User
+from util.models import GUID, HexByteString
 
-from settings import db_uri
+from settings import db_uri, debug_sql_output
 
-from settings import debug_sql_output
+from settings import engine
 
-engine = create_engine(db_uri, echo=debug_sql_output)
+
 Base = declarative_base()
+
+association_table = Table('association', Base.metadata,
+    Column('playlist_id', Integer, ForeignKey('playlist.id')),
+    Column('song_id', Integer, ForeignKey('song.id'))
+)
+
+class Playlist(Base):
+    __tablename__ = 'playlist'
+
+    id = Column(Integer, primary_key=True)
+
+    name = Column(String)
+
+    public = Column(Boolean, default=False)
+
+    owner_guid = Column(GUID)
+    owner_name = Column(String)
+
+    # relation to playlist
+    songs = relationship(
+        "Song",
+        secondary=association_table,
+        back_populates="playlists"
+    )
 
 class Song(Base):
     __tablename__ = 'song'
@@ -26,17 +50,12 @@ class Song(Base):
 
     track_length = Column(String)
 
-    # Playlists is many-to-many
-
-class Playlist(Base):
-    __tablename__ = 'playlist'
-
-    id = Column(Integer, primary_key=True)
-
-    name = Column(String)
-    # foreign key to user
-    #owner = 
-    public = Column(Boolean, default=False)
+    # relationship to songs
+    playlists = relationship(
+        "Playlist",
+        secondary=association_table,
+        back_populates="songs"
+    )
 
 class RefreshState(Base):
     __tablename__ = 'refreshstate'

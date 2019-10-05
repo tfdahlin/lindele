@@ -1,7 +1,8 @@
 from pycnic.core import WSGI, Handler
 
-#from users.routes import UsersRoutes, Login, Logout, Register
-from music.routes import Songs, BuildDatabase, Audio, Artwork, RandomSong
+from music.routes import Songs, BuildDatabase, Audio, Artwork, RandomSong, Playlists
+from music.routes import CreatePlaylist, AddToPlaylist, RemoveFromPlaylist
+from users.routes import UsersRoutes, Register, Login, Logout
 from util.util import BaseHandler
 
 class AcommpliceMusic(BaseHandler):
@@ -27,11 +28,23 @@ class app(WSGI):
         # 'Ping' page -- data return with a 'msg' that says 'Pong!'
         ('/ping', Ping()),
 
+        ('/users/([\w\d\-_]*)', UsersRoutes()),
+        ('/register', Register()),
+        ('/login', Login()),
+        ('/logout', Logout()),
+
         ('/songs', Songs()),
         ('/songs/(\d+)', Songs()),
         ('/songs/(\d+)/audio', Audio()),
         ('/songs/(\d+)/artwork', Artwork()),
         ('/songs/random', RandomSong()),
+
+        ('/playlists', Playlists()),
+        ('/playlists/(\d+)', Playlists()),
+        ('/playlists/create', CreatePlaylist()),
+        ('/playlists/(\d+)/add', AddToPlaylist()),
+        ('/playlists/(\d+)/remove', RemoveFromPlaylist()),
+
         ('/refresh', BuildDatabase()),
         #('/login', Login()),
         #('/logout', Logout()),

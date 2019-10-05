@@ -1,3 +1,5 @@
+from sqlalchemy import create_engine
+
 try:
     import local_settings
 except Exception as e:
@@ -77,3 +79,9 @@ db_uri = f'{db_dialect}:///{local_db_path}'
 test_db_uri = f'{db_dialect}:///{local_test_db_path}'
 
 API_VERSION = '1.0'
+
+
+engine = create_engine(db_uri, echo=debug_sql_output)
+
+hash_iterations=100000
+hash_algo='sha256'
