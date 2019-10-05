@@ -616,6 +616,7 @@ def set_user_volume(request):
     volume = request.data['volume']
     if not volume:
         return
+    volume = int(volume)
     user = None
     try:
         session_cookie = request.cookies['session']
