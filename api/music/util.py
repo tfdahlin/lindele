@@ -358,8 +358,12 @@ def remove_song_from_playlist(playlistid, songid):
             if (not song) or (not playlist):
                 logger.warn(f"Playlist {playlistid} does not exist.")
                 return
-            playlist.songs.remove(song)
-            db_conn.commit()
+            try:
+                playlist.songs.remove(song)
+            except ValueError:
+                pass
+            else:
+                db_conn.commit()
 
 def get_public_playlists():
     result = {'playlists': []}
