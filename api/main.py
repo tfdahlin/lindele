@@ -32,6 +32,7 @@ class app(WSGI):
         ('/register', Register()),
         ('/login', Login()),
         ('/logout', Logout()),
+        ('/login_status', CheckLoginStatus()),
 
         ('/songs', Songs()),
         ('/songs/(\d+)', Songs()),

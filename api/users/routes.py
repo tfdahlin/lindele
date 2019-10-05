@@ -143,3 +143,9 @@ class Register(BaseHandler):
         create_full_user(email, username, password)
 
         return self.success(status='Registration completed.')
+
+class CheckLoginStatus(BaseHandler):
+    def get(self):
+        if is_logged_in(self.request):
+            return success(data={'logged_in': True})
+        return success(data={'logged_in': False})
