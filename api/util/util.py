@@ -17,6 +17,7 @@ class BaseHandler(Handler):
         self.response.set_header('Vary', 'Origin')
         if origin in ALLOWED_ORIGINS:
             self.response.set_header('Access-Control-Allow-Origin', origin)
+            self.response.set_header('Access-Control-Allow-Credentials', True)
 
     def success(self, data={}, status=None, status_code=None, error=None):
         """Create default 200 response, following the format pycnic uses.
