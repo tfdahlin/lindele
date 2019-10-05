@@ -149,6 +149,8 @@ def is_logged_in(request):
         # Check to make sure it hasn't been invalidated.
         issued_at = datetime.datetime.fromtimestamp(token_details['iat'])
         user = fetch_user_by_uuid(uuid.UUID(token_details['uuid']))
+        if not user:
+            return logged_in
 
         if not user.last_invalidated:
             # If no token has ever been invalidated, return true.
