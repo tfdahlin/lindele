@@ -614,6 +614,7 @@ def get_user_from_request(request):
 
 def set_user_volume(request):
     volume = request.data['volume']
+    logger.info(request.data)
     if not volume:
         logger.info(f'No volume sent in request.')
         return

@@ -154,7 +154,6 @@ class CurrentUser(BaseHandler):
             'volume': user.volume,
         }
         return self.success(data={'logged_in': True, 'user': user_data})
-        pass
 
 class SetUserVolume(BaseHandler):
     @requires_login()
