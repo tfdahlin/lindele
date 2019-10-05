@@ -4,3 +4,5 @@ eyed3==0.8.10
 pycnic==0.1.3
 sqlalchemy==1.3.8
 mutagen==1.42.0
+sqlalchemy-utils==0.34.2
+ipaddress==1.0.22
