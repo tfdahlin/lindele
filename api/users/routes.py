@@ -60,17 +60,17 @@ class Login(BaseHandler):
         if not user:
             logger.warn(f'Tried to log in with email {email}, but this email is not registered.')
             log_login_attempt(email, False, ip)
-            return self.failure(error='Login failed.')
+            return self.failure(error='Login failed.', status_code=401)
 
         if not user.password_hash:
             logger.warn(f'Tried to log in with email {email}, but this account has not completed registration.')
             log_login_attempt(email, False, ip)
-            return self.failure(error='Login failed.')
+            return self.failure(error='Login failed.', status_code=401)
 
         if not check_password(input_password, user.password_hash):
             log_login_attempt(email, False, ip)
             logger.warn(f'Tried to log in with email {email}, but input password did not match stored password.')
-            return self.failure(error='Login failed.')
+            return self.failure(error='Login failed.', status_code=401)
 
         logger.info(f'User {user.username} logged in.')
         log_login_attempt(email, True, ip)
