@@ -1,6 +1,7 @@
 import shlex, os, time
 from pathlib import Path
 from subprocess import call
+import subprocess
 
 from wakeonlan import send_magic_packet
 
@@ -135,8 +136,8 @@ def mount_smb() -> bool:
         f'vers=3.0,username={MOUNTING_USERNAME},password={MOUNTING_PASSWORD},ip={MOUNTING_IP}',
         MOUNTED_SHARE_NAME, MOUNTED_FOLDER
     ]
-    success = call(mount_cmd_array, shell=True) == 0
-    return success
+    os.system(' '.join(mount_cmd_array))
+    return True
 
 def wake_media_server():
     send_magic_packet(local_settings.MAGIC_PACKET_MAC_ADDRESS)
