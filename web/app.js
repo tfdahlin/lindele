@@ -244,6 +244,7 @@ if(settings['https']) {
     https.createServer({
         key: fs.readFileSync(settings['ssl_key_path']),
         cert: fs.readFileSync(settings['ssl_cert_path']),
+        ca: fs.readFileSync(settings['ssl_ca_path'])
     }, app)
     .listen(webPort, (err) => {
         if(err) {
