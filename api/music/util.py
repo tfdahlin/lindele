@@ -199,7 +199,6 @@ def refresh_database_thread():
 
 def load_track_data(track_path):
     eyed3.log.setLevel('ERROR')
-    result = {}
 
     # Attempt to load the audiofile
     audiofile = None
@@ -227,11 +226,13 @@ def load_track_data(track_path):
         result['artist'] = audiofile.tag.artist
     except:
         logger.info(f'Track has no artist: {track_path}')
+        result['artist'] = ''
 
     try:
         result['album'] = audiofile.tag.album
     except:
         logger.info(f'Track has no album: {track_path}')
+        result['album'] = ''
 
     try:
         time_secs = audiofile.info.time_secs

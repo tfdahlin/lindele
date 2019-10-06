@@ -43,8 +43,8 @@ class Song(Base):
     id = Column(Integer, primary_key=True)
 
     track_name = Column(String)
-    artist_name = Column(String)
-    album_name = Column(String)
+    artist_name = Column(String, default='')
+    album_name = Column(String, default='')
 
     track_path = Column(String)
 
