@@ -38,7 +38,7 @@ function set_header() {
             .then(() => {
                 $('#header').html(`
                     <div class="register-link">
-                        <a href="/login/register">Register an account.</a>
+                        <a href="/register">Register an account.</a>
                     </div>
                     <div class="login-form">
                         <form method="post" id="login">

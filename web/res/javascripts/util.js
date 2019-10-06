@@ -133,8 +133,8 @@ function fetch_track_by_id(id) {
     return new Promise((resolve, reject) => {
         $.get('https://api.music.acommplice.com/songs/' + id)
         .done(function(data) {
-            if (data['status_code'] === 200) {
-                resolve(data['data']['tracks']);
+            if (data['status_code'] == 200) {
+                resolve(data['data']);
             } else {
                 reject();
             }
