@@ -103,20 +103,21 @@ else
 fi
 """
 
-def mount_as_needed() -> bool:
+def mount_as_needed():
     wake_media_server()
     if is_mounted():
-        return False
+        return
 
     logger.warn('Remounting media server.')
-    return mount_smb()
+    mount_smb()
 
 def is_mounted() -> bool:
     wake_media_server()
     p = Path(MOUNTED_FOLDER)
+    print(p.is_mount())
     return p.is_mount()
 
-def mount_smb() -> bool:
+def mount_smb():
     """Mount the SMB drive specified in the local_settings file.
 
     Returns:
@@ -129,7 +130,6 @@ def mount_smb() -> bool:
     wake_media_server()
 
     os.system(settings.MOUNT_SHARE_SCRIPT)
-    return True
 
 def wake_media_server():
     send_magic_packet(local_settings.MAGIC_PACKET_MAC_ADDRESS)

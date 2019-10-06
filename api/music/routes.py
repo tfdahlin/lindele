@@ -18,13 +18,14 @@ from music.models import Song
 from users.util import get_user_from_request, is_logged_in
 
 from util.decorators import requires_params, requires_login
-from util.util import BaseHandler
+from util.util import BaseHandler, mount_as_needed
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class Songs(BaseHandler):
     def get(self, songid=None):
+        mount_as_needed()
         if songid:
             try:
                 data = fetch_track_info(int(songid))
