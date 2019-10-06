@@ -38,7 +38,7 @@ except:
     logger.info("MUSIC_FOLDER not specified in api/local_settings.py")
     try:
         # Where your music folder is mounted e.g. '/mnt/music'
-        MUSIC_FOLDER = local_settings.MOUNTED_FOLDER
+        MOUNTED_FOLDER = local_settings.MOUNTED_FOLDER
     except:
         logger.critical("ERROR: Neither MUSIC_FOLDER nor MOUNTED_FOLDER are set in api/local_settings.py")
         exit(1)
