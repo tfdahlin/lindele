@@ -4,6 +4,7 @@ from music.routes import Songs, BuildDatabase, Audio, Artwork, RandomSong, Playl
 from music.routes import CreatePlaylist, AddToPlaylist, RemoveFromPlaylist, OwnedPlaylists
 from users.routes import UsersRoutes, Register, Login, Logout, CurrentUser, SetUserVolume
 from util.util import BaseHandler
+from util.routes import Remount, Restart
 
 class AcommpliceMusic(BaseHandler):
     def get(self):
@@ -49,6 +50,8 @@ class app(WSGI):
         ('/playlists/(\d+)/remove', RemoveFromPlaylist()),
 
         ('/refresh', BuildDatabase()),
+        ('/remount', Remount()),
+        ('/restart', Restart()),
         #('/login', Login()),
         #('/logout', Logout()),
         #('/register', Register()),

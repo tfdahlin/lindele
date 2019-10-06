@@ -1,4 +1,4 @@
-import shlex, os
+import shlex, os, time
 from pathlib import Path
 from subprocess import call
 import settings
@@ -76,6 +76,10 @@ class BaseHandler(Handler):
 
         self.response.status_code = status_code
         return result
+
+def reboot_machine_with_delay():
+    time.sleep(30)
+    reboot_machine()
 
 def reboot_machine():
     cmd = 'sudo systemctl reboot'
