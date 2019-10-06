@@ -1,7 +1,11 @@
 import shlex, os, time
 from pathlib import Path
 from subprocess import call
+
+from wakeonlan import send_magic_packet
+
 import settings
+import local_settings
 
 from sqlalchemy import create_engine
 from settings import db_uri, debug_sql_output
@@ -100,13 +104,14 @@ fi
 """
 
 def mount_as_needed(directory: str) -> bool:
+    wake_media_server()
     if is_mounted(directory):
         return False
     return mount_smb()
 
 def is_mounted(directory: str) -> bool:
     from settings import MOUNTED_FOLDER
-
+    wake_media_server()
     p = Path(MOUNTED_FOLDER)
     return p.is_mount()
 
@@ -117,10 +122,12 @@ def mount_smb() -> bool:
         success (bool): True if mounted successfully, false otherwise.
     """
     from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTING_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER
-
+    wake_media_server()
     if is_mounted(MUSIC_FOLDER):
         logger.info("Folder already mounted.")
         return False
+
+
 
     # mount the drive
     mount_cmd_array = [
@@ -132,3 +139,5 @@ def mount_smb() -> bool:
     success = call(mount_cmd_array, shell=True) == 0
     return success
 
+def wake_media_server():
+    send_magic_packet(local_settings.MAGIC_PACKET_MAC_ADDRESS)
