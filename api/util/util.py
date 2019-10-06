@@ -114,7 +114,6 @@ def mount_as_needed():
 def is_mounted() -> bool:
     wake_media_server()
     p = Path(MOUNTED_FOLDER)
-    print(p.is_mount())
     return p.is_mount()
 
 def mount_smb():
