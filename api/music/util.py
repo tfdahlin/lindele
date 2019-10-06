@@ -11,7 +11,7 @@ from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE, MUSIC_FOLDER
 
 from util.util import engine
 
-from music.models import Playlist
+from music.models import Playlist, Song, RefreshState
 
 Session = sessionmaker(bind=engine)
 
@@ -414,4 +414,3 @@ def get_playlists_owned_by_user(user_guid):
             result['playlists'].append(data)
     return result
 
-from music.models import Song, RefreshState
