@@ -24,7 +24,6 @@ class Restart(BaseHandler):
 class Remount(BaseHandler):
     @requires_login()
     def get(self):
-        logger.warn('Remounting media server.')
         wake_media_server()
         mount_as_needed()
         return self.success()
