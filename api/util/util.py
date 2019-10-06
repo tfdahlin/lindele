@@ -128,7 +128,7 @@ def mount_smb():
     #from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTED_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER, MOUNTED_FOLDER
     wake_media_server()
 
-    os.system(settings.MOUNT_SHARE_SCRIPT)
+    os.system(f'sudo {settings.MOUNT_SHARE_SCRIPT}')
 
 def wake_media_server():
     send_magic_packet(local_settings.MAGIC_PACKET_MAC_ADDRESS)
