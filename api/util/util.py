@@ -107,6 +107,8 @@ def mount_as_needed() -> bool:
     wake_media_server()
     if is_mounted():
         return False
+
+    logger.warn('Remounting media server.')
     return mount_smb()
 
 def is_mounted() -> bool:
@@ -125,9 +127,6 @@ def mount_smb() -> bool:
     """
     #from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTED_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER, MOUNTED_FOLDER
     wake_media_server()
-    if is_mounted():
-        logger.info("Folder already mounted.")
-        return False
 
     os.system(settings.MOUNT_SHARE_SCRIPT)
     return True
