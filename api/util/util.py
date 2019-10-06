@@ -110,7 +110,6 @@ def mount_as_needed() -> bool:
 
 def is_mounted() -> bool:
     wake_media_server()
-    print(f'MOUNTED_FOLDER: {MOUNTED_FOLDER}')
     p = Path(MOUNTED_FOLDER)
     return p.is_mount()
 
@@ -129,12 +128,9 @@ def mount_smb() -> bool:
         logger.info("Folder already mounted.")
         return False
 
-
-    print(f'MOUNTED_SHARE_NAME {MOUNTED_SHARE_NAME}')
-    print(f'MOUNTED_FOLDER {MOUNTED_FOLDER}')
     # mount the drive
     mount_cmd_array = [
-        'sudo', 'mount', '-t',
+        'sudo', '/bin/mount', '-t',
         'cifs', '-v', '-o',
         f'vers=3.0,username={MOUNTING_USERNAME},password={MOUNTING_PASSWORD},ip={MOUNTING_IP}',
         MOUNTED_SHARE_NAME, MOUNTED_FOLDER
