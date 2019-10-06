@@ -199,6 +199,7 @@ def refresh_database_thread():
 
 def load_track_data(track_path):
     eyed3.log.setLevel('ERROR')
+    result = {}
 
     # Attempt to load the audiofile
     audiofile = None
