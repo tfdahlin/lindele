@@ -40,6 +40,7 @@ except:
     try:
         # Where your music folder is mounted e.g. '/mnt/music'
         MOUNTED_FOLDER = local_settings.MOUNTED_FOLDER
+        MOUNTED_SHARE_NAME = local_settings.MOUNTED_SHARE_NAME
     except:
         logger.critical("ERROR: Neither MUSIC_FOLDER nor MOUNTED_FOLDER are set in api/local_settings.py")
         exit(1)
