@@ -36,7 +36,7 @@
         <meta property="og:image:alt" content="No album artwork available."/>
         {{/songid}}
 	</head>
-	<body>
+	<body id="body">
         <div class="sidebar-container">
             <div class="sidebar">
                 <div class="playlist-info-container">
@@ -84,10 +84,6 @@
                 <div class="volume-container">
                     <img id="volume_icon" class="volume-icon" src="media/high_volume.png">
                     <input id="volume_slider" class="volume-slider" type="range" min="1" max="100" value="100">
-                    <!-- Need to get current user's volume level and set it accordingly. -->
-                    <!--
-                    <input id="volume_slider" class="volume-slider" type="range" min="1" max="100" value="{% if volume %}{{ volume }}{% else %}100{% endif %}">
-                    -->
                 </div>
                 <div class="misc-controls-container">
                     <center>
@@ -96,28 +92,7 @@
                         <img id="downloadbutton" class="download-button" src="media/download_icon.png">
                     </center>
                 </div>
-                <div class="playlist-controls">
-                    <!--
-                    {% if all_playlists != None %}
-                        <div class="select-playlist">
-                            <select id="playlistoptions" class="playlist-dropdown">
-                                <option value="0">All songs</option>
-                                {% for playlist in all_playlists %}
-                                    <option value="{{playlist.id}}">
-                                        {{playlist.owner.username}}: {{playlist.name}} ({% if playlist.song_set.count %}{{playlist.song_set.count}}{% else %}0{% endif %}
-                                            track{% if playlist.song_set.count != 1 %}s{% endif %})</option>
-                                {% endfor %}
-                            </select>
-                            <button class="go-to-playlist" id="go_to_playlist_button" type="button">Go to playlist</button>
-                        </div>
-                    {% endif %}
-                    {% if user.is_authenticated %}
-                        <div class="create-playlist">
-                            <button id="new_playlist_button" class="create-playlist-button" type="button">New Playlist</button>
-                        </div>
-                    {% endif %}
-                    -->
-                    
+                <div id="playlist-controls" class="playlist-controls">
                     <b id="song_id" style="visibility: hidden;"></b>
                 </div>
                 <div class="search-bar-container">
@@ -125,32 +100,10 @@
                 </div>
             </div>
         </div>
-        <div class="main-content">
-            <!--
-            {% if user.is_authenticated %}
-            <div class="header-logged-in">
-                <div class="greeting text">
-                    Hello, {% if user.name %}{{user.name}}{% else %}{{ user.get_username }}{% endif %}.
-                </div>
-                <div class="login-controls">
-                    <a href="/profile">Profile.</a>&nbsp;<a href="/logout">Logout.</a>
-                </div>
+        <div id="main-content" class="main-content">
+            <div id="header">
+
             </div>
-            {% else %}
-            <div class="header-logged-out">
-                <div class="register-link">
-                    <a href="/login/register">Register an account.</a>
-                </div>
-                <div class="login-form">
-                    <form method="post" id="login"> {% csrf_token %}
-                        <input type="text" placeholder="Username" name="username" autocomplete="username" required>
-                        <input type="password" placeholder="Password" name="password" autocomplete="current-password" required>
-                        <button type="submit" value="Submit">Login</button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
-            -->
             <div id="playlist-content" class="content">
                 <div id="loader-container" class="loader-container">
                     <div id="loader" class="loader"></div>
@@ -158,52 +111,13 @@
                 </div>
             </div>
         </div>
-        <!--
-        {% if user.is_authenticated %}
-        <div class="hide text" id="rmenu">
-            <table id="playlist-table">
-                {% if is_owner %}
-                    <tr style="background-color: " id="removetrack">
-                        <td id="{{playlist.id}}" class="removetrack">
-                            Remove song from {{ playlist.name }}
-                        </td>
-                    </tr>
-                {% endif %}
-                <tr class="text" style="background-color: #181818;" id="rmenu-header-row">
-                    <th>
-                        Add song to a playlist
-                    </th>
-                </tr>
-                {% for playlist in my_playlists %}
-                    <tr class="{% if forloop.counter|divisibleby:2 %}evenrow{% else %}oddrow{% endif%} playlist text">
-                        <td id="{{playlist.id}}" class="playlist">
-                            {{ playlist.name }}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% endif %}
-        -->
         
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
         <script src="/javascripts/util.js"></script>
         <script src="/javascripts/audio_player.js"></script>
+        <script src="/javascripts/login_controls.js"></script>
+        <script src="/javascripts/playlist_controls.js"></script>
         <script src="/javascripts/on_load.js"></script>
-        
-        <!-- PLAYLIST CONTROLS
-        {% if my_playlists %}
-        <script nonce={{ nonce }} src="{% static "main/playlist_controls.js" %}"> </script>
-
-        {% endif %}
-        -->
-
-        <!-- JAVASCRIPT FILES
-        <script nonce={{ nonce }} src="{% static "main/audio_player.js" %}"></script>
-        {% if user.is_authenticated %}
-        <script nonce={{ nonce }} src="{% static "main/volume_slider_save.js" %}"></script>
-        {% endif %}
-        -->
     </body>
 </html>

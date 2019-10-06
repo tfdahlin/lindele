@@ -17,6 +17,8 @@ const settings = require('./settings');
 const webPort = 80;
 
 const index_html = path.join(__dirname, 'index.html');
+const register_html = path.join(__dirname, 'register.html');
+const ajax = `<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>`;
 
 app.use('/css', express.static(path.join(__dirname, 'res', 'css')));
 
@@ -38,9 +40,37 @@ function fetch_main_html() {
     });
 }
 
+function fetch_register_html() {
+    return new Promise((resolve, reject) => {
+        fs.readFile(register_html, 'utf-8', function(err, contents) {
+            if (err) {
+                reject('Could not read file: ' + register_html);
+            } else {
+                resolve(contents);
+            }
+        });
+    });
+}
+
 function render_html(context) {
     return new Promise((resolve, reject) => {
         fetch_main_html()
+        .then(html => {
+            try {
+                resolve(mustache.render(html, context));
+            } catch {
+                reject('Failed to render template.');
+            }
+        })
+        .catch(err => {
+            reject(err);
+        });
+    });
+}
+
+function render_register_html(context) {
+    return new Promise((resolve, reject) => {
+        fetch_register_html()
         .then(html => {
             try {
                 resolve(mustache.render(html, context));
@@ -69,6 +99,92 @@ function has_song_id(req) {
     }
     return true;
 }
+
+app.use('/register', function (req, res) {
+    var full_data = {}
+    render_register_html(full_data)
+        .then(html => {
+            res.status(200).send(html);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send('Server error.');
+        });
+});
+
+app.use('/refresh', function (req, res) {
+    res.status(200).send(`
+        <html><body>
+        ${ajax}
+        <script>
+        $.ajax({
+            type: 'GET',
+            xhrFields: {
+                withCredentials: true,
+            },
+            url: 'https://api.music.acommplice.com/refresh'
+        })
+        .done((data) => {
+            window.location.href = '/';
+        })
+        .fail((err) => {
+            console.log(err);
+            window.location.href = '/';
+        })
+        </script>
+        </html></body>
+    `)
+});
+
+app.use('/restart', function (req, res) {
+    res.status(200).send(`
+        <html><body>
+        ${ajax}
+        <script>
+        $.ajax({
+            type: 'GET',
+            xhrFields: {
+                withCredentials: true,
+            },
+            url: 'https://api.music.acommplice.com/restart'
+        })
+        .done((data) => {
+            window.location.href = '/';
+        })
+        .fail((err) => {
+            console.log(err);
+            window.location.href = '/';
+        })
+        </script>
+        </html></body>
+
+    `)
+});
+
+app.use('/remount', function (req, res) {
+    res.status(200).send(`
+        <html><body>
+        ${ajax}
+        <script>
+        $.ajax({
+            type: 'GET',
+            xhrFields: {
+                withCredentials: true,
+            },
+            url: 'https://api.music.acommplice.com/remount'
+        })
+        .done((data) => {
+            /*window.location.href = '/';*/
+        })
+        .fail((err) => {
+            console.log(err);
+            /*window.location.href = '/';*/
+        })
+        </script>
+        </html></body>
+
+    `)
+});
 
 app.use('/', function (req, res) {
     if (has_song_id(req)) {

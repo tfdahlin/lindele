@@ -1,9 +1,53 @@
 let all_tracks;
 let tracks_loaded = false;
+let curr_user_status;
+
+$.ajaxSetup({
+    crossDomain: true,
+    xhrFields: {
+        withCredentials: true,
+    },
+});
+
+String.prototype.escape = function () {
+    var tagsToReplace = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '/': '&#x2F;',
+    };
+    return this.replace(/[&<>"'\/]/g, function(tag) {
+        return tagsToReplace[tag] || tag;
+    });
+}
+
+function check_login_status() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            type: 'GET',
+            url: 'https://api.music.acommplice.com/current_user',
+            xhrFields: {
+                withCredentials: true,
+            },
+        })
+        .done(function(data) {
+            if (data['status_code'] === 200) {
+                resolve(data['data']);
+            } else {
+                reject('Failed to check login status.');
+            }
+        })
+        .fail((err) => {
+            reject(err);
+        });
+    });
+}
 
 function load_all_tracks() {
     return new Promise((resolve, reject) => {
-        // "You're listening to <playlist name by owner / all songs>. (X tracks)"
+        // "You're listening to <playlist name by owner / Acommplice music>. (X tracks)"
         set_playlist_info_text();
 
         // Cache all the tracks that we've loaded into all_tracks.
@@ -41,7 +85,7 @@ function _fetch_all_tracks() {
 
 function fetch_tracks_from_playlist(playlistid) {
     return new Promise((resolve, reject) => {
-        $.get('https://api.music.acommplice.com/playlist/' + param[1])
+        $.get('https://api.music.acommplice.com/playlists/' + playlistid)
         .done((data) => {
             if (data['status_code'] === 200) {
                 resolve(data['data']['tracks']);
@@ -58,7 +102,7 @@ function fetch_tracks_from_playlist(playlistid) {
 function fetch_tracks() {
     return new Promise((resolve, reject) => {
         // First check if we're loading a playlist or all songs.
-        let param = new RegExp('[\?&]' + "playlist_id" + '=([^&#]*)').exec(window.location.href);
+        let param = $.urlParam('playlistid');
         if(param == null) { // If it's not a playlist
             _fetch_all_tracks()
             .then((tracks) => {
@@ -68,7 +112,7 @@ function fetch_tracks() {
                 reject();
             });
         } else {
-            fetch_tracks_from_playlist(param[1])
+            fetch_tracks_from_playlist(param)
             .then((tracks) => {
                 resolve(tracks);
             })
@@ -137,7 +181,19 @@ function set_playlist_info_text() {
     }
 
     if (playlist_id) {
-        console.log("Playlist id found.");
+        $.ajax({
+            type: 'GET',
+            url: 'https://api.music.acommplice.com/playlists/' + playlist_id,
+            xhrFields: {
+                withCredentials: true,
+            },
+        })
+        .done((data) => {
+            playlist_info_div.html(`You're listening to ${data['data']['name'].escape()} by ${data['data']['owner_name'].escape()}`);
+        })
+        .fail((err) => {
+            console.log(err);
+        })
     }
     else {
         playlist_info_div.html("You're listening to all songs.");
@@ -160,9 +216,21 @@ function populate_playlist(tracks) {
     for (const track of tracks) {
         var track_id = track['id'];
         var track_title = track['title'];
+        if (!track_title) {
+            continue;
+        }
         var track_artist = track['artist'];
+        if (!track_artist) {
+            track_artist = '';
+        }
         var track_album = track['album'];
+        if (!track_album) {
+            track_album = '';
+        }
         var track_length = track['length'];
+        if (!track_length) {
+            continue;
+        }
         var row_type;
         if (track['id'] % 2 === 0) {
             row_type = 'evenrow';

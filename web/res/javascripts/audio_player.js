@@ -305,6 +305,22 @@ $("#downloadbutton").click(function() {
     downloadFile(src, name);
 });
 
+$("#volume_slider").on('mouseup', function() {
+    $.ajax({
+        type: 'POST',
+        url: 'https://api.music.acommplice.com/set_volume',
+        data: JSON.stringify({'volume': Math.trunc(this.value)}),
+        xhrFields: {
+            withCredentials: true,
+        },
+    })
+    .done((data) => {
+    })
+    .fail((err) => {
+        console.log(err);
+    });
+});
+
 function get_track_from_id(id) {
     for (var i = 0; i < all_tracks.length; i++) {
         if (all_tracks[i]['id'] == id) {
@@ -338,3 +354,17 @@ function set_song_select_function() {
         load_track(track);
     });
 }
+
+function set_initial_volume() {
+    check_login_status()
+    .then((data) => {
+        if (data['user']['volume']) {
+            audio_player.volume = data['user']['volume']/100;
+            $("#volume_slider").val(data['user']['volume']);
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+}
+set_initial_volume();

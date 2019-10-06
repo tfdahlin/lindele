@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title>Register</title>
+        <style>
+            body {
+                background-color: #111111;
+            }
+        </style>
+    </head>
+    <body>
+        <center>
+        <div style="color: #ffffff;">Please register an account.</div>
+        <div>
+            <form action="register" id="register" method="post">
+                <input type="text" placeholder="Email" name="email" autocomplete="email" id="id_email" required><br>
+                <input type="text" placeholder="Username" name="username" autocomplete="username" id="id_username" required><br>
+                <input type="password" placeholder="Password" name="password" autocomplete="new-password" id="id_password" required><br>
+                <input type="password" placeholder="Confirm password" name="password_confirm" autocomplete="new-password" id="id_password_confirm" required><br>
+                <input type="submit" value="Register">
+            </form>
+        </div>
+        </center>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="/javascripts/registration_control.js"></script>
+    </body>
+
+</html>
