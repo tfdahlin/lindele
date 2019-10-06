@@ -121,7 +121,7 @@ def mount_smb() -> bool:
     Returns:
         success (bool): True if mounted successfully, false otherwise.
     """
-    from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTING_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER
+    from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTED_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER, MOUNTED_FOLDER
     wake_media_server()
     if is_mounted():
         logger.info("Folder already mounted.")
@@ -134,7 +134,7 @@ def mount_smb() -> bool:
         'sudo', 'mount', '-t',
         'cifs', '-v', '-o',
         f'vers=3.0,username={MOUNTING_USERNAME},password={MOUNTING_PASSWORD},ip={MOUNTING_IP}',
-        MOUNTING_SHARE_NAME, MOUNTED_FOLDER
+        MOUNTED_SHARE_NAME, MOUNTED_FOLDER
     ]
     success = call(mount_cmd_array, shell=True) == 0
     return success
