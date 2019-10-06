@@ -428,15 +428,18 @@ table.hoverTable {
     width: 100%;
 }
 
-
-
-
-
-
-
-
 .playlistinfo {
     margin: 0 auto;
     text-align: center;
     margin-top: 5px;
+}
+
+table td.playlist:hover {
+    background-color: #cd853f;
+}
+table tr.oddrow {
+    background-color: #404040;
+}
+table tr.evenrow {
+    background-color: #383838;
 }

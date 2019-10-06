@@ -88,7 +88,7 @@ function add_hidden_playlist_controls() {
                 playlists.forEach((playlist) => {
                     if (playlist['id'] == $.urlParam('playlistid')) {
                         $('#playlist-table').append(`
-                            <tr style="background-color: " id="removetrack">
+                            <tr style="background-color: #cc2233" id="removetrack">
                                 <td id="${playlist['id']}" class="removetrack">
                                     Remove song from ${playlist['name'].escape()}
                                 </td>
