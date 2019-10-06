@@ -13,7 +13,7 @@ engine = create_engine(db_uri, echo=debug_sql_output)
 
 from pycnic.core import Handler
 
-from settings import ALLOWED_ORIGINS
+from settings import *
 
 class BaseHandler(Handler):
     def before(self):
@@ -96,7 +96,6 @@ if grep -qs '/mnt/MountedFolder' /proc/mounts; then
     echo "Already mounted."
 else
     if ! smbget -U user%password smb://ip.ad.dr.ess/folder | grep -q "is a directory"; then
-        sudo mount -t cifs -v -o vers=3.0,username=my_username,password=my_password,ip=my_ip //MY_COMPUTER_NAME/folder /mnt/MountedFolder
     else
         echo "File not found."
     fi
@@ -110,8 +109,8 @@ def mount_as_needed() -> bool:
     return mount_smb()
 
 def is_mounted() -> bool:
-    from settings import MOUNTED_FOLDER
     wake_media_server()
+    print(f'MOUNTED_FOLDER: {MOUNTED_FOLDER}')
     p = Path(MOUNTED_FOLDER)
     return p.is_mount()
 
@@ -120,15 +119,19 @@ def mount_smb() -> bool:
 
     Returns:
         success (bool): True if mounted successfully, false otherwise.
+
+    sudo mount -t cifs -v -o vers=3.0,username=my_username,password=my_password,ip=my_ip //MY_COMPUTER_NAME/folder /mnt/MountedFolder
+
     """
-    from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTED_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER, MOUNTED_FOLDER
+    #from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTED_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER, MOUNTED_FOLDER
     wake_media_server()
     if is_mounted():
         logger.info("Folder already mounted.")
         return False
 
 
-
+    print(f'MOUNTED_SHARE_NAME {MOUNTED_SHARE_NAME}')
+    print(f'MOUNTED_FOLDER {MOUNTED_FOLDER}')
     # mount the drive
     mount_cmd_array = [
         'sudo', 'mount', '-t',
