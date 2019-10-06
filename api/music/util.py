@@ -107,7 +107,9 @@ def get_all_tracks():
     with access_db() as db_conn:
         result = []
         all_tracks = db_conn.query(Song).all()
-        all_tracks.sort(key=lambda x: (x.artist_name.lower(), x.album_name.lower(), x.track_name.lower()))
+        all_tracks.sort(key=lambda x: (x and x.artist_name.lower() or '', 
+                                       x and x.album_name.lower() or '', 
+                                       x and x.track_name.lower() or ''))
         for track in all_tracks:
             track_info = {
                 'title': track.track_name,
@@ -145,9 +147,6 @@ def refresh_database():
         try:
             state = db_conn.query(RefreshState).one()
             # We only ever want one thread to refresh
-            #if state.is_refreshing:
-                #logger.info('Currently refreshing, not launching thread.')
-                #return
         except NoResultFound as e:
             # Create our only entry, and set its state.
             state = RefreshState(is_refreshing=True)
@@ -165,9 +164,6 @@ def refresh_database():
         else:
             # Run this in a thread
             state.is_refreshing = True
-            #refresh_database_thread()
-            #state.is_refreshing = False
-            #state.commit()
             db_conn.commit()
             t = threading.Thread(target=refresh_database_thread)
             t.start()
@@ -315,7 +311,10 @@ def get_playlist_data_from_id(playlistid):
                 'public': playlist.public,
             }
             if playlist.songs:
-                sorted_songs = sorted(playlist.songs, key=lambda x: (x.artist_name.lower(), x.album_name.lower(), x.track_name.lower()))
+                # Magic to convert None to empty string
+                sorted_songs = sorted(playlist.songs, key=lambda x: (x and x.artist_name.lower() or '', 
+                                                                     x and x.album_name.lower() or '', 
+                                                                     x and x.track_name.lower() or ''))
                 for track in sorted_songs:
                     track_info = {
                         'title': track.track_name,
