@@ -30,6 +30,7 @@ MOUNTING_IP = None # Ip address of device to connect to
 MOUNTED_SHARE_NAME = None # SMB share name (e.g. //PERSONAL_COMPUTER/music)
 MOUNTED_FOLDER = None # Name of folder on native system to mount to (e.g. /mnt/Music)
 MOUNTING_FOLDER = None # Name of folder on foreign system to mount (e.g. )
+MUSIC_FOLDER = None
 
 try:
     # Where you store your music e.g. '/home/music/tracks', unless mounting a filesystem

@@ -123,7 +123,7 @@ def mount_smb() -> bool:
     """
     from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTING_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER
     wake_media_server()
-    if is_mounted(MUSIC_FOLDER):
+    if is_mounted():
         logger.info("Folder already mounted.")
         return False
 
