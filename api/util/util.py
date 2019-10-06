@@ -129,14 +129,7 @@ def mount_smb() -> bool:
         logger.info("Folder already mounted.")
         return False
 
-    # mount the drive
-    mount_cmd_array = [
-        'sudo', '/bin/mount', '-t',
-        'cifs', '-v', '-o',
-        f'vers=3.0,username={MOUNTING_USERNAME},password={MOUNTING_PASSWORD},ip={MOUNTING_IP}',
-        MOUNTED_SHARE_NAME, MOUNTED_FOLDER
-    ]
-    os.system(' '.join(mount_cmd_array))
+    os.system(settings.MOUNT_SHARE_SCRIPT)
     return True
 
 def wake_media_server():
