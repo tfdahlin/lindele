@@ -105,7 +105,7 @@ fi
 
 def mount_as_needed() -> bool:
     wake_media_server()
-    if is_mounted(directory):
+    if is_mounted():
         return False
     return mount_smb()
 
