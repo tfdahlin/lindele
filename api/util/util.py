@@ -103,13 +103,13 @@ else
 fi
 """
 
-def mount_as_needed(directory: str) -> bool:
+def mount_as_needed() -> bool:
     wake_media_server()
     if is_mounted(directory):
         return False
     return mount_smb()
 
-def is_mounted(directory: str) -> bool:
+def is_mounted() -> bool:
     from settings import MOUNTED_FOLDER
     wake_media_server()
     p = Path(MOUNTED_FOLDER)
