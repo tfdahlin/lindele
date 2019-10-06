@@ -107,7 +107,7 @@ def get_all_tracks():
     with access_db() as db_conn:
         result = []
         all_tracks = db_conn.query(Song).all()
-        all_tracks.sort(key=operator.attrgetter('artist_name', 'album_name', 'track_name'))
+        all_tracks.sort(key=lambda x: (x.artist_name.lower(), x.album_name.lower(), x.track_name.lower()))
         for track in all_tracks:
             track_info = {
                 'title': track.track_name,
@@ -315,7 +315,7 @@ def get_playlist_data_from_id(playlistid):
                 'public': playlist.public,
             }
             if playlist.songs:
-                sorted_songs = sorted(playlist.songs, key=operator.attrgetter('artist_name', 'album_name', 'track_name'))
+                sorted_songs = sorted(playlist.songs, key=lambda x: (x.artist_name.lower(), x.album_name.lower(), x.track_name.lower()))
                 for track in sorted_songs:
                     track_info = {
                         'title': track.track_name,
