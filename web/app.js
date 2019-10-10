@@ -246,15 +246,15 @@ if(settings['https']) {
     }, app)
     .listen(settings['webPort'], (err) => {
         if(err) {
-            return console.log("Error listening on port " + webPort + ': ', err);
+            return console.log("Error listening on port " + settings['webPort'] + ': ', err);
         }
-        console.log((new Date()) + ': Web Server is listening on port ' + webPort + '.');
+        console.log((new Date()) + ': Web Server is listening on port ' + settings['webPort'] + '.');
     });
 } else {
     app.listen(settings['webPort'], (err) => {
         if(err) {
-            return console.log("Error listening on port " + webPort + ': ', err);
+            return console.log("Error listening on port " + settings['webPort'] + ': ', err);
         }
-        console.log((new Date()) + ': Web Server is listening on port ' + webPort + '.');
+        console.log((new Date()) + ': Web Server is listening on port ' + settings['webPort'] + '.');
     });
 }
