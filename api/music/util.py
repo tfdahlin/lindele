@@ -304,6 +304,8 @@ def get_playlist_data_from_id(playlistid):
             logger.warn(f"Exception encountered while trying to access playlist with id {playlistid}")
             return None
         else:
+            if not playlist:
+                return None
             playlist_data = {
                 'tracks': [],
                 'owner_name': playlist.owner_name,
