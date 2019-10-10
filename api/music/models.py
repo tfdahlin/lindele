@@ -4,14 +4,11 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-from util.models import GUID, HexByteString
+from util.models import Base, GUID, HexByteString
 
 from settings import db_uri, debug_sql_output
 
 from settings import engine
-
-
-Base = declarative_base()
 
 association_table = Table('association', Base.metadata,
     Column('playlist_id', Integer, ForeignKey('playlist.id')),
@@ -63,5 +60,3 @@ class RefreshState(Base):
     id = Column(Integer, primary_key=True)
 
     is_refreshing = Column(Boolean)
-
-Base.metadata.create_all(engine)

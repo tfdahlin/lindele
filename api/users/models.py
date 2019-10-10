@@ -18,9 +18,7 @@ from sqlalchemy_utils import IPAddressType
 
 from settings import engine
 
-from util.models import GUID, HexByteString
-
-Base = declarative_base()
+from util.models import Base, GUID, HexByteString
 
 class LoginAttempt(Base):
     __tablename__ = 'login_attempts'
@@ -58,5 +56,3 @@ class User(Base):
 
     def __repr__(self):
         return f'<User(username={self.username}, email={self.email})>'
-
-Base.metadata.create_all(engine)

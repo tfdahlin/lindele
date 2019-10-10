@@ -11,6 +11,7 @@ Classes:
 
 from sqlalchemy.types import TypeDecorator, CHAR, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
 # Taken from: https://docs.sqlalchemy.org/en/13/core/custom_types.html#backend-agnostic-guid-type
@@ -61,3 +62,5 @@ class HexByteString(TypeDecorator):
 
     def process_result_value(self, value, dialect):
         return bytes.fromhex(value) if value else None
+
+Base = declarative_base()

@@ -3,8 +3,17 @@ from pycnic.core import WSGI, Handler
 from music.routes import Songs, BuildDatabase, Audio, Artwork, RandomSong, Playlists
 from music.routes import CreatePlaylist, AddToPlaylist, RemoveFromPlaylist, OwnedPlaylists
 from users.routes import UsersRoutes, Register, Login, Logout, CurrentUser, SetUserVolume
-from util.util import BaseHandler
+from util.util import BaseHandler, engine
 from util.routes import Remount, Restart
+
+import music.models
+import users.models
+#from music.models import *
+#from users.models import *
+from util.models import Base
+
+# This should initialize the database as necessary.
+Base.metadata.create_all(engine)
 
 class AcommpliceMusic(BaseHandler):
     def get(self):
