@@ -9,6 +9,8 @@ import settings
 import local_settings
 
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from settings import db_uri, debug_sql_output
 engine = create_engine(db_uri, echo=debug_sql_output)
 Session = sessionmaker(bind=engine)

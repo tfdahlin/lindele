@@ -1,6 +1,5 @@
 import sqlalchemy
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import or_
 
 import eyed3

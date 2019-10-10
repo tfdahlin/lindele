@@ -14,7 +14,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from base64 import b64encode, b64decode
 
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_
 
 from users.models import User, LoginAttempt, engine
