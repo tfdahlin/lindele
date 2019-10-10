@@ -8,8 +8,6 @@ from util.routes import Remount, Restart
 
 import music.models
 import users.models
-#from music.models import *
-#from users.models import *
 from util.models import Base
 
 # This should initialize the database as necessary.

@@ -14,8 +14,6 @@ const axios = require('axios');
 
 const settings = require('./settings');
 
-const webPort = 80;
-
 const index_html = path.join(__dirname, 'index.html');
 const register_html = path.join(__dirname, 'register.html');
 const ajax = `<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>`;
@@ -246,14 +244,14 @@ if(settings['https']) {
         cert: fs.readFileSync(settings['ssl_cert_path']),
         ca: fs.readFileSync(settings['ssl_ca_path'])
     }, app)
-    .listen(webPort, (err) => {
+    .listen(settings['webPort'], (err) => {
         if(err) {
             return console.log("Error listening on port " + webPort + ': ', err);
         }
         console.log((new Date()) + ': Web Server is listening on port ' + webPort + '.');
     });
 } else {
-    app.listen(webPort, (err) => {
+    app.listen(settings['webPort'], (err) => {
         if(err) {
             return console.log("Error listening on port " + webPort + ': ', err);
         }
