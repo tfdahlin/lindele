@@ -11,6 +11,7 @@ import local_settings
 from sqlalchemy import create_engine
 from settings import db_uri, debug_sql_output
 engine = create_engine(db_uri, echo=debug_sql_output)
+Session = sessionmaker(bind=engine)
 
 from pycnic.core import Handler
 
@@ -81,6 +82,26 @@ class BaseHandler(Handler):
 
         self.response.status_code = status_code
         return result
+
+class access_db:
+    """Wrapper class to use when accessing the database.
+
+    This automatically closes database connections on completion, 
+    and is designed solely for convenience.
+
+    Example:
+    with access_db() as db_conn:
+        do_stuff()
+        db_conn.commit()
+    """
+    def __enter__(self):
+        """Connects to the database and return the connection as part of the setup process."""
+        self.db_conn = Session()
+        return self.db_conn
+
+    def __exit__(self, type, value, traceback):
+        """Closes the database connection as part of the teardown process."""
+        self.db_conn.close()
 
 def reboot_machine_with_delay():
     time.sleep(30)

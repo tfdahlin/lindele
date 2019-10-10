@@ -9,34 +9,12 @@ import logging, threading, os, random, operator
 
 from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE, MUSIC_FOLDER
 
-from util.util import engine
+from util.util import Session, access_db
 
 from music.models import Playlist, Song, RefreshState
 
-Session = sessionmaker(bind=engine)
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-class access_db:
-    """Wrapper class to use when accessing the database.
-
-    This automatically closes database connections on completion, 
-    and is designed solely for convenience.
-
-    Example:
-    with access_db() as db_conn:
-        do_stuff()
-        db_conn.commit()
-    """
-    def __enter__(self):
-        """Connects to the database and return the connection as part of the setup process."""
-        self.db_conn = Session()
-        return self.db_conn
-
-    def __exit__(self, type, value, traceback):
-        """Closes the database connection as part of the teardown process."""
-        self.db_conn.close()
 
 def fetch_track_info(songid):
     with access_db() as db_conn:

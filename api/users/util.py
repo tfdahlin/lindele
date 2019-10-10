@@ -20,9 +20,10 @@ from sqlalchemy import and_
 from users.models import User, LoginAttempt, engine
 from settings import hash_iterations, hash_algo
 #from config import EMAIL_USER, EMAIL_PASSWORD, do_not_reply_email
-from settings import engine, BASE_PATH
+from settings import BASE_PATH
 
-Session = sessionmaker(bind=engine)
+from util.util import access_db
+
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 template_dir = os.path.join(curr_dir, 'res', 'templates')
 
@@ -31,25 +32,7 @@ smtp_port = 465
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-class access_db:
-    """Wrapper class to use when accessing the database.
 
-    This automatically closes database connections on completion, 
-    and is designed solely for convenience.
-
-    Example:
-    with access_db() as db_conn:
-        do_stuff()
-        db_conn.commit()
-    """
-    def __enter__(self):
-        """Connects to the database and return the connection as part of the setup process."""
-        self.db_conn = Session()
-        return self.db_conn
-
-    def __exit__(self, type, value, traceback):
-        """Closes the database connection as part of the teardown process."""
-        self.db_conn.close()
 
 def create_full_user(email, username, password):
     """Creates a user in the database given an email, username, and password.
