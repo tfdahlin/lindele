@@ -122,7 +122,7 @@ class Playlists(BaseHandler):
         else:
             # Fetch a specific playlist
             playlist_data = get_playlist_data_from_id(playlistid)
-            if playlist_data['public'] or (user and owns_playlist(playlistid, user.guid)):
+            if (playlist_data and playlist_data['public']) or (user and owns_playlist(playlistid, user.guid)):
                 del(playlist_data['public'])
                 return self.success(data=playlist_data)
             else:
