@@ -131,7 +131,7 @@ function choose_next_song() {
 
         // Remove elements from the deck if it gets longer than 100 songs.
         if(deck.length > 100) {
-            deck = deck.shift;
+            deck.shift();
         }
 
         // Check if random
@@ -340,7 +340,7 @@ function set_song_select_function() {
 
         // If deck length is greater than 100, then remove the oldest element.
         if(deck.length > 100) {
-            deck = deck.shift;
+            deck.shift();
         }
 
         var track = get_track_from_id(this.id);
