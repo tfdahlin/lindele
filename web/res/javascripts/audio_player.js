@@ -164,25 +164,33 @@ function choose_next_song() {
     
 }
 
+function play_audio() {
+    var promise = audio_player.play();
+    if (promise !== undefined) {
+        promise.then( (success) => {
+            update_player_play();
+        }).catch((error) => {
+            update_player_pause();
+        });
+    }
+}
+
+function pause_audio() {
+    var promise = audio_player.pause();
+    if (promise !== undefined) {
+        promise.then((success) => {
+            update_player_pause();
+        }).catch((error) => {
+            update_player_play();
+        });
+    }
+}
+
 function toggle_play() {
     if(audio_player.paused) {
-        var promise = audio_player.play();
-        if (promise !== undefined) {
-            promise.then( (success) => {
-                update_player_play();
-            }).catch((error) => {
-                update_player_pause();
-            });
-        } 
+        play_audio();
     } else {
-        var promise = audio_player.pause();
-        if (promise !== undefined) {
-            promise.then((success) => {
-                update_player_pause();
-            }).catch((error) => {
-                update_player_play();
-            });
-        }
+        pause_audio();
     }
 }
 
@@ -212,7 +220,7 @@ function toggle_volume() {
     }
 }
 
-function get_prev_song() {
+function play_prev_song() {
     if(deck_position > 0) {
         deck_position -= 1;
     }
@@ -295,9 +303,13 @@ $("#playbackcontainer").click(function(e) {
 
 $("#shufflebutton").click(toggle_shuffle);
 $("#sharebutton").click(share_song);
-$("#previous_button").click(get_prev_song);
+$("#previous_button").click(play_prev_song);
+navigator.mediaSession.setActionHandler('previoustrack', play_prev_song);
 $("#play_button").click(toggle_play);
+navigator.mediaSession.setActionHandler('play', play_audio);
+navigator.mediaSession.setActionHandler('pause', pause_audio);
 $("#next_button").click(play_next_song);
+navigator.mediaSession.setActionHandler('nexttrack', play_next_song);
 $("#downloadbutton").click(function() {
     var src = audio_player.src;
     var name = document.getElementById("song-name").innerHTML;
