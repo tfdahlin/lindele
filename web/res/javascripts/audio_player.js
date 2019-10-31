@@ -265,12 +265,12 @@ function share_song() {
 
 function toggle_shuffle() {
     var shuffle_icon = document.getElementById("shufflebutton");
-    if(random) {
-        random = false;
+    if(shuffle) {
+        shuffle = false;
         shuffle_icon.classList.remove("shuffle-button-on");
         shuffle_icon.classList.add("shuffle-button-off");
     } else {
-        random = true;
+        shuffle = true;
         shuffle_icon.classList.add("shuffle-button-on");
         shuffle_icon.classList.remove("shuffle-button-off");
     }
