@@ -380,18 +380,21 @@ function set_song_select_function() {
 
         // If deck length is greater than 100, then remove the oldest element.
         if(deck.length > 100) {
-            deck.shift();
+            while(deck.length > 100) {
+                deck.shift();
+            }
+            deck_position = deck.length - 1;
         }
 
         var track = get_track_from_id(this.id);
 
-        // Add onto the deck the song being selected
-        deck.push(track);
-        // And move the deck position to the end
-        deck_position = deck.length-1;
-
-        // Then load the song that was selected.
-        load_track(track);
+        push_track(track)
+        .then((data) => {
+            load_track(track);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
     });
 }
 
