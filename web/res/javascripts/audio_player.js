@@ -151,10 +151,11 @@ function choose_next_song() {
             for (var i = 0; i < all_tracks.length; i++) {
                 if (all_tracks[i]['id'] == deck[deck_position]['id']) {
                     var next_index = (i + 1) % all_tracks.length; // Return to start if necessary.
-                    load_track(all_tracks[next_index]);
-                    deck.push(all_tracks[next_index]);
+                    var next_track = all_tracks[next_index];
+                    load_track(next_track);
+                    deck.push(next_track);
                     deck_position = deck.length-1;
-                    resolve(all_tracks[next_index]);
+                    resolve(next_track);
                 }
             }
         }
