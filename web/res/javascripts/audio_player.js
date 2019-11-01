@@ -152,7 +152,7 @@ function choose_next_song() {
                 if (all_tracks[i]['id'] == deck[deck_position]['id']) {
                     var next_index = (i + 1) % all_tracks.length; // Return to start if necessary.
                     load_track(all_tracks[next_index]);
-                    deck.push(track);
+                    deck.push(all_tracks[next_index]);
                     deck_position = deck.length-1;
                     resolve(all_tracks[next_index]);
                 }
