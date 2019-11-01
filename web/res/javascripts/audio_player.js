@@ -134,11 +134,11 @@ function choose_next_song() {
             while(deck.length > 100) {
                 deck.shift();
             }
+            // Adjust the deck_position as necessary.
+            deck_position = deck.length-1;
         }
 
         // Check if random
-        console.log('Shuffle state: ');
-        console.log(shuffle);
         if (shuffle) {
             fetch_random_track().then((track) => {
                 load_track(track);
@@ -153,32 +153,28 @@ function choose_next_song() {
             // Current track is deck[deck_position]
             // Iterate through track_list til we find a matching id
             if (tracks_loaded) {
+                var next_track;
                 for (var i = 0; i < all_tracks.length; i++) {
                     if (all_tracks[i]['id'] == deck[deck_position]['id']) {
-                        console.log('Found matching track: ');
-                        console.log(all_tracks[i]['id']);
-                        console.log('Matching track index:');
-                        console.log(i);
                         var next_index = (i + 1) % all_tracks.length; // Return to start if necessary.
-                        var next_track = all_tracks[next_index];
-                        load_track(next_track);
-                        deck.push(next_track);
-                        deck_position = deck.length-1;
-                        console.log('Next track selected, no shuffle: ');
-                        console.log(next_track);
-                        resolve(next_track);
+                        next_track = all_tracks[next_index];
+                        break;
                     }
                 }
+                load_track(next_track);
+                deck.push(next_track);
+                deck_position = deck.length-1;
+                resolve(next_track);
             } else {
                 load_all_tracks()
                 .then((data) => {
+                    console.log('Recursing.');
                     resolve(choose_next_song());
                 })
                 .catch((err) => {
                     reject(err);
                 });
             }
-            reject('Error finding next track.'); // If for some reason we can't find the next track, reject?
         }
 
     });
