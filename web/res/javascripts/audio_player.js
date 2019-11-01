@@ -123,7 +123,7 @@ function play_next_song() {
 
 function push_track(track) {
     return new Promise((resolve, reject) => {
-        deck.push(next_track);
+        deck.push(track);
         deck_position = deck.length-1;
         resolve();
     })
