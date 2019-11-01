@@ -149,12 +149,12 @@ function choose_next_song() {
             // Current track is deck[deck_position]
             // Iterate through track_list til we find a matching id
             for (var i = 0; i < track_list.length; i++) {
-                if (track_list[i]['id'] == deck[deck_position]['id']) {
-                    var next_index = (i + 1) % track_list.length; // Return to start if necessary.
-                    load_track(track_list[next_index]);
+                if (all_tracks[i]['id'] == deck[deck_position]['id']) {
+                    var next_index = (i + 1) % all_tracks.length; // Return to start if necessary.
+                    load_track(all_tracks[next_index]);
                     deck.push(track);
                     deck_position = deck.length-1;
-                    resolve(track_list[next_index]);
+                    resolve(all_tracks[next_index]);
                 }
             }
         }
