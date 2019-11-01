@@ -121,6 +121,14 @@ function play_next_song() {
     })
 }
 
+function push_track(track) {
+    return new Promise((resolve, reject) => {
+        deck.push(next_track);
+        deck_position = deck.length-1;
+        resolve();
+    })
+}
+
 function choose_next_song() {
     return new Promise((resolve, reject) => {
         if(deck_position < deck.length-1) {
@@ -141,10 +149,11 @@ function choose_next_song() {
         // Check if random
         if (shuffle) {
             fetch_random_track().then((track) => {
-                load_track(track);
-                deck.push(track);
-                deck_position = deck.length-1;
-                resolve(track);
+                push_track(track)
+                .then((data) => {
+                    load_track(track);
+                    resolve(track);
+                })
             }).catch((err) => {
                 reject(err);
             })
@@ -161,10 +170,11 @@ function choose_next_song() {
                         break;
                     }
                 }
-                load_track(next_track);
-                deck.push(next_track);
-                deck_position = deck.length-1;
-                resolve(next_track);
+                push_track(next_track)
+                .then((data) => {
+                    load_track(next_track);
+                    resolve(next_track);
+                })
             } else {
                 load_all_tracks()
                 .then((data) => {
