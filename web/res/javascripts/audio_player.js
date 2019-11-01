@@ -148,7 +148,7 @@ function choose_next_song() {
             // Select the next track in track_list.
             // Current track is deck[deck_position]
             // Iterate through track_list til we find a matching id
-            for (var i = 0; i < track_list.length; i++) {
+            for (var i = 0; i < all_tracks.length; i++) {
                 if (all_tracks[i]['id'] == deck[deck_position]['id']) {
                     var next_index = (i + 1) % all_tracks.length; // Return to start if necessary.
                     load_track(all_tracks[next_index]);
