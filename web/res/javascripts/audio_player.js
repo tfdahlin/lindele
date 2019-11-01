@@ -135,6 +135,7 @@ function choose_next_song() {
             deck_position += 1;
             load_track(deck[deck_position]);
             resolve(deck[deck_position]);
+            return;
         }
 
         // Remove elements from the deck if it gets longer than 100 songs.
@@ -152,10 +153,10 @@ function choose_next_song() {
                 push_track(track)
                 .then((data) => {
                     load_track(track);
-                    resolve(track);
+                    return resolve(track);
                 })
             }).catch((err) => {
-                reject(err);
+                return reject(err);
             })
         } else {
             // Select the next track in track_list.
@@ -173,16 +174,16 @@ function choose_next_song() {
                 push_track(next_track)
                 .then((data) => {
                     load_track(next_track);
-                    resolve(next_track);
+                    return resolve(next_track);
                 })
             } else {
                 load_all_tracks()
                 .then((data) => {
                     console.log('Recursing.');
-                    resolve(choose_next_song());
+                    return resolve(choose_next_song());
                 })
                 .catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             }
         }
