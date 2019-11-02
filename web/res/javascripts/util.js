@@ -213,6 +213,7 @@ function populate_playlist(tracks) {
         </table>
     `);
     let table = $('#hoverTable');
+    let track_no = 0;
     for (const track of tracks) {
         var track_id = track['id'];
         var track_title = track['title'];
@@ -232,7 +233,7 @@ function populate_playlist(tracks) {
             continue;
         }
         var row_type;
-        if (track['id'] % 2 === 0) {
+        if (track_no % 2 === 0) {
             row_type = 'evenrow';
         } else {
             row_type = 'oddrow';
@@ -245,6 +246,7 @@ function populate_playlist(tracks) {
                 '<td id="' + track_id + '" class="track-info" width="5%">' + track_length + '</td>' +
             '</tr>'
         )
+        track_no += 1;
     }
 }
 
