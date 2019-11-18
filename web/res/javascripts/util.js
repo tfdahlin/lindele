@@ -214,7 +214,9 @@ function populate_playlist(tracks) {
     `);
     var table = $('#hoverTable');
     var track_no = 0;
-    for (const track of tracks) {
+    var i;
+    for (i=0; i < tracks.length; i++) {
+        var track = tracks[i];
         var track_id = track['id'];
         var track_title = track['title'];
         if (!track_title) {
