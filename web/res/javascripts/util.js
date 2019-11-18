@@ -55,7 +55,7 @@ function load_all_tracks() {
         .then((tracks) => {
             all_tracks = tracks;
             tracks_loaded = true;
-            let track_count_div = $("#track-count");
+            var track_count_div = $("#track-count");
             track_count_div.html("(" + tracks.length + " tracks)");
             populate_playlist(tracks);
             resolve();
