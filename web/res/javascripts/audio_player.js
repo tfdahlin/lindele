@@ -332,12 +332,14 @@ $("#playbackcontainer").click(function(e) {
 $("#shufflebutton").click(toggle_shuffle);
 $("#sharebutton").click(share_song);
 $("#previous_button").click(play_prev_song);
-navigator.mediaSession.setActionHandler('previoustrack', play_prev_song);
 $("#play_button").click(toggle_play);
-navigator.mediaSession.setActionHandler('play', play_audio);
-navigator.mediaSession.setActionHandler('pause', pause_audio);
 $("#next_button").click(play_next_song);
-navigator.mediaSession.setActionHandler('nexttrack', play_next_song);
+if (navigator.mediaSession) {
+    navigator.mediaSession.setActionHandler('previoustrack', play_prev_song);
+    navigator.mediaSession.setActionHandler('play', play_audio);
+    navigator.mediaSession.setActionHandler('pause', pause_audio);
+    navigator.mediaSession.setActionHandler('nexttrack', play_next_song);
+}
 $("#downloadbutton").click(function() {
     var src = audio_player.src;
     var name = document.getElementById("song-name").innerHTML;
