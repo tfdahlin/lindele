@@ -104,7 +104,7 @@ function set_header_logged_out() {
                 header_div.addClass('header-logged-out');
             }
             resolve();
-        } catch {
+        } catch (error) {
             reject('Could not set header class.');
         }
     });
@@ -121,7 +121,7 @@ function set_header_logged_in() {
                 header_div.addClass('header-logged-in');
             }
             resolve();
-        } catch {
+        } catch (error) {
             reject('Coult not set header class.')
         }
     })

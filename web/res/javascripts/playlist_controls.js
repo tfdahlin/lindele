@@ -135,7 +135,7 @@ function add_hidden_playlist_controls() {
     }
 }
 
-let rc_song_id = 0;
+var rc_song_id = 0;
 
 
 function mouseX(evt) {

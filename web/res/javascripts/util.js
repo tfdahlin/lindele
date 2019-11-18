@@ -1,6 +1,6 @@
-let all_tracks = [];
-let tracks_loaded = false;
-let curr_user_status = {};
+var all_tracks = [];
+var tracks_loaded = false;
+var curr_user_status = {};
 
 $.ajaxSetup({
     crossDomain: true,
