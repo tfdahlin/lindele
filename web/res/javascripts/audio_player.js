@@ -334,6 +334,7 @@ $("#sharebutton").click(share_song);
 $("#previous_button").click(play_prev_song);
 $("#play_button").click(toggle_play);
 $("#next_button").click(play_next_song);
+$("#volume_icon").click(toggle_volume);
 if (navigator.mediaSession) {
     navigator.mediaSession.setActionHandler('previoustrack', play_prev_song);
     navigator.mediaSession.setActionHandler('play', play_audio);
