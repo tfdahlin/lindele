@@ -102,7 +102,7 @@ function fetch_tracks_from_playlist(playlistid) {
 function fetch_tracks() {
     return new Promise((resolve, reject) => {
         // First check if we're loading a playlist or all songs.
-        let param = $.urlParam('playlistid');
+        var param = $.urlParam('playlistid');
         if(param == null) { // If it's not a playlist
             _fetch_all_tracks()
             .then((tracks) => {
@@ -165,16 +165,16 @@ function fetch_random_track() {
 
 function set_playlist_info_text() {
     // Text that we're modifying.
-    let playlist_info_div = $('#playlist-info');
+    var playlist_info_div = $('#playlist-info');
 
     // Extract the playlistid parameter.
-    let page_url = window.location.search.substring(1);
-    let url_vars = page_url.split('&');
+    var page_url = window.location.search.substring(1);
+    var url_vars = page_url.split('&');
 
-    let playlist_id;
+    var playlist_id;
 
     for (var param of url_vars) {
-        let param_name = param.split('=');
+        var param_name = param.split('=');
         if (param_name[0] === 'playlistid') {
             playlist_id = param_name[1];
         }
@@ -201,7 +201,7 @@ function set_playlist_info_text() {
 }
 
 function populate_playlist(tracks) {
-    let container = $('#playlist-content');
+    var container = $('#playlist-content');
     container.html(`
         <table id="hoverTable" class="hoverTable">
             <tr class="text table-header-tr" id="header-row">
@@ -212,8 +212,8 @@ function populate_playlist(tracks) {
             </tr>
         </table>
     `);
-    let table = $('#hoverTable');
-    let track_no = 0;
+    var table = $('#hoverTable');
+    var track_no = 0;
     for (const track of tracks) {
         var track_id = track['id'];
         var track_title = track['title'];
