@@ -229,7 +229,7 @@ div.volume-container {
     max-width: 100%;
 }
 img.volume-icon {
-    max-width: 5%;
+    width: 5%;
     border-radius: 2px;
 }
 img.volume-icon:hover {
@@ -268,7 +268,8 @@ div.misc-controls-container {
     justify-content: center;
 }
 img.shuffle-button-off {
-    max-width: 10%;
+    width: 10%;
+    height: auto;
     background-color: #222222;
     border-radius: 4px;
 }
@@ -276,7 +277,8 @@ img.shuffle-button-off:hover {
     background-color: #2B2B2B;
 }
 img.shuffle-button-on {
-    max-width: 10%;
+    width: 10%;
+    height: auto;
     background-color: #444444;
     border-radius: 4px;
 }
@@ -284,7 +286,7 @@ img.shuffle-button-on:hover {
     background-color: #383838;
 }
 img.share {
-    max-width: 10%;
+    width: 10%;
     height: auto;
 }
 img.share:hover {
