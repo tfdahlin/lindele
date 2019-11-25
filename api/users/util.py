@@ -18,6 +18,7 @@ from util.util import access_db
 
 # PIP library imports
 from sqlalchemy import and_
+import jwt
 
 # Variables and settings
 curr_dir = os.path.dirname(os.path.abspath(__file__))
