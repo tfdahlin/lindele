@@ -5,9 +5,8 @@
 # Native python imports
 
 # Local file imports
-import music.routes
-import music.models
-import users.models
+import music.models, music.routes
+import users.models, users.routes
 import util.routes
 from util.models import Base
 from util.util import BaseHandler, engine
