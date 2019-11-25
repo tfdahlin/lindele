@@ -455,9 +455,9 @@ def decode_session_token(token):
     Returns:
         payload (dict): The contents of the payload if decoded successfully and signature matches, None otherwise.
     """
-    token_bytes = token.encode('utf-8')
     try:
-        payload = jwt.decode(token, fetch_jwt_key(), algorithm='HS256')
+        token_bytes = token.encode('utf-8')
+        payload = jwt.decode(token_bytes, fetch_jwt_key(), algorithm='HS256')
     except Exception as e:
         logger.warn('Exception encountered while decoding token.')
         logger.warn(e)
