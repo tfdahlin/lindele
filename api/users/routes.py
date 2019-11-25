@@ -31,7 +31,7 @@ class UsersRoutes(BaseHandler):
         user = fetch_user_by_username(username)
         if not user:
             return self.HTTP_404(error='User not found.')
-        return self.HTTP_200({'username': username})
+        return self.HTTP_200(data={'username': username})
 
 class Login(BaseHandler):
     """Route handler for login requests."""
@@ -52,7 +52,7 @@ class Login(BaseHandler):
 
         if login_attempts_exceeded(email):
            logger.warn(f'User with email {email} tried to login too many times. Rate limiting applied.')
-           return self.HTTP_429({'msg': 'Too many failed login attempts. Please try again later.'})
+           return self.HTTP_429(data={'msg': 'Too many failed login attempts. Please try again later.'})
 
         # We check all of these things before returning to prevent account enumeration via timing attacks.
         forbidden = False
@@ -84,7 +84,7 @@ class Login(BaseHandler):
             session_token,
             flags=['HttpOnly', 'Secure']
             )
-        result = self.HTTP_200({'msg': 'Logged in successfully'})
+        result = self.HTTP_200()
 
         return result
 
@@ -99,7 +99,7 @@ class Logout(BaseHandler):
         if user:
             logger.info(f'User {user.username} logged out.')
             self.response.delete_cookie('session')
-            result = self.HTTP_200({'msg': 'Logged out successfully.'})
+            result = self.HTTP_200()
 
             return result
         else:
@@ -144,7 +144,7 @@ class Register(BaseHandler):
 
         # Create the user.
         create_full_user(email, username, password)
-        return self.HTTP_200(status='Registration completed.')
+        return self.HTTP_200()
 
 class CurrentUser(BaseHandler):
     """Route handler for fetching the current user."""
