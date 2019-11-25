@@ -1,88 +1,130 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Filename: util/util.py
+
+# Native python imports
 import shlex, os, time
 from pathlib import Path
 from subprocess import call
 import subprocess
 
-from wakeonlan import send_magic_packet
-
-import settings
+# Local file imports
 import local_settings
+import settings
+from settings import *
 
+# PIP library imports
+from pycnic.core import Handler
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from wakeonlan import send_magic_packet
 
-from settings import db_uri, debug_sql_output
+# Variables and settings
 engine = create_engine(db_uri, echo=debug_sql_output)
 Session = sessionmaker(bind=engine)
 
-from pycnic.core import Handler
-
-from settings import *
-
 class BaseHandler(Handler):
+    """Extension of pycnic's Handler class. 
+    Provides utility functions for inheriting in specific handlers
+    """
     def before(self):
+        """Executes on receiving a request before any other execution.
+        This sets necessary headers.
+        """
         origin = self.request.get_header('Origin')
         self.response.set_header('Vary', 'Origin')
         if origin in ALLOWED_ORIGINS:
             self.response.set_header('Access-Control-Allow-Origin', origin)
             self.response.set_header('Access-Control-Allow-Credentials', "true")
 
-    def success(self, data={}, status=None, status_code=None, error=None):
-        """Create default 200 response, following the format pycnic uses.
+    def HTTP_200(self, data={}, error=None): # 200 OK -- general success
+        """200 OK response
+        General success
 
         Arguments:
-            data (dict, optional): Data for response.
-            status (str, optional): Status message for response.
-            status_code (int, optional): Status code for response.
-            error (str, optional): Error string for response (typically empty).
-
-        Returns:
-            result (dict): Data formatted for a json response.
+            data (dict): Data to be returned in the response.
+            error (str): Any error message that wants to be added to the response.
         """
-        if not status_code:
-            status_code = 200
-        if not status:
-            status = f'{status_code} OK'
-        if 'version' not in data:
-            data['version'] = settings.API_VERSION
         result = {
-            'status': status,
-            'status_code': status_code,
+            'status_code': 200,
+            'status': 'OK',
+            'version': settings.API_VERSION,
             'data': data,
+            'error': error
         }
-        self.response.status_code = status_code
-
-        if error:
-            result['error'] = error
-
+        self.response.status_code = 200
         return result
 
-    def failure(self, data={}, status=None, status_code=None, error=None):
-        """Create default 400 response, following the format pycnic uses.
+    def HTTP_201(self, data={}, error=None):
+        """201 Created response
+        Resource has been created.
 
         Arguments:
-            data (dict, optional): Data for response.
-            status (str, optional): Status message for response.
-            status_code (int, optional): Status code for response.
-            error (str, optional): Error string for response.
-
-        Returns:
-            result (dict): Data formatted for a json response.
+            data (dict): Data to be returned in the response.
+            error (str): Any error message that wants to be added to the response.
         """
-        if not status_code:
-            status_code = 400
-        if not status:
-            status = f'{status_code} Failure'
-        if 'version' not in data:
-            data['version'] = settings.API_VERSION
         result = {
-            'status': status,
-            'status_code': status_code,
+            'status_code': 201,
+            'status': 'Created',
+            'version': settings.API_VERSION,
             'data': data,
-            'error': error,
+            'error': error
         }
+        self.response.status_code = 201
+        return result
 
-        self.response.status_code = status_code
+    def HTTP_400(self, data={}, error=None): # 400 Bad Request -- request not understood by server
+        """400 Bad Request response
+        Request not understood by server, general failure.
+
+        Arguments:
+            data (dict): Data to be returned in the response.
+            error (str): Any error message that wants to be added to the response.
+        """
+        result = {
+            'status_code': 400,
+            'status': 'Bad Request',
+            'version': settings.API_VERSION,
+            'data': data,
+            'error': error
+        }
+        self.response.status_code = 400
+        return result
+
+    def HTTP_403(self, data={}, error=None): # 400 Forbidden -- no permission
+        """403 Forbidden response
+        User does not have permission to access the resource
+
+        Arguments:
+            data (dict): Data to be returned in the response.
+            error (str): Any error message that wants to be added to the response.
+        """
+        result = {
+            'status_code': 403,
+            'status': 'Forbidden',
+            'version': settings.API_VERSION,
+            'data': data,
+            'error': error
+        }
+        self.response.status_code = 403
+        return result
+
+    def HTTP_429(self, data={}, error=None): # 429 Too Many Requests -- rate-limiting
+        """429 Too Many Requests response
+        Rate limiting applied
+
+        Arguments:
+            data (dict): Data to be returned in the response.
+            error (str): Any error message that wants to be added to the response.
+        """
+        result = {
+            'status_code': 429,
+            'status': 'Too Many Requests',
+            'version': settings.API_VERSION,
+            'data': data,
+            'error': error
+        }
+        self.response.status_code = 429
         return result
 
 class access_db:
@@ -106,27 +148,19 @@ class access_db:
         self.db_conn.close()
 
 def reboot_machine_with_delay():
+    """Reboot the server after 30 seconds."""
     time.sleep(30)
     reboot_machine()
 
 def reboot_machine():
+    """Reboot the server."""
     cmd = 'sudo systemctl reboot'
     os.system(cmd)
 
 
-# A full mount script looks something like this:
-"""
-if grep -qs '/mnt/MountedFolder' /proc/mounts; then
-    echo "Already mounted."
-else
-    if ! smbget -U user%password smb://ip.ad.dr.ess/folder | grep -q "is a directory"; then
-    else
-        echo "File not found."
-    fi
-fi
-"""
 
 def mount_as_needed():
+    """Wake the media server, then mount if necessary."""
     wake_media_server()
     if is_mounted():
         return
@@ -135,23 +169,35 @@ def mount_as_needed():
     mount_smb()
 
 def is_mounted() -> bool:
+    """Check if the media server is mounted or not."""
+    # If we don't need to mount, pretend it's mounted.
+    if not settings.NEED_TO_MOUNT:
+        return True
+
     wake_media_server()
-    p = Path(MOUNTED_FOLDER)
+    p = Path(MUSIC_FOLDER)
     return p.is_mount()
 
 def mount_smb():
-    """Mount the SMB drive specified in the local_settings file.
+    """Mount the SMB drive specified in the local_settings file, if necessary.
+
+    The mounting script should look something like this:
+    sudo mount -t cifs -v -o vers=3.0,username=media_server_username,password=media_server_password,ip=media_server_ip //media_server_name/folder /mnt/LocalMountedFolder
+    e.g.:
+    sudo mount -t cifs -v -o vers=3.0,username=foo,password=bar,ip=192.168.1.100 //MUSIC_SERVER/Music /mnt/Music
+
 
     Returns:
         success (bool): True if mounted successfully, false otherwise.
-
-    sudo mount -t cifs -v -o vers=3.0,username=my_username,password=my_password,ip=my_ip //MY_COMPUTER_NAME/folder /mnt/MountedFolder
-
     """
-    #from settings import MOUNTING_USERNAME, MOUNTING_PASSWORD, MOUNTING_IP, MOUNTED_SHARE_NAME, MOUNTING_FOLDER, MUSIC_FOLDER, MOUNTED_FOLDER
+    # If we don't need to mount, skip this.
+    if not settings.NEED_TO_MOUNT:
+        return
+
     wake_media_server()
 
     os.system(f'sudo {settings.MOUNT_SHARE_SCRIPT}')
 
 def wake_media_server():
+    """Wake the media server by sending it a magic packet."""
     send_magic_packet(local_settings.MAGIC_PACKET_MAC_ADDRESS)

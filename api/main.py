@@ -1,33 +1,45 @@
-from pycnic.core import WSGI, Handler
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Filename: main.py
 
-from music.routes import Songs, BuildDatabase, Audio, Artwork, RandomSong, Playlists
-from music.routes import CreatePlaylist, AddToPlaylist, RemoveFromPlaylist, OwnedPlaylists
-from users.routes import UsersRoutes, Register, Login, Logout, CurrentUser, SetUserVolume
-from util.util import BaseHandler, engine
-from util.routes import Remount, Restart
+# Native python imports
 
+# Local file imports
+import music.routes
 import music.models
 import users.models
+import util.routes
 from util.models import Base
+from util.util import BaseHandler, engine
 
-# This should initialize the database as necessary.
-Base.metadata.create_all(engine)
+# PIP library imports
+from pycnic.core import WSGI, Handler
 
 class AcommpliceMusic(BaseHandler):
+    """Base URL handler.
+
+    This route behaves similarly to a ping route.
+    """
     def get(self):
-        return self.success()
+        """GET /"""
+        return self.HTTP_200()
 
 class Ping(BaseHandler):
+    """Ping request handler.
+
+    This should only really be used for testing connectivity.
+    """
     def get(self):
-        return self.success({'msg': 'Pong!'})
+        """GET /ping"""
+        return self.HTTP_200({'msg': 'Pong!'})
 
 class app(WSGI):
-    """Acommplice API router main app.
+    """Music stream API router main app.
 
     Launch on windows with:
         waitress-serve --listen=*:80 main:app
     Launch on unix with:
-        gunicorn main:app
+        gunicorn -b 0.0.0.0:80 main:app
     """
     routes = [
         # 'Home' page -- empty data return
@@ -36,33 +48,35 @@ class app(WSGI):
         # 'Ping' page -- data return with a 'msg' that says 'Pong!'
         ('/ping', Ping()),
 
-        ('/users/([\w\d\-_]*)', UsersRoutes()),
-        ('/register', Register()),
-        ('/login', Login()),
-        ('/logout', Logout()),
-        ('/current_user', CurrentUser()),
-        ('/set_volume', SetUserVolume()),
+        # All things users.
+        ('/users/([\w\d\-_]*)', users.routes.UsersRoutes()),
+        ('/register', users.routes.Register()),
+        ('/login', users.routes.Login()),
+        ('/logout', users.routes.Logout()),
+        ('/current_user', users.routes.CurrentUser()),
+        ('/set_volume', users.routes.SetUserVolume()),
 
-        ('/songs', Songs()),
-        ('/songs/(\d+)', Songs()),
-        ('/songs/(\d+)/audio', Audio()),
-        ('/songs/(\d+)/artwork', Artwork()),
-        ('/songs/random', RandomSong()),
+        # All things tracks
+        ('/songs', music.routes.Songs()),
+        ('/songs/(\d+)', music.routes.Songs()),
+        ('/songs/(\d+)/audio', music.routes.Audio()),
+        ('/songs/(\d+)/artwork', music.routes.Artwork()),
 
-        ('/playlists', Playlists()),
-        ('/playlists/(\d+)', Playlists()),
-        ('/playlists/create', CreatePlaylist()),
-        ('/playlists/owned', OwnedPlaylists()),
-        ('/playlists/(\d+)/add', AddToPlaylist()),
-        ('/playlists/(\d+)/remove', RemoveFromPlaylist()),
+        # All things playlists
+        ('/playlists', music.routes.Playlists()),
+        ('/playlists/(\d+)', music.routes.Playlists()),
+        ('/playlists/create', music.routes.CreatePlaylist()),
+        ('/playlists/owned', music.routes.OwnedPlaylists()),
+        ('/playlists/(\d+)/add', music.routes.AddToPlaylist()),
+        ('/playlists/(\d+)/remove', music.routes.RemoveFromPlaylist()),
 
-        ('/refresh', BuildDatabase()),
-        ('/remount', Remount()),
-        ('/restart', Restart()),
-        #('/login', Login()),
-        #('/logout', Logout()),
-        #('/register', Register()),
-        #('/register/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})', Register()),
+        # Server functionality
+        ('/refresh', music.routes.BuildDatabase()),
+        ('/remount', util.routes.Remount()),
+        ('/restart', util.routes.Restart()),
     ]
 
 application = app
+
+# This should initialize the database as necessary.
+Base.metadata.create_all(engine)

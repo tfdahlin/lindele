@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: util/decorators.py
-"""Utility decorators file.
 
-Provides functionality that is useful to a large number of different components.
-"""
-
+# Native python imports
 from functools import wraps
 import logging
 
-from pycnic.errors import HTTP_400, HTTP_401
-
+# Local file imports
 from users.util import is_logged_in
 
+# PIP library imports
+from pycnic.errors import HTTP_400, HTTP_401
+
+# Variables and settings
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 def requires_params(*params):
     """Determine if all necessary parameters are present, return 400 if not.

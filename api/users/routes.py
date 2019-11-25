@@ -1,21 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: users/routes.py
-"""Routes file for users.
-
-This file manages all the routing for user functions.
-
-Classes:
-    UsersRoutes: Handles requests to /users/<username>.
-    Login: Handles requests to /login.
-    Logout: Handles requests to /logout.
-    Register: Handles requests to /register.
-"""
 
 import hashlib, secrets, binascii, logging, uuid, ipaddress, datetime
 
 from pycnic.core import Handler
-from pycnic.errors import HTTP_404
 
 from sqlalchemy.orm import sessionmaker
 
@@ -31,22 +20,30 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class UsersRoutes(BaseHandler):
-    """Handler for requests to /users/<username>"""
+    """Route handler for requests about users."""
     def get(self, username=None):
-        """Load user info. Currently only echoes the username if the user exists."""
+        """GET /users/<username>
+        Echoes the specified username, if it exists.
+
+        Arguments:
+            username (str): Username to access the information of.
+        """
         user = fetch_user_by_username(username)
         if not user:
-            raise HTTP_404('User not found.')
-        # TODO: Figure out what we return when a user's page is accessed.
-        # TODO: More information in docstring.
-        return self.success({'username': username})
+            return self.HTTP_404(error='User not found.')
+        return self.HTTP_200({'username': username})
 
 class Login(BaseHandler):
-    """Handle account login."""
+    """Route handler for login requests."""
     @requires_params('email', 'password')
     def post(self):
-        """Attempt to authenticate a user."""
-        # TODO: better docstring
+        """POST /login
+        Attempt to authenticate a user.
+
+        Parameters:
+            email (str): Email address being used to authenticate.
+            password (str): Password being used to authenticate.
+        """
         email = self.request.data['email']
         input_password = self.request.data['password']
         ip = ipaddress.ip_address(self.request.ip)
@@ -55,22 +52,27 @@ class Login(BaseHandler):
 
         if login_attempts_exceeded(email):
            logger.warn(f'User with email {email} tried to login too many times. Rate limiting applied.')
-           return self.failure({'msg': 'Too many failed login attempts. Please try again later.'})
+           return self.HTTP_429({'msg': 'Too many failed login attempts. Please try again later.'})
 
+        # We check all of these things before returning to prevent account enumeration via timing attacks.
+        forbidden = False
         if not user:
+            log_login_attempt(email, False, ip)
             logger.warn(f'Tried to log in with email {email}, but this email is not registered.')
-            log_login_attempt(email, False, ip)
-            return self.failure(error='Login failed.', status_code=401)
+            forbidden = True
 
-        if not user.password_hash:
+        if user and (not user.password_hash):
+            log_login_attempt(email, False, ip)
             logger.warn(f'Tried to log in with email {email}, but this account has not completed registration.')
-            log_login_attempt(email, False, ip)
-            return self.failure(error='Login failed.', status_code=401)
+            forbidden = True
 
-        if not check_password(input_password, user.password_hash):
+        if user and user.password_hash and (not check_password(input_password, user.password_hash)):
             log_login_attempt(email, False, ip)
             logger.warn(f'Tried to log in with email {email}, but input password did not match stored password.')
-            return self.failure(error='Login failed.', status_code=401)
+            forbidden = True
+
+        if forbidden:
+            return self.HTTP_403(error='Login failed.')
 
         logger.info(f'User {user.username} logged in.')
         log_login_attempt(email, True, ip)
@@ -82,50 +84,49 @@ class Login(BaseHandler):
             session_token,
             flags=['HttpOnly', 'Secure']
             )
-        result = self.success({'msg': 'Logged in successfully'})
+        result = self.HTTP_200({'msg': 'Logged in successfully'})
 
         return result
 
 class Logout(BaseHandler):
-    """Handle account logout."""
+    """Route handler for logout requests."""
     @requires_login()
     def post(self):
-        """Deauthenticate the user making the request."""
+        """POST /logout
+        Deauthenticate the user making the request.
+        """
         user = get_user_from_request(self.request)
         if user:
             logger.info(f'User {user.username} logged out.')
             self.response.delete_cookie('session')
-            result = self.success({'msg': 'Logged out successfully.'})
+            result = self.HTTP_200({'msg': 'Logged out successfully.'})
 
             return result
         else:
-            result = self.failure(error='You are not logged in.')
+            result = self.HTTP_403(error='You are not logged in.')
 
             # Set csrf cookie
             self.set_csrf_cookie()
             return result
 
 class Register(BaseHandler):
-    """Handle account registration."""
+    """Route handler for registration requests."""
 
     @requires_params('email', 'username', 'password', 'password_confirm')
-    def post(self, uuid=None):
-        """Handle account registration.
+    def post(self):
+        """POST /register
+        Handle account registration.
 
         This step consists of:
             - checking that the email is valid
             - checking that the email is not already in use
             - checking that the username is not already in use
         """
+        # First check that the email is validly formatted.
         email = self.request.data['email']
         if not validate_email(email):
             logger.warn(f'User attempted to register with an invalid email: {email}.')
-            return self.failure(error='Email provided is not valid.')
-
-        if rate_limited_email(email):
-            logger.warn(f'Attempted to exceed rate limit for emails to {email}.')
-            return self.success()
-
+            return self.HTTP_400(error='Email provided is not valid.')
 
         username = self.request.data['username']
         password = self.request.data['password']
@@ -134,35 +135,44 @@ class Register(BaseHandler):
         # Confirm that the passwords match.
         if not password == password_confirm:
             logger.info(f'Mismatched passwords while finishing regisrtation for user with email {email}.')
-            return self.failure(error='Passwords do not match.')
-        
+            return self.HTTP_400(error='Passwords do not match.')
+
+        # Make sure that the username is not already taken.
         if username_taken(username):
             logger.info(f'User with email {email} attempted to create their account with an existing username, {username}.')
-            return self.failure(error='Username already taken.')
+            return self.HTTP_400(error='Username already taken.')
 
+        # Create the user.
         create_full_user(email, username, password)
-
-        return self.success(status='Registration completed.')
+        return self.HTTP_200(status='Registration completed.')
 
 class CurrentUser(BaseHandler):
+    """Route handler for fetching the current user."""
     def get(self):
+        """GET /current_user
+        Fetch details and settings for the current user, as well as login status.
+        """
         user = get_user_from_request(self.request)
         if not user:
-            return self.success(data={'logged_in': False, 'user': {}})
+            return self.HTTP_200(data={'logged_in': False, 'user': {}})
         user_data = {
             'username': user.username,
             'volume': user.volume,
         }
-        return self.success(data={'logged_in': True, 'user': user_data})
+        return self.HTTP_200(data={'logged_in': True, 'user': user_data})
 
 class SetUserVolume(BaseHandler):
+    """Route handler for updating volume preferences."""
     @requires_login()
     @requires_params('volume')
     def post(self):
+        """POST /set_volume
+
+        Parameters:
+            volume (str): String representation of the volume level setting to store.
+        """
         user = get_user_from_request(self.request)
-        if not user:
-            return self.failure(status_code=401)
 
         # Set user volume
         set_user_volume(self.request)
-        return self.success()
+        return self.HTTP_200()

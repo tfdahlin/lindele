@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Filename: util/decorators.py
-"""Utility models.
-
-Provides models which may be useful to a large number of different components.
-
-Classes:
-    GUID: Custom database type that allows for platform-independent uuid integration.
-"""
+# Filename: util/models.py
 
 from sqlalchemy.types import TypeDecorator, CHAR, String
 from sqlalchemy.dialects.postgresql import UUID

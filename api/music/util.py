@@ -1,21 +1,32 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Filename: users/util.py
+
+# Native python imports
+import logging, threading, os, random, operator
+
+# Local file imports
+from music.models import Playlist, Song, RefreshState
+from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE, MUSIC_FOLDER
+from users.models import User
+from util.util import Session, access_db
+
+# PIP library imports
+import eyed3
 import sqlalchemy
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy import or_
 
-import eyed3
-
-import logging, threading, os, random, operator
-
-from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE, MUSIC_FOLDER
-
-from util.util import Session, access_db
-
-from music.models import Playlist, Song, RefreshState
-
+# Variables and config
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 def fetch_track_info(songid):
+    """Fetch detailed information about a given track.
+
+    Arguments:
+        songid (str): Integer string identifying the track to fetch information on.
+    """
     with access_db() as db_conn:
         try:
             track = db_conn.query(Song).get(songid)
@@ -35,6 +46,11 @@ def fetch_track_info(songid):
             }
 
 def fetch_track_path(songid):
+    """Fetch the file path for a given track id.
+    
+    Arguments:
+        songid (str): Integer string identifying the song to fetch the file path for.
+    """
     with access_db() as db_conn:
         try:
             track = db_conn.query(Song).get(songid)
@@ -48,10 +64,18 @@ def fetch_track_path(songid):
             return track.track_path
 
 def fetch_artwork_path(songid):
+    """Fetch the artwork file path for a given track id.
+    
+    Arguments:
+        songid (str): Integer string identifying the song to fetch the artwork file path for.
+    """
     track_path = fetch_track_path(songid)
     track_dir = os.path.dirname(track_path)
+
+    # Iterate over all files in the same directory as the track.
     for f in os.listdir(track_dir):
         full_path = os.path.join(track_dir, f)
+        # If the file ends with either .png or .jpg, we use that file.
         if os.path.isfile(full_path):
             if full_path.endswith('.png'):
                 return full_path
@@ -60,30 +84,13 @@ def fetch_artwork_path(songid):
     logger.info(f'Missing artwork for song with id {songid}')
     return MISSING_ARTWORK_FILE
 
-def fetch_random_track_info():
-    with access_db() as db_conn:
-        try:
-            track_num = random.randrange(0,db_conn.query(Song).count())
-            track = db_conn.query(Song)[track_num]
-        except:
-            logger.warn(f"Exception encountered while trying to fetch random song.")
-            return None
-        else:
-            if not track:
-                logger.warn(f"No songs found while fetching random song.")
-                return None
-            return {
-                'title': track.track_name,
-                'artist': track.artist_name,
-                'album': track.album_name,
-                'track_length': track.track_length,
-                'id': track.id,
-            }
-
 def get_all_tracks():
+    """Fetch track info for all songs in the database."""
     with access_db() as db_conn:
         result = []
         all_tracks = db_conn.query(Song).all()
+
+        # Sort by artist name, then album name, then track name.
         all_tracks.sort(key=lambda x: (x.artist_name and x.artist_name.lower() or '', 
                                        x.album_name and x.album_name.lower() or '', 
                                        x.track_name and x.track_name.lower() or ''))
@@ -100,14 +107,21 @@ def get_all_tracks():
     return None
 
 def add_track_to_database(track_info):
+    """Add a track to the database.
+
+    Arguments:
+        track_info (dict): Specific track information to be entered into the database.
+    """
     track_path = track_info['track_path']
     with access_db() as db_conn:
+        # Make sure the track doesn't already exist
         exists = db_conn.query(Song)\
                         .filter(Song.track_path==track_path)\
                         .first()
         if exists:
-            logger.info(f'Track already exists in database: {track_path}')
             return False
+
+        # Create and add ORM object to the database
         song = Song(track_name=track_info['title'],
                     artist_name=track_info['artist'],
                     album_name=track_info['album'],
@@ -119,58 +133,79 @@ def add_track_to_database(track_info):
     return False
 
 def refresh_database():
-    # Check if we're allowed to refresh the database right now.
+    """Update the song database.
+
+    Uses a database entry as a kind of mutex lock to prevent more than one
+    thread from being used to update the database.
+    """
     with access_db() as db_conn:
         try:
+            # Try to fetch the refresh state
             state = db_conn.query(RefreshState).one()
-            # We only ever want one thread to refresh
         except NoResultFound as e:
-            # Create our only entry, and set its state.
+            # If there is no refresh state in the database, create it.
             state = RefreshState(is_refreshing=True)
             db_conn.add(state)
             db_conn.commit()
+
+            # Launch a thread to refresh the database. 
             t = threading.Thread(target=refresh_database_thread)
             t.start()
         except MultipleResultsFound as e:
-            # Remove the first non-refreshing state and return.
+            # If somehow we end up with multiple refreshes happening simultaneously
+            # we want to delete one and return. No sense in making more.
             first_state = db_conn.query(RefreshState)\
                                  .filter(RefreshState.is_refreshing==False)\
                                  .first().delete()
             db_conn.commit()
             return
         else:
-            # Run this in a thread
-            state.is_refreshing = True
-            db_conn.commit()
-            t = threading.Thread(target=refresh_database_thread)
-            t.start()
+            # If there is exactly one refresh state in the database, check if it's in use
+            # and run a refresh if it is not. Otherwise, do nothing.
+            if not state.is_refreshing:
+                state.is_refreshing = True
+                db_conn.commit()
+                t = threading.Thread(target=refresh_database_thread)
+                t.start()
 
 def refresh_database_thread():
-    # Walk through all files and folders, and add them to the database as necessary
+    """Walk through all files in the music folder, adding them to the database as necessary."""
     logger.info('Started refreshing.')
-    for dirpath, dirname, filename in os.walk(MUSIC_FOLDER):
-        for f in filename:
-            # Do nothing with non-mp3 tracks
-            if not f.endswith('.mp3'):
-                continue
-            full_file_path = os.path.join(dirpath, f)
-            track_info = load_track_data(full_file_path)
-            if track_info:
-                add_track_to_database(track_info)
-    # We always want to return to non-refreshing state.
-    with access_db() as db_conn:
-        try:
-            state = db_conn.query(RefreshState).one()
-            state.is_refreshing=False
-            db_conn.commit()
-        except MultipleResultsFound as e:
-            state = db_conn.query(RefreshState).first().delete()
-            db_conn.commit()
-            logger.info('Refreshing finished!')
-            return
-    logger.info('Refreshing finished!')
+
+    try:
+        # This handles directory walking, it's kind of nasty to use this iterator
+        for dirpath, dirname, filename in os.walk(MUSIC_FOLDER):
+            for f in filename:
+                # Do nothing with non-mp3 tracks
+                if not f.endswith('.mp3'):
+                    continue
+                full_file_path = os.path.join(dirpath, f)
+                track_info = load_track_data(full_file_path)
+                if track_info:
+                    add_track_to_database(track_info)
+    except:
+        logger.warn('Exception encountered while refreshing database.')
+    finally:
+        # Return to a non-refreshing state once finished.
+        with access_db() as db_conn:
+            try:
+                state = db_conn.query(RefreshState).one()
+                state.is_refreshing=False
+                db_conn.commit()
+            except MultipleResultsFound as e:
+                state = db_conn.query(RefreshState).first().delete()
+                db_conn.commit()
+                logger.info('Refreshing finished!')
+                return
+        logger.info('Refreshing finished!')
 
 def load_track_data(track_path):
+    """Open a track file in order to extract track info.
+
+    Arguments:
+        track_path (str): File path for the track to fetch information about.
+    """
+    # This silences some noisy notifications about malformed/missing info.
     eyed3.log.setLevel('ERROR')
     result = {}
 
@@ -179,8 +214,8 @@ def load_track_data(track_path):
     try:
         audiofile = eyed3.load(track_path)
     except Exception as e:
-        print(e)
         logger.warn(f'Exception encountered while loading track: {track_path}')
+        logger.warn(e)
         return None
 
     # Loading was successful, but returned None instead of a useable object.
@@ -195,48 +230,63 @@ def load_track_data(track_path):
         logger.warn(f'Track had no title: {track_path}')
         return None
 
-    # Load track artist and album. These might not exist, and that's fine.
+    # Load track artist. It might not exist, and that's fine.
     try:
         result['artist'] = audiofile.tag.artist
     except:
         logger.info(f'Track has no artist: {track_path}')
         result['artist'] = ''
 
+    # Load track album. It might not exist, and that's fine.
     try:
         result['album'] = audiofile.tag.album
     except:
         logger.info(f'Track has no album: {track_path}')
         result['album'] = ''
 
+    # Fetch track length. If it doesn't exist, we don't want to display the track.
     try:
         time_secs = audiofile.info.time_secs
     except:
         logger.warn(f'Track had no track length data: {track_path}')
         return None
 
-    # Convert the audio from seconds to a more readable number.
+    # Convert the audio length from seconds to a more readable number.
     minutes, seconds = divmod(int(time_secs), 60)
     hours, minutes = divmod(minutes, 60)
     if (hours > 0):
         track_length = "%02d:%02d:%02d" % (hours, minutes, seconds)
     else:
         track_length = "%02d:%02d" % (minutes, seconds)
-
     result['track_length'] = track_length
     result['track_path'] = track_path
 
     return result
 
 def create_new_playlist(playlist_name, owner_guid, owner_name):
+    """Create a new playlist for a user.
+
+    Arguments:
+        playlist_name (str): Name for the new playlist.
+        owner_guid (uuid): UUID of the user that is creating the playlist.
+    """
     with access_db() as db_conn:
-        new_playlist = Playlist(name=playlist_name, owner_guid=owner_guid, owner_name=owner_name)
+        new_playlist = Playlist(name=playlist_name, owner_guid=owner_guid)
         db_conn.add(new_playlist)
         db_conn.commit()
 
 def owns_playlist(playlistid, owner_guid):
+    """Check if a given user owns a specific playlist.
+
+    Arguments:
+        playlistid (str): Integer string identifying the playlist.
+        owner_guid (uuid): UUID identifying the user to check against.
+    """
+    # Ensure both playlist and owner_guid are not None
     if (not playlistid) or (not owner_guid):
         logger.warn(f"Trying to check ownership with invalid playlistid of owner_guid.")
         return False
+
     with access_db() as db_conn:
         try:
             playlist = db_conn.query(Playlist).get(playlistid)
@@ -254,6 +304,11 @@ def owns_playlist(playlistid, owner_guid):
     return False
 
 def get_playlist_from_id(playlistid):
+    """Fetch the ORM object for a given playlist id.
+
+    Arguments:
+        playlistid (str): Integer string identifying a unique playlist.
+    """
     if not playlistid:
         logger.warn(f"Trying to access playlist without id.")
         return None
@@ -266,10 +321,15 @@ def get_playlist_from_id(playlistid):
         else:
             return playlist
 
-    logger.warn(f"Fallthrough occurred while fetching playlist with id {playlistid}")
-    return None
-
 def get_playlist_data_from_id(playlistid):
+    """Fetch information about a given playlist, as well as its tracks, from a unique id.
+
+    Arguments:
+        playlistid (str): Integer string identifying a unique playlist.
+
+    Returns:
+        playlist_data (dict): Dictionary containing information about the playlist, as well as its contents.
+    """
     if not playlistid:
         logger.warn(f"Trying to access playlist without id.")
         return None
@@ -290,7 +350,7 @@ def get_playlist_data_from_id(playlistid):
                 'public': playlist.public,
             }
             if playlist.songs:
-                # Magic to convert None to empty string
+                # Sorts by artist name, then album name, then track name.
                 sorted_songs = sorted(playlist.songs, key=lambda x: ((x.artist_name and x.artist_name.lower() or ''), 
                                                                      (x.album_name and x.album_name.lower() or ''), 
                                                                      (x.track_name and x.track_name.lower() or '')))
@@ -305,10 +365,13 @@ def get_playlist_data_from_id(playlistid):
                     playlist_data['tracks'].append(track_info)
             return playlist_data
 
-    logger.warn(f"Fallthrough occurred while fetching playlist with id {playlistid}")
-    return None
-
 def add_song_to_playlist(playlistid, songid):
+    """Adds a given song to a specified playlist.
+
+    Arguments:
+        playlistid (str): Integer string identifying a unique playlist.
+        songid (str): Integer string identifying a unique song.
+    """
     with access_db() as db_conn:
         try:
             song = db_conn.query(Song).get(songid)
@@ -317,16 +380,23 @@ def add_song_to_playlist(playlistid, songid):
             logger.warn(f"Exception encountered while trying to access db to add song {songid} to playlst {playlistid}")
             return
         else:
-            if (not song):
+            if not song:
                 logger.warn(f"Song {songid} does not exist.")
                 return
-            if (not song) or (not playlist):
+            if not playlist:
                 logger.warn(f"Playlist {playlistid} does not exist.")
                 return
+
             playlist.songs.append(song)
             db_conn.commit()
 
 def remove_song_from_playlist(playlistid, songid):
+    """Removes a given song to a specified playlist.
+
+    Arguments:
+        playlistid (str): Integer string identifying a unique playlist.
+        songid (str): Integer string identifying a unique song.
+    """
     with access_db() as db_conn:
         try:
             song = db_conn.query(Song).get(songid)
@@ -335,12 +405,13 @@ def remove_song_from_playlist(playlistid, songid):
             logger.warn(f"Exception encountered while trying to access db to remove song {songid} from playlist {playlistid}")
             return
         else:
-            if (not song):
+            if not song:
                 logger.warn(f"Song {songid} does not exist.")
                 return
-            if (not song) or (not playlist):
+            if not playlist:
                 logger.warn(f"Playlist {playlistid} does not exist.")
                 return
+
             try:
                 playlist.songs.remove(song)
             except ValueError:
@@ -349,20 +420,31 @@ def remove_song_from_playlist(playlistid, songid):
                 db_conn.commit()
 
 def get_public_playlists():
+    """Fetch publicly available playlists."""
     result = {'playlists': []}
     with access_db() as db_conn:
+        # Filter all playlists by publicity.
         public = db_conn.query(Playlist)\
                        .filter(Playlist.public==True)
         for playlist in public:
+            # Fetch the playlist owner in order to get their username
+            owner_name = db_conn.query(User.username)\
+                .filter(User.guid==playlist.owner_guid)\
+                .scalar()
             data = {
                 'id': playlist.id,
-                'name': playlist.name,
+                'name': owner_name,
                 'owner_name': playlist.owner_name,
             }
             result['playlists'].append(data)
     return result
 
 def get_playlists_for_user(user_guid):
+    """Fetch public playlists, and playlists owned by a specific user.
+
+    Arguments:
+        user_guid (uuid): UUID identifying the specific user to fetch playlists for.
+    """
     result = {'playlists': []}
     with access_db() as db_conn:
         accessible = db_conn.query(Playlist)\
@@ -371,15 +453,23 @@ def get_playlists_for_user(user_guid):
                                 Playlist.public==True)
                         )
         for playlist in accessible:
+            owner_name = db_conn.query(User.username)\
+                .filter(User.guid==user_guid)\
+                .scalar()
             data = {
                 'id': playlist.id,
-                'name': playlist.name,
+                'name': owner_name,
                 'owner_name': playlist.owner_name,
             }
             result['playlists'].append(data)
     return result
 
 def get_playlists_owned_by_user(user_guid):
+    """Fetch playlists owned by a specific user.
+
+    Arguments:
+        user_guid (uuid): UUID identifying the specific user to fetch playlists for.
+    """
     result = {'playlists': []}
     with access_db() as db_conn:
         accessible = db_conn.query(Playlist)\

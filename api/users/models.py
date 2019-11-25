@@ -1,26 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: users/models.py
-"""Models file for users.
 
-This file contains the models used for storing information about users in the database.
+# Native python imports
 
-Classes:
-    User: Main model used for authentication of a user.
-"""
+# Local file imports
+from settings import engine
+from util.models import Base, GUID, HexByteString
+
+# PIP library imports
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-
 from sqlalchemy_utils import IPAddressType
 
-from settings import engine
-
-from util.models import Base, GUID, HexByteString
-
 class LoginAttempt(Base):
+    """Model used for tracking login attempts.
+
+    Attributes:
+        __tablename__ (str): Name of the database table.
+        id (int): Primary key for the table.
+        email (str): Email address that is attempting to login.
+        attempt_time (datetime): Time of login attempt.
+        source_ip (str): IP of the user attempting to login
+        success (bool): Whether the login attempt was successful or not.
+    """
     __tablename__ = 'login_attempts'
 
     id = Column(Integer, primary_key=True)
@@ -49,6 +55,7 @@ class User(Base):
     password_hash = Column(String)
     guid = Column(GUID, primary_key=True, nullable=False)
     volume = Column(Integer, default=100, nullable=False)
+    admin = Column(Boolean, default=False)
 
     last_registration_email = Column(DateTime)
 

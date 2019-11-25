@@ -1,20 +1,35 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Filename: music/models.py
+
+# Local file imports
+from util.models import Base, GUID
+
+# PIP library imports
 import sqlalchemy
-from sqlalchemy import create_engine, Table
+from sqlalchemy import Table
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
-from util.models import Base, GUID, HexByteString
-
-from settings import db_uri, debug_sql_output
-
-from settings import engine
-
+# Variables and config
+# Association table between tracks and playlists
 association_table = Table('association', Base.metadata,
     Column('playlist_id', Integer, ForeignKey('playlist.id')),
     Column('song_id', Integer, ForeignKey('song.id'))
 )
 
 class Playlist(Base):
+    """Playlist ORM
+
+    Attributes:
+        __tablename__ (str): Name of database table
+        id (int): Primary database key for lookup
+        name (str): Name of the playlist
+        public (bool): Determines whether the playlist is publicly shared or not.
+        owner_guid (GUID): GUID identifying the user that created the playlist.
+        owner_name (str): String identifying the user that created the playlist.
+        songs (relationship): Many-to-many relationship with individual songs.
+    """
     __tablename__ = 'playlist'
 
     id = Column(Integer, primary_key=True)
@@ -24,9 +39,8 @@ class Playlist(Base):
     public = Column(Boolean, default=False)
 
     owner_guid = Column(GUID)
-    owner_name = Column(String)
+    owner_name = Column(String) # I think we can scrap this, and should instead fetch it.
 
-    # relation to playlist
     songs = relationship(
         "Song",
         secondary=association_table,
@@ -34,6 +48,18 @@ class Playlist(Base):
     )
 
 class Song(Base):
+    """Playlist ORM
+
+    Attributes:
+        __tablename__ (str): Name of database table
+        id (int): Primary database key for lookup
+        track_name (str): Title of a given track
+        artist_name (str): Artist of a given track
+        album_name (str): Album of a given track
+        track_path (str): Location of a track's file
+        track_length (str): Length of a given track
+        playlists (relationship): Many-to-many relationship with individual playlists.
+    """
     __tablename__ = 'song'
 
     id = Column(Integer, primary_key=True)
@@ -46,7 +72,6 @@ class Song(Base):
 
     track_length = Column(String)
 
-    # relationship to songs
     playlists = relationship(
         "Playlist",
         secondary=association_table,
@@ -54,6 +79,14 @@ class Song(Base):
     )
 
 class RefreshState(Base):
+    """RefreshState ORM
+
+    Attributes:
+        __tablename__ (str): Name of database table
+        id (int): Primary database key for lookup
+        is_refreshing (bool): This is used for preventing multiple refreshes from occuring simultaneously,
+            sort of like a mutex lock.
+    """
     __tablename__ = 'refreshstate'
 
     id = Column(Integer, primary_key=True)

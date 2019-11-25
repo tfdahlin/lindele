@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Filename: users/routes.py
-"""Util file for users.
+# Filename: users/util.py
 
-Classes:
-    access_db: Wrapper class to simplify database access.
-"""
-
+# Native python imports
 import uuid, secrets, binascii, hashlib, hmac
 import os, logging, re, datetime, time, json
 import smtplib, ssl
@@ -14,15 +10,16 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from base64 import b64encode, b64decode
 
-from sqlalchemy import and_
-
-from users.models import User, LoginAttempt, engine
+# Local file imports
 from settings import hash_iterations, hash_algo
-#from config import EMAIL_USER, EMAIL_PASSWORD, do_not_reply_email
 from settings import BASE_PATH
-
+from users.models import User, LoginAttempt, engine
 from util.util import access_db
 
+# PIP library imports
+from sqlalchemy import and_
+
+# Variables and settings
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 template_dir = os.path.join(curr_dir, 'res', 'templates')
 
@@ -126,7 +123,7 @@ def is_logged_in(request):
     except KeyError:
         logger.info("User has no session cookie.")
         return logged_in
-    token_details = interpret_session_token(session)
+    token_details = decode_session_token(session)
     if token_details:
         # Check to make sure it hasn't been invalidated.
         issued_at = datetime.datetime.fromtimestamp(token_details['iat'])
@@ -371,46 +368,6 @@ def validate_email(email):
         return True
     return False
 
-def rate_limited_email(email):
-    """Check whether rate limiting should be applied to a given email.
-
-    In order to prevent Acommplice from being used to harass an individual,
-    we restrict how often registration notification emails are sent to once
-    every 5 minutes. This function simply checks whether the last time we
-    sent an email was 5 minutes ago or more.
-
-    Arguments:
-        email (str): The email to check rate limiting on.
-
-    Returns:
-        result (bool): True if rate limiting should be applied, False otherwise.
-    """
-    with access_db() as db_conn:
-        user = db_conn.query(User).\
-                       filter(User.email==email).\
-                       first()
-        # If the user doesn't exist, rate limiting doesn't apply.
-        if not user:
-            return False
-
-        # If the user has not yet been emailed, rate limiting doesn't apply.
-        if not user.last_registration_email:
-            return False
-
-        # If the user has been emailed, check the time delta.
-        # If it is less than 5 minutes, rate limiting applies.
-        min_delta = datetime.timedelta(minutes=5)
-
-        last_emailed = user.last_registration_email
-        curr_time = datetime.datetime.now()
-
-        curr_delta = curr_time - last_emailed
-        if curr_delta < min_delta:
-            return True
-
-    # Default to disabled rate limiting.
-    return False
-
 def log_login_attempt(email, success, ip):
     """Create a database entry when a user attempts to login.
 
@@ -479,20 +436,17 @@ def create_session_token(user):
         'iat': int(time.time()),
         'uuid': str(user.guid),
     }
-    payload_as_bytes = json.dumps(payload).encode('utf-8')
+    try:
+        encoded = jwt.encode(payload, fetch_jwt_key(), algorithm='HS256')
+    except Exception as e:
+        logger.warn('Exception encountered while encoding payload.')
+        logger.warn(e)
+        return None
+    else:
+        return encoded
 
-    b64_payload = b64encode(payload_as_bytes)
-    b64_digest = b64encode(generate_hmac_digest(payload_as_bytes))
-
-    result = b'.'.join([b64_payload, b64_digest])
-    result = result.decode('utf-8')
-
-    return result
-
-def interpret_session_token(token):
+def decode_session_token(token):
     """Converts a session token into the original data.
-
-    This also ensures that the signature matches the contents.
 
     Arguments:
         token (str): The base64 encoded encryted payload.
@@ -501,44 +455,15 @@ def interpret_session_token(token):
         payload (dict): The contents of the payload if decoded successfully and signature matches, None otherwise.
     """
     try:
-        token = token.encode('utf-8')
+        payload = jwt.decode(token, fetch_jwt_key(), algorithm='HS256')
     except Exception as e:
-        logger.warn('Could not encode token.')
-        print(e)
-        return None
+        logger.warn('Exception encountered while decoding token.')
+        logger.warn(e)
+    else:
+        return payload
 
-    try:
-        b64_payload, b64_digest = token.split(b'.')
-    except Exception as e:
-        logger.warn('Could not split token.')
-        return None
-
-    try:
-        payload_as_bytes = b64decode(b64_payload)
-        test_digest = b64encode(generate_hmac_digest(payload_as_bytes))
-        if test_digest != b64_digest:
-            logger.warn('Digest is not appear to be valid.')
-            return None
-    except:
-        logger.warn('Could not base64 decode payload.')
-        return None
-
-    try:
-        payload_string = payload_as_bytes.decode('utf-8')
-    except:
-        logger.warn('Could not decode payload to string.')
-        return None
-
-    try:
-        payload = json.loads(payload_as_bytes)
-    except:
-        logger.warn('Could not load payload to json.')
-        return None
-
-    return payload
-
-def fetch_key():
-    """Fetches a key for use with hmac-sha512.
+def fetch_jwt_key():
+    """Fetches a key for use with hmac-sha256.
 
     If the users/.key file exists, it reads it from the file.
     If the file does not exist, it generates one.
@@ -547,7 +472,7 @@ def fetch_key():
         key (bytes): Key to be used for hmac-sha512.
     """
     # Bits to bytes
-    key_size = int(512/8)
+    key_size = int(256/8)
 
     key_file = os.path.join(BASE_PATH, 'users', '.key')
     key = None
@@ -586,7 +511,7 @@ def get_user_from_request(request):
         session_cookie = request.cookies['session']
     except KeyError:
         return user
-    token_details = interpret_session_token(session_cookie)
+    token_details = decode_session_token(session_cookie)
     if not token_details:
         return user
 
@@ -595,22 +520,34 @@ def get_user_from_request(request):
     return user
 
 def set_user_volume(request):
+    """Store a user's preferred volume in the database.
+
+    Arguments:
+        requests (Request): The request being made to store a preferred volume.
+    """
+    # Make sure volume is being passed as a parameter.
     volume = request.data['volume']
     if volume is None:
         logger.info(f'No volume sent in request.')
         return
+
+    # Convert volume string into an integer for storage.
     volume = int(volume)
+
+    # Fetch the UUID of the user to store this for
     user = None
     try:
         session_cookie = request.cookies['session']
     except KeyError:
         logger.info(f'No session cookie in request to set volume.')
         return
-    token_details = interpret_session_token(session_cookie)
+    token_details = decode_session_token(session_cookie)
     if not token_details:
         logger.info(f'Could not get session token when trying to set user volume.')
         return
     user_guid = uuid.UUID(token_details['uuid'])
+
+    # Store the volume setting
     with access_db() as db_conn:
         user = db_conn.query(User)\
                         .filter(User.guid==user_guid)\

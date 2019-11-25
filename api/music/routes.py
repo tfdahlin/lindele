@@ -1,73 +1,70 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Filename: music/routes.py
 
+# Native python imports
 import logging, os, io
 from wsgiref.util import FileWrapper
 
-from pycnic.core import Handler
-from pycnic.errors import HTTP_404, HTTP_401
-
-from PIL import Image
-
-from music.util import create_new_playlist, get_playlist_data_from_id, owns_playlist
-from music.util import get_public_playlists, get_playlists_for_user
-from music.util import add_song_to_playlist, remove_song_from_playlist
-from music.util import refresh_database, get_all_tracks, get_playlists_owned_by_user
-from music.util import fetch_track_info, fetch_track_path, fetch_artwork_path, fetch_random_track_info
-from music.models import Playlist
-from music.models import Song
-
-from users.util import get_user_from_request, is_logged_in
-
+# Local code imports
+import users.util, music.util
 from util.decorators import requires_params, requires_login
 from util.util import BaseHandler, mount_as_needed
 
+# PIP library imports
+from pycnic.core import Handler
+from PIL import Image
+
+# Variables and config
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class Songs(BaseHandler):
+    """Route handler for fetching track information."""
     def get(self, songid=None):
-        mount_as_needed()
+    """GET /songs/[songid]
+
+    Arguments:
+        songid (str): Integer string identifying that info about a single song should be fetched.
+    """
         if songid:
+            # If a song id is specified, fetch info about that track specifically.
             try:
-                data = fetch_track_info(int(songid))
+                data = music.util.fetch_track_info(int(songid))
             except:
                 logger.warn(f'Could not fetch track information for song id {songid}')
-                return self.failure()
+                return self.HTTP_400()
             else:
                 if data:
-                    return self.success(data=data)
-                raise HTTP_404('Track not found.')
+                    return self.HTTP_200(data=data)
+                return self.HTTP_404()
         else:
-            tracks = get_all_tracks()
+            tracks = music.util.get_all_tracks()
             data = {
                 'tracks': tracks
             }
 
-        return self.success(data=data)
-
-class RandomSong(BaseHandler):
-    def get(self):
-        try:
-            data = fetch_random_track_info()
-        except:
-            logger.warn(f'Could not fetch random track.')
-            return self.failure()
-        else:
-            if data:
-                return self.success(data)
-            raise HTTP_404('No songs found.')
+        return self.HTTP_200(data=data)
 
 class Audio(BaseHandler):
-    def get(self, songid=None):
-        if not songid:
-            logger.warn('Request for audio made without a song id.')
-            raise HTTP_404('Invalid song id.')
+    """Route handler for fetching track audio files."""
+    def get(self, songid):
+        """GET /songs/<songid>/audio
 
+        Arguments:
+            songid (str): Integer string identifying the track that should be served.
+        """
         try:
-            track_file = fetch_track_path(int(songid))
+            track_file = music.util.fetch_track_path(int(songid))
         except:
             logger.warn(f'Could not fetch track audio for song id: {songid}.')
-            raise HTTP_404('Invalid song id.')
+            return self.HTTP_404(error='Invalid song id.')
 
+        # Only mount if we actually need to load the file.
+        # This is specifically for my setup where the media server may go to sleep
+        #  and is separate from the main server, so it may need to be mounted before
+        #  tracks can be opened.
+        mount_as_needed()
         wrapper = FileWrapper(open(track_file, 'rb'))
         self.response.set_header('Content-Type', 'audio/mpeg')
         self.response.set_header('Content-Length', str(os.path.getsize(track_file)))
@@ -75,101 +72,164 @@ class Audio(BaseHandler):
         return wrapper
 
 class Artwork(BaseHandler):
-    def get(self, songid=None):
-        if not songid:
-            logger.warn('Request for artwork made without a song id.')
-            raise HTTP_404('Invalid song id.')
+    """Route handler for fetching track artwork files."""
+    def get(self, songid):
+        """GET /songs/<songid>/artwork
 
+        Arguments:
+            songid (str): Integer string identifying the track that should have its artwork served.
+        """
         try:
-            artwork_file = fetch_artwork_path(int(songid))
+            artwork_file = music.util.fetch_artwork_path(int(songid))
         except:
             logger.warn(f'Could not fetch track artwork for song id: {songid}.')
-            raise HTTP_404('Invalid song id.')
+            return self.HTTP_404(error='Invalid song id.')
 
+        # Set content-type header according to image type
         if artwork_file.endswith('.png'):
             self.response.set_header('Content-Type', 'image/png')
-            with open(artwork_file, 'rb') as f:
-                wrapper = FileWrapper(open(artwork_file, 'rb'))
-                return wrapper
-        elif artwork_file.endswith('.jpg'):
+        if artwork_file.endswith('.jpg'):
             self.response.set_header('Content-Type', 'image/jpeg')
-            with open(artwork_file, 'rb') as f:
-                wrapper = FileWrapper(open(artwork_file, 'rb'))
-                return wrapper
-        else:
+
+        # Wrap file operations in try/except just in case it can't be loaded.
+        try:
+            wrapper = FileWrapper(open(artwork_file, 'rb'))
+            self.response.set_header('Content-Length', str(os.path.getsize(artwork_file)))
+            self.response.set_header('Accept-Ranges', 'bytes')
+        except Exception as e:
             logger.warn(f'Error encountered while trying to fetch artwork for song with id {songid}.')
-            raise HTTP_404('Album artwork not found.')
+            logger.warn(e)
+            return self.HTTP_400(error='Error loading album artwork.')
+        else:
+            return wrapper
 
 class BuildDatabase(BaseHandler):
+    """Route handler for building/refreshing the track database."""
     def get(self):
-        refresh_database()
-        return self.success()
+        """GET /refresh"""
+        # Asynchronous thread that refreshes the database, so the user doesn't have to wait.
+        music.util.refresh_database()
+        # Return success immediately
+        return self.HTTP_200()
 
 class Playlists(BaseHandler):
+    """Route handler for fetching playlist information."""
     def get(self, playlistid=None):
-        if is_logged_in(self.request):
-            user = get_user_from_request(self.request)
+        """GET /playlists/[playlistid]
+
+        Arguments:
+            playlistid (str): Integer string identifying a unique playlist.
+        """
+        if users.util.is_logged_in(self.request):
+            user = users.util.get_user_from_request(self.request)
         else:
             user = None
 
         if not playlistid:
-            # Get public playlists, and any that belong to user
-            if user:
-                accessible_playlists = get_playlists_for_user(user.guid)
-            else:
-                accessible_playlists = get_public_playlists()
-            return self.success(data=accessible_playlists)
+            return self.fetch_available_playlists(user)
         else:
             # Fetch a specific playlist
-            playlist_data = get_playlist_data_from_id(playlistid)
-            if (playlist_data and playlist_data['public']) or (user and owns_playlist(playlistid, user.guid)):
-                del(playlist_data['public'])
-                return self.success(data=playlist_data)
-            else:
-                raise HTTP_401('You cannot access this playlist.')
+            return self.fetch_unique_playlist(user, playlistid)
 
-            # Check if the user can access the playlist.
+    def fetch_available_playlists(self, user):
+        """Fetch playlists that are available to a specific user.
+        This includes public playlists, and playlists created by the user.
+
+        Arguments:
+            user (User): The user we are fetching playlists for, or None.
+        """
+        if user:
+            accessible_playlists = music.util.get_playlists_for_user(user.guid)
+        else:
+            accessible_playlists = music.util.get_public_playlists()
+        return self.HTTP_200(data=accessible_playlists)
+            
+    def fetch_unique_playlist(self, user, playlistid):
+        """Fetch a playlist identified by a unique playlistid.
+
+        Arguments:
+            user (User): The user we are fetching the playlist for, or None.
+            playlistid (str): Integer string identifying the requests playlist.
+        """
+        playlist_data = music.util.get_playlist_data_from_id(playlistid)
+        if not playlist_data:
+            return self.HTTP_404()
+
+        # We only want to return the playlist data if it's public, or owned by the user.
+        if playlist_data['public'] or (user and music.util.owns_playlist(playlistid, user.guid)):
+            # No need to return this information, so we strip it.
+            del(playlist_data['public'])
+            return self.HTTP_200(data=playlist_data)
+        else:
+            return self.HTTP_403(error='You cannot access this playlist.')
 
 class OwnedPlaylists(BaseHandler):
+    """Route handler for fetching owned playlists."""
     def get(self):
-        if is_logged_in(self.request):
-            user = get_user_from_request(self.request)
+        """GET /playlists/owned"""
+        if users.util.is_logged_in(self.request):
+            user = users.util.get_user_from_request(self.request)
         else:
-            return self.success(data={'playlists': []})
-        return self.success(data=get_playlists_owned_by_user(user.guid))
+            return self.HTTP_200(data={'playlists': []})
+        owned_playlists = music.util.get_playlists_owned_by_user(user.guid)
+        return self.HTTP_200(data=owned_playlists)
 
 class CreatePlaylist(BaseHandler):
+    """Route handler for creating playlists."""
     @requires_login()
     @requires_params('playlist_name')
     def post(self):
-        user = get_user_from_request(self.request)
+        """POST /playlists/create
+
+        Parameters:
+            playlist_name (str): The name to be given to the playlist.
+        """
+        user = users.util.get_user_from_request(self.request)
         playlist_name = self.request.data['playlist_name']
-        create_new_playlist(playlist_name, user.guid, user.username)
+
+        music.util.create_new_playlist(playlist_name, user.guid, user.username)
+
         logger.info(f"User {user.username} created new playlist: {playlist_name}")
-        return self.success(data={'msg': f'Playlist {playlist_name} successfully created.'})
+        return self.HTTP_200()
 
 class AddToPlaylist(BaseHandler):
+    """Route handler for adding tracks to a playlist."""
     @requires_login()
     @requires_params('songid')
     def post(self, playlistid):
-        user = get_user_from_request(self.request)
-        if not owns_playlist(playlistid, user.guid):
-            raise HTTP_401('You don\'t own this playlist!')
+        """POST /playlists/<playlistid>/add
+
+        Arguments:
+            playlistid (str): Integer string identifying the playlist to add a track to.
+
+        Parameters:
+            songid (str): Integer string identifying the song to be added to the playlist.
+        """
+        user = users.util.get_user_from_request(self.request)
+        if not music.util.owns_playlist(playlistid, user.guid):
+            return self.HTTP_403(error='You don\'t own this playlist.')
 
         songid = self.request.data['songid']
-        add_song_to_playlist(playlistid, songid)
-        # TODO: Add song to playlist
-        return self.success(data={'msg': f'success'})
+        music.util.add_song_to_playlist(playlistid, songid)
+        return self.HTTP_200()
 
 class RemoveFromPlaylist(BaseHandler):
+    """Route handler for removing tracks from a playlist."""
     @requires_login()
     @requires_params('songid')
     def post(self, playlistid):
-        user = get_user_from_request(self.request)
-        if not owns_playlist(playlistid, user.guid):
-            raise HTTP_401('You don\'t own this playlist!')
+        """POST /playlists/<playlistid>/remove
+
+        Arguments:
+            playlistid (str): Integer string identifying the playlist to remove a track from.
+
+        Parameters:
+            songid (str): Integer string identifying the song to be removed from the playlist.
+        """
+        user = users.util.get_user_from_request(self.request)
+        if not music.util.owns_playlist(playlistid, user.guid):
+            return self.HTTP_403(error='You don\'t own this playlist.')
 
         songid = self.request.data['songid']
-        remove_song_from_playlist(playlistid, songid)
-        # TODO: Remove song from playlist.
-        return self.success(data={'msg': f'success'})
+        music.util.remove_song_from_playlist(playlistid, songid)
+        return self.HTTP_200()
