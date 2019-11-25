@@ -433,8 +433,8 @@ def get_public_playlists():
                 .scalar()
             data = {
                 'id': playlist.id,
-                'name': owner_name,
-                'owner_name': playlist.owner_name,
+                'name': playlist.name,
+                'owner_name': owner_name,
             }
             result['playlists'].append(data)
     return result
@@ -458,8 +458,8 @@ def get_playlists_for_user(user_guid):
                 .scalar()
             data = {
                 'id': playlist.id,
-                'name': owner_name,
-                'owner_name': playlist.owner_name,
+                'name': playlist.name,
+                'owner_name': owner_name,
             }
             result['playlists'].append(data)
     return result
