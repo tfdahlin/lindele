@@ -5,7 +5,6 @@
 # Native python imports
 
 # Local file imports
-from settings import engine
 from util.models import Base, GUID, HexByteString
 
 # PIP library imports
