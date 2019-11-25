@@ -9,7 +9,7 @@ $.ajaxSetup({
     },
 });
 
-String.prototype.escape = function () {
+function escape_string(input_string) {
     var tagsToReplace = {
         '&': '&amp;',
         '<': '&lt;',
@@ -18,7 +18,7 @@ String.prototype.escape = function () {
         "'": '&#x27;',
         '/': '&#x2F;',
     };
-    return this.replace(/[&<>"'\/]/g, function(tag) {
+    return input_string.replace(/[&<>"'\/]/g, function(tag) {
         return tagsToReplace[tag] || tag;
     });
 }
@@ -189,7 +189,7 @@ function set_playlist_info_text() {
             },
         })
         .done((data) => {
-            playlist_info_div.html(`You're listening to ${data['data']['name'].escape()} by ${data['data']['owner_name'].escape()}`);
+            playlist_info_div.html(`You're listening to ${escape_string(data['data']['name'])} by ${escape_string(data['data']['owner_name'])}`);
         })
         .fail((err) => {
             console.log(err);

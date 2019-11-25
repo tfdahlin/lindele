@@ -19,14 +19,15 @@ function add_playlist_controls() {
                         <button class="go-to-playlist" id="go_to_playlist_button" type="button">Go to playlist</button>
                     </div>
                 `);
-                playlists.forEach((element) => {
-                    option_html = `
+                for (i=0; i < tracks.length; i++) {
+                    var element = playlists[i];
+                    var option_html = `
                         <option value="${element['id']}">
-                            ${element['owner_name'].escape()}: ${element['name'].escape()}
+                            ${escape_string(element['owner_name'])}: ${escape_string(element['name'])}
                         </option>
                     `;
                     $('#playlistoptions').append(option_html);
-                });
+                }
                 $("#go_to_playlist_button").click(go_to_playlist);
             }
         }
@@ -90,7 +91,7 @@ function add_hidden_playlist_controls() {
                         $('#playlist-table').append(`
                             <tr style="background-color: #cc2233" id="removetrack">
                                 <td id="${playlist['id']}" class="removetrack">
-                                    Remove song from ${playlist['name'].escape()}
+                                    Remove song from ${escape_name(playlist['name'])}
                                 </td>
                             </tr>
                         `);
@@ -117,7 +118,7 @@ function add_hidden_playlist_controls() {
                 $('#playlist-table').append(`
                     <tr class="${row_type} playlist text">
                         <td id="${playlist['id']}" class="playlist">
-                            ${playlist['name'].escape()}
+                            ${escape_string(playlist['name'])}
                         </td>
                     </tr>
                 `)
