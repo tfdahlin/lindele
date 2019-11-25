@@ -343,9 +343,12 @@ def get_playlist_data_from_id(playlistid):
         else:
             if not playlist:
                 return None
+            owner_name = db_conn.query(User.username)\
+                .filter(User.guid==playlist.owner_guid)\
+                .scalar()
             playlist_data = {
                 'tracks': [],
-                'owner_name': playlist.owner_name,
+                'owner_name': owner_name,
                 'name': playlist.name,
                 'public': playlist.public,
             }

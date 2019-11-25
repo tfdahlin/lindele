@@ -91,7 +91,7 @@ function add_hidden_playlist_controls() {
                         $('#playlist-table').append(`
                             <tr style="background-color: #cc2233" id="removetrack">
                                 <td id="${playlist['id']}" class="removetrack">
-                                    Remove song from ${escape_name(playlist['name'])}
+                                    Remove song from ${escape_string(playlist['name'])}
                                 </td>
                             </tr>
                         `);
