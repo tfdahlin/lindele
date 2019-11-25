@@ -444,7 +444,7 @@ def create_session_token(user):
         logger.warn(e)
         return None
     else:
-        return encoded
+        return encoded.decode('utf-8')
 
 def decode_session_token(token):
     """Converts a session token into the original data.
@@ -455,6 +455,7 @@ def decode_session_token(token):
     Returns:
         payload (dict): The contents of the payload if decoded successfully and signature matches, None otherwise.
     """
+    token_bytes = token.encode('utf-8')
     try:
         payload = jwt.decode(token, fetch_jwt_key(), algorithm='HS256')
     except Exception as e:
