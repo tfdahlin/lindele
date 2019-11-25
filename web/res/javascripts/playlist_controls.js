@@ -19,7 +19,7 @@ function add_playlist_controls() {
                         <button class="go-to-playlist" id="go_to_playlist_button" type="button">Go to playlist</button>
                     </div>
                 `);
-                for (i=0; i < tracks.length; i++) {
+                for (i=0; i < playlists.length; i++) {
                     var element = playlists[i];
                     var option_html = `
                         <option value="${element['id']}">
