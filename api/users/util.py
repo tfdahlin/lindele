@@ -13,7 +13,7 @@ from base64 import b64encode, b64decode
 # Local file imports
 from settings import hash_iterations, hash_algo
 from settings import BASE_PATH
-from users.models import User, LoginAttempt, engine
+from users.models import User, LoginAttempt
 from util.util import access_db
 
 # PIP library imports
