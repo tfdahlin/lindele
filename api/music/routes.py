@@ -22,11 +22,11 @@ logging.basicConfig(level=logging.INFO)
 class Songs(BaseHandler):
     """Route handler for fetching track information."""
     def get(self, songid=None):
-    """GET /songs/[songid]
+        """GET /songs/[songid]
 
-    Arguments:
-        songid (str): Integer string identifying that info about a single song should be fetched.
-    """
+        Arguments:
+            songid (str): Integer string identifying that info about a single song should be fetched.
+        """
         if songid:
             # If a song id is specified, fetch info about that track specifically.
             try:
