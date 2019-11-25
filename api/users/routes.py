@@ -13,7 +13,7 @@ from settings import hash_iterations
 from util.decorators import requires_params, requires_login
 from util.util import BaseHandler
 
-from users.models import User, engine
+from users.models import User
 from users.util import *
 
 logger = logging.getLogger(__name__)
