@@ -4,7 +4,7 @@ function add_playlist_controls() {
     //  Otherwise, we don't need unnecessary empty lists.
     $.ajax({
         type: 'GET',
-        url: 'https://api.music.acommplice.com/playlists',
+        url: '{{{api_url}}}/playlists',
         xhrFields: {
             withCredentials: true
         },
@@ -60,7 +60,7 @@ function get_owned_playlists() {
     return new Promise((resolve, reject) => {
         $.ajax({
             type: 'GET',
-            url: `https://api.music.acommplice.com/playlists/owned`,
+            url: `{{{api_url}}}/playlists/owned`,
             xhrFields: {
                 withCredentials: true,
             },
@@ -200,7 +200,7 @@ function add_song_to_playlist(playlist_id, rc_song_id) {
     json_data = JSON.stringify({'songid': rc_song_id});
     $.ajax({
         type: 'POST',
-        url: `https://api.music.acommplice.com/playlists/${playlist_id}/add`,
+        url: `{{{api_url}}}/playlists/${playlist_id}/add`,
         xhrFields: {
             withCredentials: true,
         },
@@ -219,7 +219,7 @@ function remove_song_from_playlist(playlist_id, rc_song_id) {
     json_data = JSON.stringify({'songid': rc_song_id})
     $.ajax({
         type: 'POST',
-        url: `https://api.music.acommplice.com/playlists/${playlist_id}/remove`,
+        url: `{{{api_url}}}/playlists/${playlist_id}/remove`,
         xhrFields: {
             withCredentials: true,
         },
@@ -244,7 +244,7 @@ function request_playlist_name() {
 
     $.ajax({
         type: 'POST',
-        url: `https://api.music.acommplice.com/playlists/create`,
+        url: `{{{api_url}}}/playlists/create`,
         xhrFields: {
             withCredentials: true,
         },

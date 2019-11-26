@@ -312,8 +312,6 @@ app.use('/', function (req, res) {
     }
 });
 
-
-
 if(settings['https']) {
     https.createServer({
         key: fs.readFileSync(settings['ssl_key_path']),

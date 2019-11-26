@@ -11,7 +11,7 @@ function set_header() {
                     e.preventDefault();
                     $.ajax({
                         type: 'POST',
-                        url: 'https://api.music.acommplice.com/logout',
+                        url: '{{{api_url}}}/logout',
                         xhrFields: {
                             withCredentials: true,
                         },
@@ -59,7 +59,7 @@ function set_header() {
                     $.ajax({
                         type: 'POST',
                         data: JSON.stringify(data_json),
-                        url: 'https://api.music.acommplice.com/login',
+                        url: '{{{api_url}}}/login',
                         xhrFields: {
                             withCredentials: true
                         },

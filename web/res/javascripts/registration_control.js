@@ -7,7 +7,7 @@ $('#register').submit((e) => {
         data_json[element['name']] = element['value'];
     });
     console.log(JSON.stringify(data_json));
-    $.post('https://api.music.acommplice.com/register', data=JSON.stringify(data_json))
+    $.post('{{{api_url}}}/register', data=JSON.stringify(data_json))
     .done((data) => {
         if (data['status_code'] === 200) {
             window.location.href = "/";

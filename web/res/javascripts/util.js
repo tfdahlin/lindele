@@ -29,7 +29,7 @@ function check_login_status() {
     return new Promise((resolve, reject) => {
         $.ajax({
             type: 'GET',
-            url: 'https://api.music.acommplice.com/current_user',
+            url: '{{{api_url}}}/current_user',
             xhrFields: {
                 withCredentials: true,
             },
@@ -73,7 +73,7 @@ function load_all_tracks() {
 function _fetch_all_tracks() {
     // Fetches track info for all songs.
     return new Promise((resolve, reject) => {
-        $.get('https://api.music.acommplice.com/songs')
+        $.get('{{{api_url}}}/songs')
         .done(function(data) {
             if (data['status_code'] === 200) {
                 resolve(data['data']['tracks']);
@@ -90,7 +90,7 @@ function _fetch_all_tracks() {
 function fetch_tracks_from_playlist(playlistid) {
     // Fetches track info for the given playlist.
     return new Promise((resolve, reject) => {
-        $.get('https://api.music.acommplice.com/playlists/' + playlistid)
+        $.get('{{{api_url}}}/playlists/' + playlistid)
         .done((data) => {
             if (data['status_code'] === 200) {
                 resolve(data['data']['tracks']);
@@ -139,7 +139,7 @@ function fetch_tracks() {
 function fetch_track_by_id(id) {
     // Fetch track info for a specific track
     return new Promise((resolve, reject) => {
-        $.get('https://api.music.acommplice.com/songs/' + id)
+        $.get('{{{api_url}}}/songs/' + id)
         .done(function(data) {
             if (data['status_code'] == 200) {
                 resolve(data['data']);
@@ -194,7 +194,7 @@ function set_playlist_info_text() {
     if (playlist_id) {
         $.ajax({
             type: 'GET',
-            url: 'https://api.music.acommplice.com/playlists/' + playlist_id,
+            url: '{{{api_url}}}/playlists/' + playlist_id,
             xhrFields: {
                 withCredentials: true,
             },

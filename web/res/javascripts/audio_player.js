@@ -60,7 +60,7 @@ function load_track(track) {
 function play_track(track) {
     // Loads the given track into the audio player, and updates the progress
     //  display for the track
-    var track_audio_src = 'https://api.music.acommplice.com/songs/' + track['id'] + '/audio';
+    var track_audio_src = '{{{api_url}}}/songs/' + track['id'] + '/audio';
     audio_player.src = track_audio_src;
     document.getElementById("playbackprogress").style.width = "0%";
     document.getElementById("playbacktimercontainer").innerHTML = "0:00 / 0:00";
@@ -78,7 +78,7 @@ function play_track(track) {
 
 function set_album_artwork(track) {
     // Updates the album artwork display.
-    var artwork_uri = 'https://api.music.acommplice.com/songs/' + track['id'] + '/artwork';
+    var artwork_uri = '{{{api_url}}}/songs/' + track['id'] + '/artwork';
     $('#albumartwork').src = artwork_uri;
     document.getElementById("albumartwork").src = artwork_uri;
 }
@@ -376,7 +376,7 @@ $("#downloadbutton").click(function() {
 $("#volume_slider").on('mouseup', function() {
     $.ajax({
         type: 'POST',
-        url: 'https://api.music.acommplice.com/set_volume',
+        url: '{{{api_url}}}/set_volume',
         data: JSON.stringify({'volume': Math.trunc(this.value)}),
         xhrFields: {
             withCredentials: true,
