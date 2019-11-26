@@ -16,7 +16,7 @@ const settings = require('./settings');
 
 const index_html = path.join(__dirname, 'index.html');
 const register_html = path.join(__dirname, 'register.html');
-const javascripts_dir = path.join(__dirname, 'javascripts');
+const javascripts_dir = path.join(__dirname, 'res', 'javascripts');
 const ajax = `<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>`;
 
 // Resource directories
@@ -26,8 +26,9 @@ app.use(favicon(path.join(__dirname, 'res', 'media', 'favicon.ico')));
 
 function fetch_file_contents(filename) {
     return new Promise((resolve, reject) => {
-        fs.readFile(filename, 'utf-8', (err, contents) => {
+        fs.readFile(filename, 'utf-8', function (err, contents) {
             if (err) {
+                console.log(err);
                 reject('Could not read file: ' + filename);
             } else {
                 resolve(contents);
@@ -155,7 +156,7 @@ app.use('/javascripts/:filename', function (req, res) {
 
     render_static_javascript(req.params['filename'], context)
     .then((html) => {
-        res.status(200).send(html);
+        res.status(200).type('application/json').send(html);
     })
     .catch((err) => {
         console.log(err);
@@ -165,7 +166,7 @@ app.use('/javascripts/:filename', function (req, res) {
 
 app.use('/register', function (req, res) {
     // Render the registration page
-    var full_data = {}
+    var full_data = {};
     render_register_html(full_data)
         .then(html => {
             res.status(200).send(html);
