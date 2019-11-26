@@ -18,15 +18,14 @@ const index_html = path.join(__dirname, 'index.html');
 const register_html = path.join(__dirname, 'register.html');
 const ajax = `<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>`;
 
+// Resource directories
 app.use('/css', express.static(path.join(__dirname, 'res', 'css')));
-
 app.use('/javascripts', express.static(path.join(__dirname, 'res', 'javascripts')));
-
 app.use('/media', express.static(path.join(__dirname, 'res', 'media')));
-
 app.use(favicon(path.join(__dirname, 'res', 'media', 'favicon.ico')));
 
 function fetch_main_html() {
+    // Load and return index.html contents
     return new Promise((resolve, reject) => {
         fs.readFile(index_html, 'utf-8', function(err, contents) {
             if (err) {
@@ -39,6 +38,7 @@ function fetch_main_html() {
 }
 
 function fetch_register_html() {
+    // Load and return register.html contents
     return new Promise((resolve, reject) => {
         fs.readFile(register_html, 'utf-8', function(err, contents) {
             if (err) {
@@ -51,6 +51,7 @@ function fetch_register_html() {
 }
 
 function render_html(context) {
+    // Renders mustache file with context
     return new Promise((resolve, reject) => {
         fetch_main_html()
         .then(html => {
@@ -67,6 +68,7 @@ function render_html(context) {
 }
 
 function render_register_html(context) {
+    // Renders the registration page
     return new Promise((resolve, reject) => {
         fetch_register_html()
         .then(html => {
@@ -83,6 +85,7 @@ function render_register_html(context) {
 }
 
 function has_song_id(req) {
+    // Check if a song id is in the url
     if (!Object.keys(req.query).length) {
         return false;
     }
@@ -99,6 +102,7 @@ function has_song_id(req) {
 }
 
 app.use('/register', function (req, res) {
+    // Render the registration page
     var full_data = {}
     render_register_html(full_data)
         .then(html => {
@@ -111,6 +115,8 @@ app.use('/register', function (req, res) {
 });
 
 app.use('/refresh', function (req, res) {
+    // Renders a page that makes an ajax request to refresh the database,
+    //  then redirects to the main page.
     res.status(200).send(`
         <html><body>
         ${ajax}
@@ -135,6 +141,8 @@ app.use('/refresh', function (req, res) {
 });
 
 app.use('/restart', function (req, res) {
+    // Renders a page that makes an ajax request to restart the server,
+    //  then redirects to the main page.
     res.status(200).send(`
         <html><body>
         ${ajax}
@@ -160,6 +168,8 @@ app.use('/restart', function (req, res) {
 });
 
 app.use('/remount', function (req, res) {
+    // Renders a page that makes an ajax request to remounts the media server,
+    //  then redirects to the main page.
     res.status(200).send(`
         <html><body>
         ${ajax}
@@ -185,6 +195,7 @@ app.use('/remount', function (req, res) {
 });
 
 app.use('/', function (req, res) {
+    // Render the main page according to the parameters given.
     if (has_song_id(req)) {
         let songid = req.query['songid'];
         console.log(songid)
