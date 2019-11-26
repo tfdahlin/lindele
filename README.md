@@ -1,5 +1,5 @@
-# music_stream_revamp
-Revamp of my first music stream app to improve performance, maintainability, and to enable future projects.
+# Lindelë
+Revamp of my first music stream app to improve performance, maintainability, and to enable future projects. The name comes from the [Quenya word][3] for 'music'.
 
 ## Overview
 In 2018, I built a [music player][1] using Django so that I could more easily share my music collection with my family, as well as so I could access my music remotely. This also served as a key component of my resume for my first real job hunt, as a way to demonstrate my abilities as a developer. When I moved, however, I discovered that it was a lot more challenging to put back together and use based on that source code, and I realized that my ability to write code had improved significantly. 
@@ -39,3 +39,4 @@ sudo mount -t cifs -v -o vers=3.0,username=media_server_username,password=media_
 
 [1]:https://github.com/tfdahlin/music_stream
 [2]:http://pycnic.nullism.com
+[3]:https://www.elfdict.com/w/lindele
