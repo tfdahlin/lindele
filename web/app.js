@@ -16,13 +16,62 @@ const settings = require('./settings');
 
 const index_html = path.join(__dirname, 'index.html');
 const register_html = path.join(__dirname, 'register.html');
+const javascripts_dir = path.join(__dirname, 'javascripts');
 const ajax = `<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>`;
 
 // Resource directories
 app.use('/css', express.static(path.join(__dirname, 'res', 'css')));
-app.use('/javascripts', express.static(path.join(__dirname, 'res', 'javascripts')));
 app.use('/media', express.static(path.join(__dirname, 'res', 'media')));
 app.use(favicon(path.join(__dirname, 'res', 'media', 'favicon.ico')));
+
+function fetch_file_contents(filename) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filename, 'utf-8', (err, contents) => {
+            if (err) {
+                reject('Could not read file: ' + filename);
+            } else {
+                resolve(contents);
+            }
+        });
+    });
+}
+
+function fetch_static_javascript(filename) {
+    return new Promise((resolve, reject) => {
+        var valid_files = [
+            'audio_player.js',
+            'login_controls.js',
+            'on_load.js',
+            'playlist_controls.js',
+            'registration_control.js',
+            'util.js'
+        ];
+        if (valid_files.indexOf(filename) >= 0) {
+            fetch_file_contents(path.join(javascripts_dir, filename))
+            .then((contents) => {
+                resolve(contents);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+        }
+        else { // Invalid file
+            reject('Attempting to load non-existent file.');
+        }
+    });
+}
+
+function render_static_javascript(filename, context) {
+    return new Promise((resolve, reject) => {
+        fetch_static_javascript(filename)
+        .then((html) => {
+            resolve(mustache.render(html, context));
+        })
+        .catch((err) => {
+            reject(err);
+        });
+    });
+}
 
 function fetch_main_html() {
     // Load and return index.html contents
@@ -247,6 +296,19 @@ app.use('/', function (req, res) {
             }
         );
     }
+});
+
+app.use('/javascripts/:filename', function (req, res) {
+    var context = {'api_url': settings['api_url']};
+
+    render_static_javascript(req.params['filename'], context)
+    .then((html) => {
+        res.status(200).send(html);
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).send('Server error.');
+    });
 });
 
 if(settings['https']) {
