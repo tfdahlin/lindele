@@ -150,6 +150,19 @@ function has_song_id(req) {
     return true;
 }
 
+app.use('/javascripts/:filename', function (req, res) {
+    var context = {'api_url': settings['api_url']};
+
+    render_static_javascript(req.params['filename'], context)
+    .then((html) => {
+        res.status(200).send(html);
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).send('Server error.');
+    });
+});
+
 app.use('/register', function (req, res) {
     // Render the registration page
     var full_data = {}
@@ -298,18 +311,7 @@ app.use('/', function (req, res) {
     }
 });
 
-app.use('/javascripts/:filename', function (req, res) {
-    var context = {'api_url': settings['api_url']};
 
-    render_static_javascript(req.params['filename'], context)
-    .then((html) => {
-        res.status(200).send(html);
-    })
-    .catch((err) => {
-        console.log(err);
-        res.status(500).send('Server error.');
-    });
-});
 
 if(settings['https']) {
     https.createServer({
