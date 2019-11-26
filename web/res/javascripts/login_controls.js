@@ -1,4 +1,5 @@
 function set_header() {
+    // Sets the header based on whether the user is logged in or not.
     //check_login_status().then((curr_user_status) => {
         if (curr_user_status['logged_in']) {
             set_header_logged_in()
@@ -94,6 +95,7 @@ function set_header() {
 }
 
 function set_header_logged_out() {
+    // Updates the header to allow sign-in
     return new Promise((resolve, reject) => {
         try {
             header_div = $('#header');
@@ -111,6 +113,7 @@ function set_header_logged_out() {
 }
 
 function set_header_logged_in() {
+    // Updates the header to allow sign-out
     return new Promise((resolve, reject) => {
         try {
             header_div = $('#header');

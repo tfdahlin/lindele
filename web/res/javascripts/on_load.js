@@ -1,3 +1,5 @@
+// Take care of a bunch of setup on page load, such
+//  as fetching all tracks, enabling UI elements, etc
 window.onload = function() {
     load_all_tracks()
     .then((data) => {
@@ -27,6 +29,7 @@ window.onload = function() {
 }
 
 function set_user_status(data) {
+    // Global variable for assessing if the user is logged in or not.
     return new Promise((resolve, reject) => {
         curr_user_status = data;
         resolve();

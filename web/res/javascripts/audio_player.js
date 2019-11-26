@@ -1,4 +1,5 @@
 function time_update() {
+    // Updates the progress bar and time display for the current track.
     var current_time = audio_player.currentTime;
     var total_time = audio_player.duration;
     var percentage = 100*(current_time / total_time);
@@ -28,7 +29,7 @@ updateSoundIcon(audio_player.volume);
 
 // Decide what song to play first.
 if ($.urlParam('songid') == null) {
-    // Fetch a random track.
+    // Fetch a random track if not songid specified.
     fetch_random_track().then((track) => {
         load_track(track);
         deck.push(track);
@@ -38,6 +39,7 @@ if ($.urlParam('songid') == null) {
         console.log(err);
     })
 } else {
+    // Fetch the specified track otherwise
     fetch_track_by_id($.urlParam('songid')).then((track) => {
         load_track(track);
         deck.push(track);
@@ -48,6 +50,7 @@ if ($.urlParam('songid') == null) {
 }
 
 function load_track(track) {
+    // Loads the track into out audio object, and updates the page as necessary
     play_track(track);
     set_album_artwork(track);
     update_page_title(track);
@@ -55,12 +58,14 @@ function load_track(track) {
 }
 
 function play_track(track) {
+    // Loads the given track into the audio player, and updates the progress
+    //  display for the track
     var track_audio_src = 'https://api.music.acommplice.com/songs/' + track['id'] + '/audio';
     audio_player.src = track_audio_src;
     document.getElementById("playbackprogress").style.width = "0%";
     document.getElementById("playbacktimercontainer").innerHTML = "0:00 / 0:00";
 
-    // Autoplay promise stuff for Chrome
+    // Autoplay promise stuff for Chrome to not yell at me in the console lol
     var promise = audio_player.play();
     if (promise !== undefined) {
         promise.then( (success) => {
@@ -72,12 +77,14 @@ function play_track(track) {
 }
 
 function set_album_artwork(track) {
+    // Updates the album artwork display.
     var artwork_uri = 'https://api.music.acommplice.com/songs/' + track['id'] + '/artwork';
     $('#albumartwork').src = artwork_uri;
     document.getElementById("albumartwork").src = artwork_uri;
 }
 
 function update_page_title(track) {
+    // Sets the page title to the current track.
     var title = track['title'];
     var artist = track['artist'];
     var page_title = '';
@@ -92,6 +99,7 @@ function update_page_title(track) {
 }
 
 function set_track_details(track) {
+    // Updates the track details section of the sidebar.
     var title = track['title'];
     var artist = track['artist'];
     var album = track['album'];
@@ -112,16 +120,17 @@ function set_track_details(track) {
     }
 }
 
-// Decide what song to play next.
 function play_next_song() {
+    // Decide what song to play next.
     choose_next_song().then((track) => {
         load_track(track);
     }).catch((err) => {
-        // This only really happens when the song needs to load.
+        // This only really happens when the song still needs to load.
     })
 }
 
 function push_track(track) {
+    // Adds the track to the deck.
     return new Promise((resolve, reject) => {
         deck.push(track);
         deck_position = deck.length-1;
@@ -130,7 +139,9 @@ function push_track(track) {
 }
 
 function choose_next_song() {
+    // Select the next song to play
     return new Promise((resolve, reject) => {
+        // If we can proceed through the deck, do so
         if(deck_position < deck.length-1) {
             deck_position += 1;
             load_track(deck[deck_position]);
@@ -147,7 +158,7 @@ function choose_next_song() {
             deck_position = deck.length-1;
         }
 
-        // Check if random
+        // Check if random, and choose randomly if so
         if (shuffle) {
             fetch_random_track().then((track) => {
                 push_track(track)
@@ -159,10 +170,11 @@ function choose_next_song() {
                 return reject(err);
             })
         } else {
-            // Select the next track in track_list.
-            // Current track is deck[deck_position]
-            // Iterate through track_list til we find a matching id
+            // Make sure that the track list has loaded
             if (tracks_loaded) {
+                // Select the next track in track_list.
+                // Current track is deck[deck_position]
+                // Iterate through track_list til we find a matching id
                 var next_track;
                 for (var i = 0; i < all_tracks.length; i++) {
                     if (all_tracks[i]['id'] == deck[deck_position]['id']) {
@@ -177,9 +189,9 @@ function choose_next_song() {
                     return resolve(next_track);
                 })
             } else {
+                // If it hasn't loaded, load it and then proceed.
                 load_all_tracks()
                 .then((data) => {
-                    console.log('Recursing.');
                     return resolve(choose_next_song());
                 })
                 .catch((err) => {
@@ -193,6 +205,7 @@ function choose_next_song() {
 }
 
 function play_audio() {
+    // Play the audio player, and make necessary UI updates.
     var promise = audio_player.play();
     if (promise !== undefined) {
         promise.then( (success) => {
@@ -204,6 +217,7 @@ function play_audio() {
 }
 
 function pause_audio() {
+    // Pause the audio player, and make necessary UI updates.
     var promise = audio_player.pause();
     if (promise !== undefined) {
         promise.then((success) => {
@@ -215,6 +229,7 @@ function pause_audio() {
 }
 
 function toggle_play() {
+    // Toggle the audio player.
     if(audio_player.paused) {
         play_audio();
     } else {
@@ -224,6 +239,7 @@ function toggle_play() {
 
 $("#volume_slider").on('input', 
     function() {
+        // Detect changes to the volume slider, and update UI as necessary.
         audio_player.volume = this.value/100;
         volume = this.value/100;
         updateSoundIcon(volume);
@@ -234,6 +250,7 @@ $("#volume_slider").on('input',
 
 
 function toggle_volume() {
+    // Toggle the volume on and off, and update UI as necessary.
     if(volume_on) {
         volume_on = false;
         var icon = document.getElementById("volume_icon");
@@ -249,6 +266,8 @@ function toggle_volume() {
 }
 
 function play_prev_song() {
+    // Moves to the previous song in the deck, if it can, otherwise
+    //  reload the current song.
     if(deck_position > 0) {
         deck_position -= 1;
     }
@@ -256,6 +275,7 @@ function play_prev_song() {
 }
 
 function resize_album_artwork() {
+    // Ensure the album artwork is the right size for the sidebar.
     var album_artwork = document.getElementById("albumartwork");
     var style = window.getComputedStyle(album_artwork);
     var width = album_artwork.offsetWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - parseFloat(style.marginLeft) - parseFloat(style.marginRight) - parseFloat(style.borderLeft) - parseFloat(style.borderRight);
@@ -263,6 +283,8 @@ function resize_album_artwork() {
 }
 
 function share_song() {
+    // Detect the current song playing, and copy to clipboard if it can.
+    // If it can't copy to clipboard, displays the URL for sharing.
     var url = window.location.protocol;
     url += "//";
     url += window.location.hostname;
@@ -292,6 +314,7 @@ function share_song() {
 }
 
 function toggle_shuffle() {
+    // Toggles shuffle and updates UI accordingly
     var shuffle_icon = document.getElementById("shufflebutton");
     if(shuffle) {
         shuffle = false;
@@ -305,6 +328,7 @@ function toggle_shuffle() {
 }
 
 function downloadFile(uri, name) {
+    // Downloads the current song.
     var link = document.createElement("a");
     link.download = name;
     link.href = uri;
@@ -336,6 +360,7 @@ $("#play_button").click(toggle_play);
 $("#next_button").click(play_next_song);
 $("#volume_icon").click(toggle_volume);
 if (navigator.mediaSession) {
+    // Media key handlers.
     navigator.mediaSession.setActionHandler('previoustrack', play_prev_song);
     navigator.mediaSession.setActionHandler('play', play_audio);
     navigator.mediaSession.setActionHandler('pause', pause_audio);
@@ -365,6 +390,7 @@ $("#volume_slider").on('mouseup', function() {
 });
 
 function get_track_from_id(id) {
+    // Get details about a track from the tracklist based on its id.
     for (var i = 0; i < all_tracks.length; i++) {
         if (all_tracks[i]['id'] == id) {
             return all_tracks[i];
@@ -373,6 +399,7 @@ function get_track_from_id(id) {
 }
 
 function set_song_select_function() {
+    // Allows clicking of the track list to select songs.
     $("tr.track-info").click(function() {
         var rows = $('tr.track-info', hoverTable);
 
@@ -402,6 +429,7 @@ function set_song_select_function() {
 }
 
 function set_initial_volume() {
+    // Loads user volume settings, and sets accordingly.
     check_login_status()
     .then((data) => {
         if (data['user']['volume']) {

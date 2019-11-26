@@ -10,6 +10,7 @@ $.ajaxSetup({
 });
 
 function escape_string(input_string) {
+    // Escapes a string for inside HTML
     var tagsToReplace = {
         '&': '&amp;',
         '<': '&lt;',
@@ -24,6 +25,7 @@ function escape_string(input_string) {
 }
 
 function check_login_status() {
+    // Checks if the user is logged in with the API.
     return new Promise((resolve, reject) => {
         $.ajax({
             type: 'GET',
@@ -46,6 +48,7 @@ function check_login_status() {
 }
 
 function load_all_tracks() {
+    // Fetch tracks for the current playlist, and load them into the window.
     return new Promise((resolve, reject) => {
         // "You're listening to <playlist name by owner / Acommplice music>. (X tracks)"
         set_playlist_info_text();
@@ -68,6 +71,7 @@ function load_all_tracks() {
 }
 
 function _fetch_all_tracks() {
+    // Fetches track info for all songs.
     return new Promise((resolve, reject) => {
         $.get('https://api.music.acommplice.com/songs')
         .done(function(data) {
@@ -84,6 +88,7 @@ function _fetch_all_tracks() {
 }
 
 function fetch_tracks_from_playlist(playlistid) {
+    // Fetches track info for the given playlist.
     return new Promise((resolve, reject) => {
         $.get('https://api.music.acommplice.com/playlists/' + playlistid)
         .done((data) => {
@@ -100,6 +105,8 @@ function fetch_tracks_from_playlist(playlistid) {
 }
 
 function fetch_tracks() {
+    // Decide whether to get playlist track info, or all track info,
+    //  and return results accordingly.
     return new Promise((resolve, reject) => {
         // First check if we're loading a playlist or all songs.
         var param = $.urlParam('playlistid');
@@ -130,6 +137,7 @@ function fetch_tracks() {
 }
 
 function fetch_track_by_id(id) {
+    // Fetch track info for a specific track
     return new Promise((resolve, reject) => {
         $.get('https://api.music.acommplice.com/songs/' + id)
         .done(function(data) {
@@ -146,6 +154,7 @@ function fetch_track_by_id(id) {
 }
 
 function fetch_random_track() {
+    // Select a random track, and return its track info.
     return new Promise((resolve, reject) =>{
         if (tracks_loaded) {
             var track_num = Math.floor(Math.random() * all_tracks.length);
@@ -164,6 +173,8 @@ function fetch_random_track() {
 }
 
 function set_playlist_info_text() {
+    // Display playlist info above track info.
+
     // Text that we're modifying.
     var playlist_info_div = $('#playlist-info');
 
@@ -201,6 +212,7 @@ function set_playlist_info_text() {
 }
 
 function populate_playlist(tracks) {
+    // Creates the track list table.
     var container = $('#playlist-content');
     container.html(`
         <table id="hoverTable" class="hoverTable">
@@ -264,6 +276,7 @@ function updateSoundIcon(playervol) {
 }
 
 function seconds_to_minutes(seconds) {
+    // Converts raw seconds into a more human-readable form for display
     var hours = parseInt(seconds/3600);
     var minutes = parseInt((seconds % 3600)/60);
     var seconds = parseInt((seconds % 60));
@@ -290,6 +303,7 @@ function seconds_to_minutes(seconds) {
 }
 
 function update_player_play() {
+    // Update the play/pause icon to play
     var icon = document.getElementById("play_button");
     icon.src = "/media/pause_button.png";
     onplaying = true;
@@ -297,6 +311,7 @@ function update_player_play() {
 }
 
 function update_player_pause() {
+    // Update the play/pause icon to pause
     var icon = document.getElementById("play_button");
     icon.src = "/media/play_button.png";
     onplaying = false;
@@ -304,6 +319,7 @@ function update_player_pause() {
 }
 
 function listFilter() {
+    // Filters the track list based on the search bar
     var punctRE = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/g;
     var spaceRE = /\s+/g;
     var substring = document.getElementById('search_bar').value.toLowerCase();

@@ -1,4 +1,7 @@
 function add_playlist_controls() {
+    // We only want to add playlist creation controls if a user is logged in,
+    //  and playlist navigation if there are playlists the user can access.
+    //  Otherwise, we don't need unnecessary empty lists.
     $.ajax({
         type: 'GET',
         url: 'https://api.music.acommplice.com/playlists',
@@ -10,6 +13,7 @@ function add_playlist_controls() {
         if (data['status_code'] === 200) {
             playlists = data['data']['playlists'];
             num_playlists = playlists.length;
+            // Add playlist navigation if there are any accessible.
             if (num_playlists > 0) {
                 $('#playlist-controls').append(`
                     <div class="select-playlist">
@@ -52,6 +56,7 @@ function add_playlist_controls() {
 }
 
 function get_owned_playlists() {
+    // Fetch playlists owned by the current user.
     return new Promise((resolve, reject) => {
         $.ajax({
             type: 'GET',
@@ -70,6 +75,8 @@ function get_owned_playlists() {
 }
 
 function add_hidden_playlist_controls() {
+    // These controls are to allow the user to add songs to a playlist.
+    // Normally they are hidden, until the user right-clicks on a song.
     if (curr_user_status['logged_in']) {
         get_owned_playlists()
         .then((playlists) => {
@@ -136,10 +143,11 @@ function add_hidden_playlist_controls() {
     }
 }
 
+// Id of the right-clicked song
 var rc_song_id = 0;
 
-
 function mouseX(evt) {
+    // Get mouse's X-position from an event.
     if (evt.pageX) {
         return evt.pageX;
     } else if (evt.clientX) {
@@ -152,6 +160,7 @@ function mouseX(evt) {
 }
 
 function mouseY(evt) {
+    // Get mouse's Y-position from an event.
     if (evt.pageY) {
         return evt.pageY;
     } else if (evt.clientY) {
@@ -164,6 +173,8 @@ function mouseY(evt) {
 }
 
 function bind_playlist_menu() {
+    // This overrides the default right click behavior when the user is logged in
+    //  so that they can add songs to playlists.
     if (document.addEventListener) { // IE >= 9; other browsers
         document.addEventListener('contextmenu', function(e) {
             //alert("You've tried to open context menu"); //here you draw your own menu
@@ -185,6 +196,7 @@ function bind_playlist_menu() {
 }
 
 function add_song_to_playlist(playlist_id, rc_song_id) {
+    // Make the web request to add a song to a playlist.
     json_data = JSON.stringify({'songid': rc_song_id});
     $.ajax({
         type: 'POST',
@@ -203,6 +215,7 @@ function add_song_to_playlist(playlist_id, rc_song_id) {
 }
 
 function remove_song_from_playlist(playlist_id, rc_song_id) {
+    // Make the web request to remove a song from a playlist.
     json_data = JSON.stringify({'songid': rc_song_id})
     $.ajax({
         type: 'POST',
@@ -221,6 +234,7 @@ function remove_song_from_playlist(playlist_id, rc_song_id) {
 }
 
 function request_playlist_name() {
+    // Prompt the user for a playlist name.
     var new_playlist_name = prompt("Create a new playlist", "Playlist name");
 
     if(new_playlist_name == null || new_playlist_name == "") {
@@ -246,6 +260,7 @@ function request_playlist_name() {
 
 
 function go_to_playlist() {
+    // Load a playlist from the playlist navigation.
     var decision = document.getElementById("playlistoptions");
     if(decision.value== "0")
     {

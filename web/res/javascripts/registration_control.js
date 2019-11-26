@@ -1,3 +1,4 @@
+// Instead of actually going to a URL, we want to handle this in the window.
 $('#register').submit((e) => {
     e.preventDefault();
     data_json = {};
