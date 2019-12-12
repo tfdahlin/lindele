@@ -91,7 +91,7 @@ class BaseHandler(Handler):
         self.response.status_code = 400
         return result
 
-    def HTTP_403(self, data={}, error=None): # 400 Forbidden -- no permission
+    def HTTP_403(self, data={}, error=None): # 403 Forbidden -- no permission
         """403 Forbidden response
         User does not have permission to access the resource
 
@@ -107,6 +107,24 @@ class BaseHandler(Handler):
             'error': error
         }
         self.response.status_code = 403
+        return result
+
+    def HTTP_404(self, data={}, error=None): # 404 Not Found -- resource not found
+        """404 Not Found response
+        Resource not found
+
+        Arguments:
+            data (dict): Data to be returned in the response.
+            error (str): Any error message that wants to be added to the response.
+        """
+        result = {
+            'status_code': 404,
+            'status': 'Not Found',
+            'version': settings.API_VERSION,
+            'data': data,
+            'error': error
+        }
+        self.response.status_code = 404
         return result
 
     def HTTP_429(self, data={}, error=None): # 429 Too Many Requests -- rate-limiting

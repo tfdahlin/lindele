@@ -65,11 +65,16 @@ class Audio(BaseHandler):
         #  and is separate from the main server, so it may need to be mounted before
         #  tracks can be opened.
         mount_as_needed()
-        wrapper = FileWrapper(open(track_file, 'rb'))
-        self.response.set_header('Content-Type', 'audio/mpeg')
-        self.response.set_header('Content-Length', str(os.path.getsize(track_file)))
-        self.response.set_header('Accept-Ranges', 'bytes')
-        return wrapper
+        try:
+            wrapper = FileWrapper(open(track_file, 'rb'))
+        except OSError as e:
+            logger.warn(f'Exception while loading track {songid}.')
+            return self.HTTP_400(error='Could not load track.')
+        else:
+            self.response.set_header('Content-Type', 'audio/mpeg')
+            self.response.set_header('Content-Length', str(os.path.getsize(track_file)))
+            self.response.set_header('Accept-Ranges', 'bytes')
+            return wrapper
 
 class Artwork(BaseHandler):
     """Route handler for fetching track artwork files."""
@@ -96,6 +101,10 @@ class Artwork(BaseHandler):
             wrapper = FileWrapper(open(artwork_file, 'rb'))
             self.response.set_header('Content-Length', str(os.path.getsize(artwork_file)))
             self.response.set_header('Accept-Ranges', 'bytes')
+        except OSError as e:
+            logger.warn(f'Could not access artwork file for track with id {songid}')
+            logger.warn(e)
+            return self.HTTP_400(error='Could not access album artwork file.')
         except Exception as e:
             logger.warn(f'Error encountered while trying to fetch artwork for song with id {songid}.')
             logger.warn(e)
