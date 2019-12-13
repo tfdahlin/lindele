@@ -10,6 +10,7 @@ from wsgiref.util import FileWrapper
 import users.util, music.util
 from util.decorators import requires_params, requires_login
 from util.util import BaseHandler, mount_as_needed
+from settings import MISSING_ARTWORK_FILE
 
 # PIP library imports
 from pycnic.core import Handler
@@ -90,27 +91,36 @@ class Artwork(BaseHandler):
             logger.warn(f'Could not fetch track artwork for song id: {songid}.')
             return self.HTTP_404(error='Invalid song id.')
 
-        # Set content-type header according to image type
-        if artwork_file.endswith('.png'):
-            self.response.set_header('Content-Type', 'image/png')
-        if artwork_file.endswith('.jpg'):
-            self.response.set_header('Content-Type', 'image/jpeg')
-
-        # Wrap file operations in try/except just in case it can't be loaded.
         try:
-            wrapper = FileWrapper(open(artwork_file, 'rb'))
-            self.response.set_header('Content-Length', str(os.path.getsize(artwork_file)))
-            self.response.set_header('Accept-Ranges', 'bytes')
-        except OSError as e:
-            logger.warn(f'Could not access artwork file for track with id {songid}')
-            logger.warn(e)
-            return self.HTTP_400(error='Could not access album artwork file.')
+            wrapper, content_type, content_length = self.get_wrapper_and_header_info(artwork_file)
         except Exception as e:
-            logger.warn(f'Error encountered while trying to fetch artwork for song with id {songid}.')
-            logger.warn(e)
+            logger.warn(f'Could not access artwork file for track with id {songid}, or missing album artwork.')
+            logger.critical(e)
             return self.HTTP_400(error='Error loading album artwork.')
         else:
+            self.response.set_header('Content-Length', content_length)
+            self.response.set_header('Accept-Ranges', 'bytes')
+            self.response.set_header('Content-Type', content_type)
             return wrapper
+
+    def get_wrapper_and_header_info(self, filename, error=False):
+        wrapper = None
+        try:
+            wrapper = FileWrapper(open(filename, 'rb'))
+        except OSError as e:
+            logger.warn(f'Could not access artwork file: {filename}.')
+            logger.info(f'Attempting to load {MISSING_ARTWORK_FILE} instead.')
+            if error:
+                raise e
+            else:
+                return get_file_wrapper_and_content_type(MISSING_ARTWORK_FILE, error=True)
+        else:
+            if filename.endswith('.png'):
+                return wrapper, 'image/png', str(os.path.getsize(filename))
+            elif filename.endswith('.jpg') or filename.endswith('.jpeg'):
+                return wrapper, 'image/jpeg', str(os.path.getsize(filename))
+            else:
+                raise TypeError(f'File type could not be determined for {filename}')
 
 class BuildDatabase(BaseHandler):
     """Route handler for building/refreshing the track database."""
