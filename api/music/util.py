@@ -137,8 +137,6 @@ def async_refresh():
     logger.info('Refreshing database.')
     t = threading.Thread(target=refresh_database_thread)
     t.start()
-    entry.last_refresh = datetime.datetime.now()
-    db_conn.commit()
 
 def refresh_database():
     """Update the song database.
