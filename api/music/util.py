@@ -145,7 +145,6 @@ def refresh_database():
             logger.warning('Exception while fetching count.')
             logger.warn(e)
         else:
-            logger.info(f'Number of entries: {num_entries}')
             if num_entries == 0: # if there aren't any entries, make one
                 state = RefreshState(last_refresh=datetime.datetime.now())
                 db_conn.add(state)
@@ -154,21 +153,21 @@ def refresh_database():
                 db_conn.query(RefreshState).delete()
                 refresh_database()
             else: # if there's one entry, fetch it
-                last_refresh = db_conn.query(RefreshState).first()
-                if last_refresh.last_refresh:
+                entry = db_conn.query(RefreshState).first()
+                if entry.last_refresh:
                     # If the database has been refreshed at least once, check that it's been 5 minutes.
-                    delta = last_refresh.last_refresh - datetime.datetime.now()
+                    delta = entry.last_refresh - datetime.datetime.now()
                     if delta > datetime.timedelta(minutes=5):
                         # If 5 minutes have passed, allow an update.
                         t = threading.Thread(target=refresh_database_thread)
                         t.start()
-                        last_refresh.last_refresh = datetime.datetime.now()
+                        entry.last_refresh = datetime.datetime.now()
                         db_conn.commit()
                 else: 
                     # If the database has never been refreshed, then go for it
                     t = threading.Thread(target=refresh_database_thread)
                     t.start()
-                    last_refresh.last_refresh = datetime.datetime.now()
+                    entry.last_refresh = datetime.datetime.now()
                     db_conn.commit()
 
 def refresh_database_thread():
