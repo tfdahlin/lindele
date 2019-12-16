@@ -140,13 +140,15 @@ def refresh_database():
     """
     with access_db() as db_conn:
         try:
-            num_entries = db_conn.query(RefreshState).with_entities(func.count()).scalar()
+            num_entries = db_conn.query(func.count(RefreshState.id)).count()
         except Exception as e:
             logger.warning('Exception while fetching count.')
             logger.warn(e)
         else:
+            logger.info(f'Number of entries: {num_entries}')
             if num_entries == 0: # if there aren't any entries, make one
                 state = RefreshState(last_refresh=datetime.datetime.now())
+                db_conn.add(state)
                 db_conn.commit()
             if num_entries > 1: # if there's more than one entry, delete them all and start over
                 db_conn.query(RefreshState).delete()
