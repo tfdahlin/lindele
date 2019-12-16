@@ -3,7 +3,7 @@
 # Filename: users/util.py
 
 # Native python imports
-import logging, threading, os, random, operator
+import logging, threading, os, random, operator, datetime
 
 # Local file imports
 from music.models import Playlist, Song, RefreshState
@@ -15,7 +15,7 @@ from util.util import Session, access_db
 import eyed3
 import sqlalchemy
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 
 # Variables and config
 logger = logging.getLogger(__name__)
@@ -135,38 +135,39 @@ def add_track_to_database(track_info):
 def refresh_database():
     """Update the song database.
 
-    Uses a database entry as a kind of mutex lock to prevent more than one
-    thread from being used to update the database.
+    Uses a single database entry to decide whether or not it's allowed to update the database.
+    This is only allowed once every 5 minutes, at max.
     """
     with access_db() as db_conn:
         try:
-            # Try to fetch the refresh state
-            state = db_conn.query(RefreshState).one()
-        except NoResultFound as e:
-            # If there is no refresh state in the database, create it.
-            state = RefreshState(is_refreshing=True)
-            db_conn.add(state)
-            db_conn.commit()
-
-            # Launch a thread to refresh the database. 
-            t = threading.Thread(target=refresh_database_thread)
-            t.start()
-        except MultipleResultsFound as e:
-            # If somehow we end up with multiple refreshes happening simultaneously
-            # we want to delete one and return. No sense in making more.
-            first_state = db_conn.query(RefreshState)\
-                                 .filter(RefreshState.is_refreshing==False)\
-                                 .first().delete()
-            db_conn.commit()
-            return
+            num_entries = db_conn.query(RefreshState).with_entities(func.count()).scalar()
+        except Exception as e:
+            logger.warning('Exception while fetching count.')
+            logger.warn(e)
         else:
-            # If there is exactly one refresh state in the database, check if it's in use
-            # and run a refresh if it is not. Otherwise, do nothing.
-            if not state.is_refreshing:
-                state.is_refreshing = True
+            if num_entries == 0: # if there aren't any entries, make one
+                state = RefreshState(last_refresh=datetime.datetime.now())
                 db_conn.commit()
-                t = threading.Thread(target=refresh_database_thread)
-                t.start()
+            if num_entries > 1: # if there's more than one entry, delete them all and start over
+                db_conn.query(RefreshState).delete()
+                refresh_database()
+            else: # if there's one entry, fetch it
+                last_refresh = db_conn.query(RefreshState).all().first()
+                if last_refresh.last_refresh:
+                    # If the database has been refreshed at least once, check that it's been 5 minutes.
+                    delta = last_refresh.last_refresh - datetime.datetime.now()
+                    if delta > datetime.timedelta(minutes=5):
+                        # If 5 minutes have passed, allow an update.
+                        t = threading.Thread(target=refresh_database_thread)
+                        t.start()
+                        last_refresh.last_refresh = datetime.datetime.now()
+                        db_conn.commit()
+                else: 
+                    # If the database has never been refreshed, then go for it
+                    t = threading.Thread(target=refresh_database_thread)
+                    t.start()
+                    last_refresh.last_refresh = datetime.datetime.now()
+                    db_conn.commit()
 
 def refresh_database_thread():
     """Walk through all files in the music folder, adding them to the database as necessary."""
