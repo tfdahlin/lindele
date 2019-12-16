@@ -159,6 +159,7 @@ def refresh_database():
             state = RefreshState(last_refresh=datetime.datetime.now())
             db_conn.add(state)
             db_conn.commit()
+            async_refresh()
         else:
             if entry.last_refresh:
                 # If the database has been refreshed at least once, check that it's been 5 minutes.
@@ -166,12 +167,9 @@ def refresh_database():
                 if delta > datetime.timedelta(minutes=5):
                     # If 5 minutes have passed, allow an update.
                     async_refresh()
-                    return
             else: 
                 # If the database has never been refreshed, then go for it
                 async_refresh()
-                return
-    refresh_database()
 
 def refresh_database_thread():
     """Walk through all files in the music folder, adding them to the database as necessary."""
