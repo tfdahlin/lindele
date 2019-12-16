@@ -165,12 +165,16 @@ def refresh_database():
                 if delta > datetime.timedelta(minutes=5):
                     # If 5 minutes have passed, allow an update.
                     async_refresh()
+                    entry.last_refresh = datetime.datetime.now()
+                    db_conn.commit()
                 else:
                     logger.info(f'Not enough time has passed since last refresh. Time delta: {delta}')
                     logger.info(f'Last refresh: {entry.last_refresh}')
             else: 
                 # If the database has never been refreshed, then go for it
                 async_refresh()
+                entry.last_refresh = datetime.datetime.now()
+                db_conn.commit()
 
 def refresh_database_thread():
     """Walk through all files in the music folder, adding them to the database as necessary."""
