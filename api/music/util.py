@@ -165,6 +165,8 @@ def refresh_database():
                 if delta > datetime.timedelta(minutes=5):
                     # If 5 minutes have passed, allow an update.
                     async_refresh()
+                else:
+                    logger.info('Not enough time has passed since last refresh.')
             else: 
                 # If the database has never been refreshed, then go for it
                 async_refresh()
