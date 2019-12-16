@@ -161,7 +161,7 @@ def refresh_database():
         else:
             if entry.last_refresh:
                 # If the database has been refreshed at least once, check that it's been 5 minutes.
-                delta = entry.last_refresh - datetime.datetime.now()
+                delta = datetime.datetime.now() - entry.last_refresh
                 if delta > datetime.timedelta(minutes=5):
                     # If 5 minutes have passed, allow an update.
                     async_refresh()
