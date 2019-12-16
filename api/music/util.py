@@ -132,12 +132,21 @@ def add_track_to_database(track_info):
         return True
     return False
 
+def async_refresh():
+    """Asynchronously call the database refresh function."""
+    logger.info('Refreshing database.')
+    t = threading.Thread(target=refresh_database_thread)
+    t.start()
+    entry.last_refresh = datetime.datetime.now()
+    db_conn.commit()
+
 def refresh_database():
     """Update the song database.
 
     Uses a single database entry to decide whether or not it's allowed to update the database.
     This is only allowed once every 5 minutes, at max.
     """
+    must_refresh = False
     with access_db() as db_conn:
         try:
             all_entries = db_conn.query(RefreshState.id).all()
@@ -150,11 +159,12 @@ def refresh_database():
                 state = RefreshState(last_refresh=datetime.datetime.now())
                 db_conn.add(state)
                 db_conn.commit()
-            if num_entries > 1: # if there's more than one entry, delete them all and start over
+                return
+            elif num_entries > 1: # if there's more than one entry, delete them all and start over
                 for db_entry in all_entries:
                     db_conn.delete(db_entry)
                 db_conn.commit()
-                refresh_database()
+                must_refresh = True
             else: # if there's one entry, fetch it
                 entry = all_entries[0]
                 if entry.last_refresh:
@@ -162,18 +172,13 @@ def refresh_database():
                     delta = entry.last_refresh - datetime.datetime.now()
                     if delta > datetime.timedelta(minutes=5):
                         # If 5 minutes have passed, allow an update.
-                        logger.info('Refreshing database.')
-                        t = threading.Thread(target=refresh_database_thread)
-                        t.start()
-                        entry.last_refresh = datetime.datetime.now()
-                        db_conn.commit()
+                        async_refresh()
+                        return
                 else: 
                     # If the database has never been refreshed, then go for it
-                    logger.info('Refreshing database.')
-                    t = threading.Thread(target=refresh_database_thread)
-                    t.start()
-                    entry.last_refresh = datetime.datetime.now()
-                    db_conn.commit()
+                    async_refresh()
+                    return
+    refresh_database()
 
 def refresh_database_thread():
     """Walk through all files in the music folder, adding them to the database as necessary."""
