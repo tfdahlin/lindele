@@ -166,7 +166,8 @@ def refresh_database():
                     # If 5 minutes have passed, allow an update.
                     async_refresh()
                 else:
-                    logger.info('Not enough time has passed since last refresh.')
+                    logger.info(f'Not enough time has passed since last refresh. Time delta: {delta}')
+                    logger.info(f'Last refresh: {entry.last_refresh}')
             else: 
                 # If the database has never been refreshed, then go for it
                 async_refresh()
