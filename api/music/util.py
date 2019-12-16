@@ -146,38 +146,31 @@ def refresh_database():
     Uses a single database entry to decide whether or not it's allowed to update the database.
     This is only allowed once every 5 minutes, at max.
     """
-    must_refresh = False
     with access_db() as db_conn:
         try:
-            all_entries = db_conn.query(RefreshState.id).all()
-            num_entries = len(all_entries)
-        except Exception as e:
-            logger.warning('Exception while fetching count.')
-            logger.warn(e)
+            entry = db_conn.query(RefreshState).one()
+        except MultipleResultsFound as e:
+            logger.info('Multiple rows found. Deleting and refreshing.')
+            for db_entry in db_conn.query(RefreshState).all():
+                db_conn.delete(db_entry)
+            db_conn.commit()
+        except NoResultFound as e:
+            logger.info('No rows found. Creating.')
+            state = RefreshState(last_refresh=datetime.datetime.now())
+            db_conn.add(state)
+            db_conn.commit()
         else:
-            if num_entries == 0: # if there aren't any entries, make one
-                state = RefreshState(last_refresh=datetime.datetime.now())
-                db_conn.add(state)
-                db_conn.commit()
-                return
-            elif num_entries > 1: # if there's more than one entry, delete them all and start over
-                for db_entry in all_entries:
-                    db_conn.delete(db_entry)
-                db_conn.commit()
-                must_refresh = True
-            else: # if there's one entry, fetch it
-                entry = all_entries[0]
-                if entry.last_refresh:
-                    # If the database has been refreshed at least once, check that it's been 5 minutes.
-                    delta = entry.last_refresh - datetime.datetime.now()
-                    if delta > datetime.timedelta(minutes=5):
-                        # If 5 minutes have passed, allow an update.
-                        async_refresh()
-                        return
-                else: 
-                    # If the database has never been refreshed, then go for it
+            if entry.last_refresh:
+                # If the database has been refreshed at least once, check that it's been 5 minutes.
+                delta = entry.last_refresh - datetime.datetime.now()
+                if delta > datetime.timedelta(minutes=5):
+                    # If 5 minutes have passed, allow an update.
                     async_refresh()
                     return
+            else: 
+                # If the database has never been refreshed, then go for it
+                async_refresh()
+                return
     refresh_database()
 
 def refresh_database_thread():
