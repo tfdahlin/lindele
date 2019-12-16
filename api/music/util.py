@@ -152,7 +152,7 @@ def refresh_database():
                 db_conn.query(RefreshState).delete()
                 refresh_database()
             else: # if there's one entry, fetch it
-                last_refresh = db_conn.query(RefreshState).all().first()
+                last_refresh = db_conn.query(RefreshState).first()
                 if last_refresh.last_refresh:
                     # If the database has been refreshed at least once, check that it's been 5 minutes.
                     delta = last_refresh.last_refresh - datetime.datetime.now()
