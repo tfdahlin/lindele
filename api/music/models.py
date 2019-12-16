@@ -8,7 +8,7 @@ from util.models import Base, GUID
 # PIP library imports
 import sqlalchemy
 from sqlalchemy import Table
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
 
 # Variables and config
@@ -91,4 +91,4 @@ class RefreshState(Base):
 
     id = Column(Integer, primary_key=True)
 
-    is_refreshing = Column(Boolean)
+    last_refresh = Column(DateTime)
