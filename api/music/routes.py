@@ -28,13 +28,6 @@ class Songs(BaseHandler):
         Arguments:
             songid (str): Integer string identifying that info about a single song should be fetched.
         """
-        user = None
-        if users.util.is_logged_in(self.request):
-            user = users.util.get_user_from_request(self.request)
-            user = user.username
-        else:
-            user = 'Anonymous user'
-
         if songid:
             # If a song id is specified, fetch info about that track specifically.
             try:
@@ -44,7 +37,6 @@ class Songs(BaseHandler):
                 return self.HTTP_400()
             else:
                 if data:
-                    logger.info(f'{user} is listening to {data["title"]} by {data["artist"]}')
                     return self.HTTP_200(data=data)
                 return self.HTTP_404()
         else:
@@ -68,6 +60,21 @@ class Audio(BaseHandler):
         except:
             logger.warn(f'Could not fetch track audio for song id: {songid}.')
             return self.HTTP_404(error='Invalid song id.')
+
+        # Log which users listen to which songs.
+        try:
+            track_info = music.util.fetch_track_info(int(songid))
+        except:
+            logger.warn(f'Could not fetch track info for song id: {songid}.')
+        else:
+            user = None
+            if users.util.is_logged_in(self.request):
+                user = users.util.get_user_from_request(self.request)
+                user = user.username
+            else:
+                user = 'Anonymous user'
+            if track_info:
+                logger.info(f'{user} is listening to {track_info["title"]} by {track_info["artist"]}')
 
         # Only mount if we actually need to load the file.
         # This is specifically for my setup where the media server may go to sleep
