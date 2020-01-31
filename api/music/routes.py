@@ -28,6 +28,13 @@ class Songs(BaseHandler):
         Arguments:
             songid (str): Integer string identifying that info about a single song should be fetched.
         """
+        user = None
+        if users.util.is_logged_in(self.request):
+            user = users.util.get_user_from_request(self.request)
+            user = user.username
+        else:
+            user = 'Anonymous user'
+
         if songid:
             # If a song id is specified, fetch info about that track specifically.
             try:
@@ -37,6 +44,7 @@ class Songs(BaseHandler):
                 return self.HTTP_400()
             else:
                 if data:
+                    logger.info(f'{user} is listening to {data['title']} by {data['artist']}')
                     return self.HTTP_200(data=data)
                 return self.HTTP_404()
         else:

@@ -3,10 +3,12 @@
 # Filename: main.py
 
 # Native python imports
+import sys
 
 # Local file imports
 import music.models, music.routes
 import users.models, users.routes
+import users.util
 import util.routes
 from util.models import Base
 from util.util import BaseHandler, engine
@@ -75,7 +77,30 @@ class app(WSGI):
         ('/restart', util.routes.Restart()),
     ]
 
+def make_admin():
+    pass
+
+def init_database():
+    # This should initialize the database as necessary.
+    print('Initializing database.')
+    Base.metadata.create_all(engine)
+
+def handle_args():
+    if sys.argv[1] in ['--make_admin', '-a'] and len(sys.argv) == 3:
+        print(f'Making user {sys.argv[2]} an admin.')
+        success = users.util.make_user_admin(sys.argv[2])
+        if success:
+            print(f'Successfully made {sys.argv[2]} an admin.')
+        else:
+            print(f'Failed to make {sys.argv[2]} an admin.')
+
+def main():
+    application = app
+    init_database()
+    if len(sys.argv) > 1:
+        handle_args()
+
 application = app
 
-# This should initialize the database as necessary.
-Base.metadata.create_all(engine)
+if __name__ == '__main__':
+    main()

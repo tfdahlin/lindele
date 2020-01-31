@@ -29,8 +29,6 @@ smtp_port = 465
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-
-
 def create_full_user(email, username, password):
     """Creates a user in the database given an email, username, and password.
 
@@ -147,6 +145,28 @@ def is_logged_in(request):
     else:
         logger.info("Session token could not be interpreted.")
     return logged_in
+
+def make_user_admin(email):
+    """Make a user with a given email address an admin.
+
+    Arguments:
+        email (string): The email address of the user to enable admin privileges on.
+
+    Returns:
+        success (bool): True if the user exists, and was made an admin; false otherwise.
+    """
+    success = False
+    with access_db() as db_conn:
+        result = db_conn.query(User).\
+                         filter(User.email==email).\
+                         first()
+        try:
+            result.admin = True
+            db_conn.commit()
+            success = True
+        except AttributeError:
+            logger.warning('Attempted to make a non-existant user an admin.')
+    return success
 
 def is_admin(request):
     """Check to see whether the request includes a session token for an authenticated user.
