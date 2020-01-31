@@ -446,6 +446,7 @@ def get_public_playlists():
                 'id': playlist.id,
                 'name': playlist.name,
                 'owner_name': owner_name,
+                'public': playlist.public,
             }
             result['playlists'].append(data)
     return result
@@ -471,6 +472,7 @@ def get_playlists_for_user(user_guid):
                 'id': playlist.id,
                 'name': playlist.name,
                 'owner_name': owner_name,
+                'public': playlist.public,
             }
             result['playlists'].append(data)
     return result
@@ -490,6 +492,7 @@ def get_playlists_owned_by_user(user_guid):
                 'id': playlist.id,
                 'name': playlist.name,
                 'owner_name': playlist.owner_name,
+                'public': playlist.public,
             }
             result['playlists'].append(data)
     return result
