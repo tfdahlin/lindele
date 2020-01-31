@@ -44,7 +44,7 @@ class Songs(BaseHandler):
                 return self.HTTP_400()
             else:
                 if data:
-                    logger.info(f'{user} is listening to {data['title']} by {data['artist']}')
+                    logger.info(f'{user} is listening to {data["title"]} by {data["artist"]}')
                     return self.HTTP_200(data=data)
                 return self.HTTP_404()
         else:
