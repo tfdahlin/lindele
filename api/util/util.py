@@ -180,7 +180,17 @@ def reboot_machine():
 def mount_as_needed():
     """Wake the media server, then mount if necessary."""
     wake_media_server()
-    if is_mounted():
+    try:
+        is_mounted()
+    except OSError as e:
+        # Sometimes, a mount fails in a weird way. This attempts to fix that.
+        if e.strerror == 'Host is down':
+            # unmount folder
+            logger.warn(f'Samba connection failed. Attempting to unmount {MUSIC_FOLDER}.')
+            unmount_smb()
+        else:
+            raise e
+    else:
         return
 
     logger.warn('Remounting media server.')
@@ -196,6 +206,14 @@ def is_mounted() -> bool:
     p = Path(MUSIC_FOLDER)
     return p.is_mount()
 
+def unmount_smb():
+    """Unmount the music directory, if necessary."""
+    # If we don't need to mount, skip this.
+    if not settings.NEED_TO_MOUNT:
+        return
+
+    os.system(f'sudo {settings.UNMOUNT_SHARE_SCRIPT}')
+
 def mount_smb():
     """Mount the SMB drive specified in the local_settings file, if necessary.
 
@@ -203,10 +221,6 @@ def mount_smb():
     sudo mount -t cifs -v -o vers=3.0,username=media_server_username,password=media_server_password,ip=media_server_ip //media_server_name/folder /mnt/LocalMountedFolder
     e.g.:
     sudo mount -t cifs -v -o vers=3.0,username=foo,password=bar,ip=192.168.1.100 //MUSIC_SERVER/Music /mnt/Music
-
-
-    Returns:
-        success (bool): True if mounted successfully, false otherwise.
     """
     # If we don't need to mount, skip this.
     if not settings.NEED_TO_MOUNT:

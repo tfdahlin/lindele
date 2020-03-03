@@ -38,6 +38,7 @@ MUSIC_FOLDER = local_settings.MUSIC_FOLDER
 
 # Path of the script that mounts the shared folder, if necessary
 MOUNT_SHARE_SCRIPT = None
+UNMOUNT_SHARE_SCRIPT = None
 
 if NEED_TO_MOUNT:
     # 
@@ -45,6 +46,12 @@ if NEED_TO_MOUNT:
         MOUNT_SHARE_SCRIPT = local_settings.MOUNT_SHARE_SCRIPT
     except Exception as e:
         logger.critical('ERROR: Mounting script cannot be found in local_settings file.')
+        exit(1)
+
+    try:
+        UNMOUNT_SHARE_SCRIPT = local_settings.UNMOUNT_SHARE_SCRIPT
+    except Exception as e:
+        logger.critical('ERROR: Unmounting script cannot be found in local_settings file.')
         exit(1)
 
 if NEED_TO_WAKE:
