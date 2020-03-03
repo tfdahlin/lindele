@@ -7,7 +7,7 @@ import logging, threading, os, random, operator, datetime
 
 # Local file imports
 from music.models import Playlist, Song, RefreshState
-from settings import MOUNTED_FOLDER, MISSING_ARTWORK_FILE, MUSIC_FOLDER
+from settings import MISSING_ARTWORK_FILE, MUSIC_FOLDER
 from users.models import User
 from util.util import Session, access_db
 
