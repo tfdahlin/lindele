@@ -100,6 +100,7 @@ class Artwork(BaseHandler):
         Arguments:
             songid (str): Integer string identifying the track that should have its artwork served.
         """
+        mount_as_needed()
         try:
             artwork_file = music.util.fetch_artwork_path(int(songid))
         except:
