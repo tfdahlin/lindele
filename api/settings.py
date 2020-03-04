@@ -16,7 +16,11 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # This will tell sqlalchemy to show the SQL statements it's using
-debug_sql_output = False
+try:
+    debug_sql_output = settings.debug_sql_output
+except:
+    debug_sql_output = False
+
 
 # This section should give you an idea of what needs to be set in your local_settings.py file.
 
@@ -26,12 +30,17 @@ MAGIC_PACKET_MAC_ADDRESS = None
 
 # Does a file system need to be mounted?
 NEED_TO_MOUNT = False
+try:
+    NEED_TO_MOUNT = local_settings.NEED_TO_MOUNT
+except:
+    logger.info('System does not need to mount media server.')
 
 # Does the media server need to be woken up sometimes?
 NEED_TO_WAKE = False
-
-# If the file system needs to be mounted, then these options need to be set.
-MOUNTED_FOLDER = None # Name of folder on native system to mount to (e.g. /mnt/Music)
+try:
+    NEED_TO_WAKE = local_settings.NEED_TO_WAKE
+except:
+    logger.info('System does not need to wake media server.')
 
 # Full path of the directory where music is stored
 MUSIC_FOLDER = local_settings.MUSIC_FOLDER
@@ -41,7 +50,6 @@ MOUNT_SHARE_SCRIPT = None
 UNMOUNT_SHARE_SCRIPT = None
 
 if NEED_TO_MOUNT:
-    # 
     try:
         MOUNT_SHARE_SCRIPT = local_settings.MOUNT_SHARE_SCRIPT
     except Exception as e:
