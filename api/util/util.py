@@ -189,6 +189,8 @@ def mount_as_needed():
             logger.warn(f'Samba connection failed. Attempting to unmount {MUSIC_FOLDER}.')
             unmount_smb()
         else:
+            logger.critical('Error while checking mount.')
+            logger.critical(e)
             raise e
     else:
         return
@@ -204,7 +206,8 @@ def is_mounted() -> bool:
 
     wake_media_server()
     p = Path(MUSIC_FOLDER)
-    return p.is_mount()
+    result = p.is_mount()
+    return result
 
 def unmount_smb():
     """Unmount the music directory, if necessary."""
