@@ -38,8 +38,8 @@ gunicorn -b 0.0.0.0:80 main:app
 To run the Node.js server, you should only need to navigate to the appropriate folder and run `node app.js`
 
 ## Dependencies
-1. Python3[4]
-2. Node.js[5]
+1. [Python3][4]
+2. [Node.js][5]
 
 ## Background
 In 2018, I built a [music player][6] using Django so that I could more easily share my music collection with my family, as well as so I could access my music remotely. This also served as a key component of my resume for my first real job hunt, as a way to demonstrate my abilities as a developer. When I moved, however, I discovered that it was a lot more challenging to put back together and use based on that source code, and I realized that my ability to write code had improved significantly. 
