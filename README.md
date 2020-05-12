@@ -38,20 +38,21 @@ gunicorn -b 0.0.0.0:80 main:app
 To run the Node.js server, you should only need to navigate to the appropriate folder and run `node app.js`
 
 ## Dependencies
-1. Python3 (https://www.python.org)
-2. Node.js (https://nodejs.org)
+1. Python3[4]
+2. Node.js[5]
 
 ## Background
-In 2018, I built a [music player][4] using Django so that I could more easily share my music collection with my family, as well as so I could access my music remotely. This also served as a key component of my resume for my first real job hunt, as a way to demonstrate my abilities as a developer. When I moved, however, I discovered that it was a lot more challenging to put back together and use based on that source code, and I realized that my ability to write code had improved significantly. 
+In 2018, I built a [music player][6] using Django so that I could more easily share my music collection with my family, as well as so I could access my music remotely. This also served as a key component of my resume for my first real job hunt, as a way to demonstrate my abilities as a developer. When I moved, however, I discovered that it was a lot more challenging to put back together and use based on that source code, and I realized that my ability to write code had improved significantly. 
 
 With that in mind, I decided to rebuild it almost from the ground up, separating it into two components:
 - An Python API that manages database interaction, and
 - A Node.js web server that serves as a client for the user
-This decision was influenced by another project I had started working on that used the same distinction between client-facing code and backend code. My original intention with this was to make it easier for users to write their own clients if they so chose, as well as to make a unified back-end so I could eventually write a mobile application myself. For the API backend, I ended up falling in love with [pycnic][5], and wanted to see how quickly I could rebuild the Django music player with this new design principle.
+This decision was influenced by another project I had started working on that used the same distinction between client-facing code and backend code. My original intention with this was to make it easier for users to write their own clients if they so chose, as well as to make a unified back-end so I could eventually write a mobile application myself. For the API backend, I ended up falling in love with [pycnic][7], and wanted to see how quickly I could rebuild the Django music player with this new design principle.
 
-### References
 [1]:https://www.elfdict.com/w/lindele
 [2]:https://github.com/Pylons/waitress
 [3]:https://gunicorn.org/
-[4]:https://github.com/tfdahlin/music_stream
-[5]:http://pycnic.nullism.com
+[4]:https://www.python.org
+[5]:https://nodejs.org
+[6]:https://github.com/tfdahlin/music_stream
+[7]:http://pycnic.nullism.com
