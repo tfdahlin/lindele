@@ -81,6 +81,7 @@ function set_header() {
                     .fail((err) => {
                         // FAILED TO LOGIN
                         // TODO: NOTIFY USER
+                        console.log('Failed to login.');
                         console.log(err);
                     });
                 });
@@ -89,9 +90,6 @@ function set_header() {
                 console.log(err);
             });
         }
-    //}).catch((err) => {
-    //    console.log(err);
-    //});
 }
 
 function set_header_logged_out() {

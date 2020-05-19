@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
-        <meta property="og:site_name" content="Acommplice Music"/>
+        <!-- Want to host your own service? Check out https://github.com/tfdahlin/lindele -->
+        <meta property="og:site_name" content="{{service_name}}"/>
         <link rel="stylesheet" type="text/css" href="/css/style.css"/>
         <meta property="og:url" content="{{api_url}}{{#songid}}?songid={{song_id}}{{/songid}}"/>
         <link rel="shortcut icon" href="/favicon.ico">
@@ -9,16 +10,16 @@
         <meta charset="utf-8"/>
 
         {{#title}}
-        <title id="page_title">{{title}}{{#artist}} - {{artist}}{{/artist}} | Music</title>
+        <title id="page_title">{{title}}{{#artist}} - {{artist}}{{/artist}} | {{service_name}}</title>
         <meta name="description" content="{{title}}{{#artist}} - {{artist}}{{#album}} - {{album}}{{/album}}{{/artist}}"/>
-        <meta property="og:title" content="{{title}}{{#artist}} - {{artist}}{{/artist}} | Music"/>
+        <meta property="og:title" content="{{title}}{{#artist}} - {{artist}}{{/artist}} | {{service_name}}"/>
         <meta property="og:description" content="{{title}}{{#artist}} - {{artist}}{{#album}} - {{album}}{{/album}}{{/artist}}"/>
         {{/title}}
         {{^title}}
-		<title id="page_title">Music</title>
-        <meta name="description" content="A simple music streaming service for my private library."/>
-		<meta property="og:title" content="Music">
-        <meta property="og:description" content="A simple music streaming service for my private library."/>
+		<title id="page_title">{{service_name}}</title>
+        <meta name="description" content="A simple, open-source music streaming service."/>
+		<meta property="og:title" content="{{service_name}}">
+        <meta property="og:description" content="A simple, open-source music streaming service."/>
         {{/title}}
 
         {{#songid}}
@@ -41,7 +42,7 @@
             <div class="sidebar">
                 <div class="playlist-info-container">
                     <div id="playlist-info" class="text playlist-info">
-                        You're listening to Acommplice music.
+                        You're listening to {{service_name}}.
                     </div>
                     <div id="track-count" class="text track-count">
                     </div>

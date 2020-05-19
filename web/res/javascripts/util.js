@@ -50,7 +50,7 @@ function check_login_status() {
 function load_all_tracks() {
     // Fetch tracks for the current playlist, and load them into the window.
     return new Promise((resolve, reject) => {
-        // "You're listening to <playlist name by owner / Acommplice music>. (X tracks)"
+        // "You're listening to <playlist name by owner / Domain music>. (X tracks)"
         set_playlist_info_text();
 
         // Cache all the tracks that we've loaded into all_tracks.
@@ -64,7 +64,9 @@ function load_all_tracks() {
             resolve();
         })
         .catch((err) => {
+            var track_count_div = $("#track-count");
             track_count_div.html("(0 tracks)");
+            populate_playlist([]);
             reject('Could not fetch tracks.');
         });
     });

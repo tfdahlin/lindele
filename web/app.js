@@ -180,6 +180,7 @@ app.use('/register', function (req, res) {
 app.use('/refresh', function (req, res) {
     // Renders a page that makes an ajax request to refresh the database,
     //  then redirects to the main page.
+    var api_url = settings['api_url'];
     res.status(200).send(`
         <html><body>
         ${ajax}
@@ -189,7 +190,7 @@ app.use('/refresh', function (req, res) {
             xhrFields: {
                 withCredentials: true,
             },
-            url: 'https://api.music.acommplice.com/refresh'
+            url: 'https://${api_url}/refresh'
         })
         .done((data) => {
             window.location.href = '/';
@@ -206,6 +207,7 @@ app.use('/refresh', function (req, res) {
 app.use('/restart', function (req, res) {
     // Renders a page that makes an ajax request to restart the server,
     //  then redirects to the main page.
+    var api_url = settings['api_url'];
     res.status(200).send(`
         <html><body>
         ${ajax}
@@ -215,7 +217,7 @@ app.use('/restart', function (req, res) {
             xhrFields: {
                 withCredentials: true,
             },
-            url: 'https://api.music.acommplice.com/restart'
+            url: 'https://${api_url}/restart'
         })
         .done((data) => {
             window.location.href = '/';
@@ -233,6 +235,7 @@ app.use('/restart', function (req, res) {
 app.use('/remount', function (req, res) {
     // Renders a page that makes an ajax request to remounts the media server,
     //  then redirects to the main page.
+    var api_url = settings['api_url'];
     res.status(200).send(`
         <html><body>
         ${ajax}
@@ -242,7 +245,7 @@ app.use('/remount', function (req, res) {
             xhrFields: {
                 withCredentials: true,
             },
-            url: 'https://api.music.acommplice.com/remount'
+            url: 'https://${api_url}/remount'
         })
         .done((data) => {
             /*window.location.href = '/';*/
@@ -274,6 +277,7 @@ app.use('/', function (req, res) {
             full_data['artwork_url'] = settings['api_url'] + '/songs/' + songid + '/artwork';
             full_data['api_url'] = settings['api_url'];
             full_data['song_url'] = song_url;
+            full_data['service_name'] = settings['service_name'];
             render_html(full_data)
             .then(html => {
                 res.status(200).send(html);
