@@ -293,7 +293,16 @@ app.use('/', function (req, res) {
             // Load main page
             fetch_main_html().then(
                 (contents) => {
-                    res.status(200).send(contents);
+                    let context = {};
+                    context['service_name'] = settings['service_name'];
+                    render_html(context)
+                    .then(html => {
+                        res.status(200).send(html);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send('Server error.');
+                    })
                 }
             ).catch(
                 (reason) => {
@@ -303,7 +312,9 @@ app.use('/', function (req, res) {
             );
         });
     } else {
-        render_html({}).then(
+        let context = {};
+        context['service_name'] = settings['service_name'];
+        render_html(context).then(
             (contents) => {
                 res.status(200).send(contents);
             }
