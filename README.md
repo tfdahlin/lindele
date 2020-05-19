@@ -20,7 +20,7 @@ sudo mount -t cifs -v -o vers=3.0,username=media_server_username,password=media_
 ~~~~
 
 ### Running the API
-Depending on your setup, you may use a different method to run this application based on your needs. It is built to run using WSGI, and I personally use [waitress][2] to run the application on Windows, and [gunicorn][3] to run it on Linux. The commands to run it using each of these applications respectively are:
+Depending on your setup, you may use a different method to run this application based on your needs. It is built to run using WSGI, and I personally use [waitress][2] to run the application on Windows, and [gunicorn][3] to run it on Linux. The commands to run it on port 80 using each of these applications respectively are:
 ~~~~
 waitress-serve --listen=*:80 main:app
 ~~~~
