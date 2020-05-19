@@ -35,7 +35,7 @@ gunicorn -b 0.0.0.0:80 main:app
 3. Run `npm install`.
 
 ### Running the frontend
-To run the Node.js server, you should only need to navigate to the appropriate folder and run `node app.js`
+To run the Node.js server, you will need to make a copy of `web/sample_settings.js` named `web/settings.js`, and make changes accordingly. After this, you should only need to navigate to the appropriate folder and run `node app.js`.
 
 ## Dependencies
 1. [Python3][4]
