@@ -9,10 +9,9 @@ The music player consists of two components: an API backend server, and a Node.j
 1. Make sure that you have python3 and python3-pip installed on your system.
 2. Clone this repository, then navigate to the `api` folder.
 3. [Optional] Set up and activate a virtual environment for the application.
-4. Run `pip3 install -r requirements.txt`
-5. Create a file called `local_settings.py` in the `api` folder.
-6. Go through `settings.py` and adjust `local_settings.py` according to the instructions and your specific requirements.
-7. If necessary, write a mounting script. In my case, it looked something like this:
+4. Run `pip3 install -r requirements.txt` to install required libraries.
+5. Run `python setup.py` to guide you through creating a `local_settings.py` file.
+6. If necessary, write a mounting script. In my case, it looked something like this:
 ~~~~
 #!/bin/bash
 
