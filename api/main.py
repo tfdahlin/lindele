@@ -16,7 +16,7 @@ from util.util import BaseHandler, engine
 # PIP library imports
 from pycnic.core import WSGI, Handler
 
-class AcommpliceMusic(BaseHandler):
+class Lindele(BaseHandler):
     """Base URL handler.
 
     This route behaves similarly to a ping route.
@@ -44,7 +44,7 @@ class app(WSGI):
     """
     routes = [
         # 'Home' page -- empty data return
-        ('/', AcommpliceMusic()),
+        ('/', Lindele()),
 
         # 'Ping' page -- data return with a 'msg' that says 'Pong!'
         ('/ping', Ping()),
