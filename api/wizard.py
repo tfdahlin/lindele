@@ -6,6 +6,9 @@
 import os
 
 def get_yes_no(prompt_text):
+	"""
+
+	"""
 	confirmation = input(f'{prompt_text} (y/n) ')
 	confirmation = confirmation.lower()
 	while confirmation not in ['n', 'no', 'y', 'yes']:
@@ -53,6 +56,7 @@ def main():
 	print()
 	print('What directory is your music stored in? (e.g. /mnt/Music or C:\\\\Music)')
 	var_vals['MUSIC_FOLDER'] = input('> ')
+	# TODO: sanity check for directory?
 
 	print('In some situations, the device that the music files are hosted on is separate   ')
 	print('from the device this API is hosted on. If the device hosting the music files is ')
@@ -63,9 +67,11 @@ def main():
 
 		print('Please input the full path of the mounting script.')
 		var_vals['MOUNT_SHARE_SCRIPT'] = input('> ')
+		# TODO: sanity check for file?
 
 		print('Please input the full path of the unmounting script.')
 		var_vals['UNMOUNT_SHARE_SCRIPT'] = input('> ')
+		# TODO: sanity check for file?
 
 		print('If the device hosting the music files can fall asleep, the API can also use     ')
 		print('magic packets in order to wake it when the files are inaccessible. This requires')
@@ -75,6 +81,7 @@ def main():
 
 			print('Please input the MAC address where the magic packets should be sent.')
 			var_vals['MAGIC_PACKET_MAC_ADDRESS'] = input('> ')
+			# TODO: sanity check for mac address?
 
 
 	print('If this API is being hosted with a domain name, you should probably configure   ')
@@ -100,7 +107,13 @@ def main():
 			'http://127.0.0.1'
 		]
 
+
+	# Construct the local_settings.py file from the input components
 	local_settings_string = ''
+	local_settings_string += '#!/usr/bin/env python\n'
+	local_settings_string += '# -*- coding: utf-8 -*-\n'
+	local_settings_string += 'Filename: local_settings.py\n'
+	local_settings_string += '"""Local settings file."""'
 
 	local_settings_string += 'MUSIC_FOLDER = \''
 	local_settings_string += var_vals['MUSIC_FOLDER'] + '\'\n'
@@ -128,6 +141,13 @@ def main():
 
 	with open(local_settings_file, 'w') as f:
 		f.write(local_settings_string)
+
+	print()
+	print('Your local_settings.py file has been successfully created. Before the server    ')
+	print('will run correctly, you will need to initialize the database. You can do this by')
+	print('running "python main.py". This will create the database, and attempt to load the')
+	print('music library.')
+	print()
 
 if __name__ == "__main__":
 	main()

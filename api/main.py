@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: main.py
+"""Main application.
+
+When run on its own, configures the database for use.
+Otherwise, provides WSGI functionality.
+"""
 
 # Native python imports
 import sys
 
 # Local file imports
-import music.models, music.routes
+import music.models, music.routes, music.util
 import users.models, users.routes
 import users.util
 import util.routes
@@ -21,6 +26,7 @@ class Lindele(BaseHandler):
 
     This route behaves similarly to a ping route.
     """
+
     def get(self):
         """GET /"""
         return self.HTTP_200()
@@ -30,6 +36,7 @@ class Ping(BaseHandler):
 
     This should only really be used for testing connectivity.
     """
+
     def get(self):
         """GET /ping"""
         return self.HTTP_200({'msg': 'Pong!'})
@@ -42,6 +49,7 @@ class app(WSGI):
     Launch on unix with:
         gunicorn -b 0.0.0.0:80 main:app
     """
+
     routes = [
         # 'Home' page -- empty data return
         ('/', Lindele()),
@@ -96,9 +104,13 @@ def handle_args():
 
 def main():
     application = app
-    init_database()
     if len(sys.argv) > 1:
         handle_args()
+    else:
+        # Create the tables for the database
+        init_database()
+        # And asynchronously load the music
+        music.util.refresh_database()
 
 application = app
 
