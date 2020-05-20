@@ -102,7 +102,6 @@ def init_database():
 
 def handle_args(args):
     """Handle arguments from main."""
-    # TODO: this should be using argparse
     if args.make_admin:
         print(f'Making user {args.make_admin} an admin.')
         success = users.util.make_user_admin(args.make_admin)
