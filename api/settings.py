@@ -11,16 +11,8 @@ import local_settings
 # PIP library imports
 from sqlalchemy import create_engine
 
-# Variables and settings
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-# This will tell sqlalchemy to show the SQL statements it's using
-try:
-    debug_sql_output = settings.debug_sql_output
-except:
-    debug_sql_output = False
-
 
 # This section should give you an idea of what needs to be set in your local_settings.py file.
 
