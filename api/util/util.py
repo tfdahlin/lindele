@@ -20,7 +20,7 @@ from sqlalchemy.orm import sessionmaker
 from wakeonlan import send_magic_packet
 
 # Variables and settings
-engine = create_engine(db_uri, echo=debug_sql_output)
+engine = create_engine(db_uri)
 Session = sessionmaker(bind=engine)
 
 class BaseHandler(Handler):
@@ -235,4 +235,5 @@ def mount_smb():
 
 def wake_media_server():
     """Wake the media server by sending it a magic packet."""
-    send_magic_packet(local_settings.MAGIC_PACKET_MAC_ADDRESS)
+    if settings.NEED_TO_WAKE:
+        send_magic_packet(local_settings.MAGIC_PACKET_MAC_ADDRESS)
