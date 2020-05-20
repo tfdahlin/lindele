@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: music/models.py
+"""Model classes for music-related database objects."""
 
 # Local file imports
 from util.models import Base, GUID
@@ -19,7 +20,7 @@ association_table = Table('association', Base.metadata,
 )
 
 class Playlist(Base):
-    """Playlist ORM
+    """Playlist ORM.
 
     Attributes:
         __tablename__ (str): Name of database table
@@ -30,6 +31,7 @@ class Playlist(Base):
         owner_name (str): String identifying the user that created the playlist.
         songs (relationship): Many-to-many relationship with individual songs.
     """
+
     __tablename__ = 'playlist'
 
     id = Column(Integer, primary_key=True)
@@ -48,7 +50,7 @@ class Playlist(Base):
     )
 
 class Song(Base):
-    """Playlist ORM
+    """Playlist ORM.
 
     Attributes:
         __tablename__ (str): Name of database table
@@ -60,6 +62,7 @@ class Song(Base):
         track_length (str): Length of a given track
         playlists (relationship): Many-to-many relationship with individual playlists.
     """
+
     __tablename__ = 'song'
 
     id = Column(Integer, primary_key=True)
@@ -79,7 +82,7 @@ class Song(Base):
     )
 
 class RefreshState(Base):
-    """RefreshState ORM
+    """RefreshState ORM.
 
     Attributes:
         __tablename__ (str): Name of database table
@@ -87,6 +90,7 @@ class RefreshState(Base):
         is_refreshing (bool): This is used for preventing multiple refreshes from occuring simultaneously,
             sort of like a mutex lock.
     """
+
     __tablename__ = 'refreshstate'
 
     id = Column(Integer, primary_key=True)

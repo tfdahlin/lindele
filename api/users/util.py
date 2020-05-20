@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: users/util.py
+"""Utility functions related to user objects."""
 
 # Native python imports
 import uuid, secrets, binascii, hashlib, hmac
@@ -218,7 +219,6 @@ def check_password(input_password, stored_password):
     Returns:
         result (bool): True if the input password matches the hash, False otherwise.
     """
-
     # Extract the relevant hashing information from the stored hash.
     algo, iters, salt, hashed_pass = extract_hash_info(stored_password)
 
@@ -238,7 +238,6 @@ def create_storable_password(password):
     Returns:
         result (str): The hash generated from the input password.
     """
-
     # Every password gets a unique hash, in order to prevent rainbow table attacks.
     salt = generate_salt()
 

@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: settings.py
+"""Base settings file.
+
+Loads in local_settings, and makes adjustments accordingly.
+"""
 
 # Native python imports
 import logging, os

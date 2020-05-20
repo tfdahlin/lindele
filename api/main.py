@@ -8,7 +8,7 @@ Otherwise, provides WSGI functionality.
 """
 
 # Native python imports
-import sys
+import sys, argparse
 
 # Local file imports
 import music.models, music.routes, music.util
@@ -28,7 +28,7 @@ class Lindele(BaseHandler):
     """
 
     def get(self):
-        """GET /"""
+        """GET /."""
         return self.HTTP_200()
 
 class Ping(BaseHandler):
@@ -38,7 +38,7 @@ class Ping(BaseHandler):
     """
 
     def get(self):
-        """GET /ping"""
+        """GET /ping."""
         return self.HTTP_200({'msg': 'Pong!'})
 
 class app(WSGI):
@@ -85,27 +85,43 @@ class app(WSGI):
         ('/restart', util.routes.Restart()),
     ]
 
-def make_admin():
+def make_admin(email):
+    """Convert a normal user to and admin user.
+
+    Arguments:
+        email (str): Email of the user to make an admin.
+    """
+    # TODO: implement this
     pass
 
 def init_database():
+    """Create database and relevant tables."""
     # This should initialize the database as necessary.
     print('Initializing database.')
     Base.metadata.create_all(engine)
 
-def handle_args():
-    if sys.argv[1] in ['--make_admin', '-a'] and len(sys.argv) == 3:
-        print(f'Making user {sys.argv[2]} an admin.')
-        success = users.util.make_user_admin(sys.argv[2])
+def handle_args(args):
+    """Handle arguments from main."""
+    # TODO: this should be using argparse
+    if args.make_admin:
+        print(f'Making user {args.make_admin} an admin.')
+        success = users.util.make_user_admin(args.make_admin)
         if success:
             print(f'Successfully made {sys.argv[2]} an admin.')
         else:
             print(f'Failed to make {sys.argv[2]} an admin.')
 
 def main():
-    application = app
+    """Main function used for administrative tasks.
+
+    Optional arguments:
+        -a --make_admin [Email] (str): Email of a user to make an admin.
+    """
+    parser = argparse.ArgumentParser(description="An open-source music streaming API.")
+    parser.add_argument('-a', '--make_admin', metavar='Email', type=str, help='Email address of the user to make an admin')
+    args = parser.parse_args()
     if len(sys.argv) > 1:
-        handle_args()
+        handle_args(args)
     else:
         # Create the tables for the database
         init_database()

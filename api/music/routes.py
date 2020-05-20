@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: music/routes.py
+"""Route handlers related to music database objects."""
 
 # Native python imports
 import logging, os, io
@@ -22,8 +23,9 @@ logging.basicConfig(level=logging.INFO)
 
 class Songs(BaseHandler):
     """Route handler for fetching track information."""
+
     def get(self, songid=None):
-        """GET /songs/[songid]
+        """GET /songs/[songid].
 
         Arguments:
             songid (str): Integer string identifying that info about a single song should be fetched.
@@ -49,8 +51,9 @@ class Songs(BaseHandler):
 
 class Audio(BaseHandler):
     """Route handler for fetching track audio files."""
+
     def get(self, songid):
-        """GET /songs/<songid>/audio
+        """GET /songs/<songid>/audio.
 
         Arguments:
             songid (str): Integer string identifying the track that should be served.
@@ -94,8 +97,9 @@ class Audio(BaseHandler):
 
 class Artwork(BaseHandler):
     """Route handler for fetching track artwork files."""
+
     def get(self, songid):
-        """GET /songs/<songid>/artwork
+        """GET /songs/<songid>/artwork.
 
         Arguments:
             songid (str): Integer string identifying the track that should have its artwork served.
@@ -120,6 +124,7 @@ class Artwork(BaseHandler):
             return wrapper
 
     def get_wrapper_and_header_info(self, filename, error=False):
+        """Create wrapper for file, then return the wrapper, content-type, and file size."""
         wrapper = None
         try:
             wrapper = FileWrapper(open(filename, 'rb'))
@@ -140,8 +145,9 @@ class Artwork(BaseHandler):
 
 class BuildDatabase(BaseHandler):
     """Route handler for building/refreshing the track database."""
+
     def get(self):
-        """GET /refresh"""
+        """GET /refresh."""
         # Asynchronous thread that refreshes the database, so the user doesn't have to wait.
         music.util.refresh_database()
         # Return success immediately
@@ -149,8 +155,9 @@ class BuildDatabase(BaseHandler):
 
 class Playlists(BaseHandler):
     """Route handler for fetching playlist information."""
+
     def get(self, playlistid=None):
-        """GET /playlists/[playlistid]
+        """GET /playlists/[playlistid].
 
         Arguments:
             playlistid (str): Integer string identifying a unique playlist.
@@ -168,6 +175,7 @@ class Playlists(BaseHandler):
 
     def fetch_available_playlists(self, user):
         """Fetch playlists that are available to a specific user.
+        
         This includes public playlists, and playlists created by the user.
 
         Arguments:
@@ -200,8 +208,9 @@ class Playlists(BaseHandler):
 
 class OwnedPlaylists(BaseHandler):
     """Route handler for fetching owned playlists."""
+
     def get(self):
-        """GET /playlists/owned"""
+        """GET /playlists/owned."""
         if users.util.is_logged_in(self.request):
             user = users.util.get_user_from_request(self.request)
         else:
@@ -211,10 +220,11 @@ class OwnedPlaylists(BaseHandler):
 
 class CreatePlaylist(BaseHandler):
     """Route handler for creating playlists."""
+
     @requires_login()
     @requires_params('playlist_name')
     def post(self):
-        """POST /playlists/create
+        """POST /playlists/create.
 
         Parameters:
             playlist_name (str): The name to be given to the playlist.
@@ -229,10 +239,11 @@ class CreatePlaylist(BaseHandler):
 
 class AddToPlaylist(BaseHandler):
     """Route handler for adding tracks to a playlist."""
+
     @requires_login()
     @requires_params('songid')
     def post(self, playlistid):
-        """POST /playlists/<playlistid>/add
+        """POST /playlists/<playlistid>/add.
 
         Arguments:
             playlistid (str): Integer string identifying the playlist to add a track to.
@@ -250,10 +261,11 @@ class AddToPlaylist(BaseHandler):
 
 class RemoveFromPlaylist(BaseHandler):
     """Route handler for removing tracks from a playlist."""
+
     @requires_login()
     @requires_params('songid')
     def post(self, playlistid):
-        """POST /playlists/<playlistid>/remove
+        """POST /playlists/<playlistid>/remove.
 
         Arguments:
             playlistid (str): Integer string identifying the playlist to remove a track from.

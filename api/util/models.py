@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: util/models.py
+"""Utility classes for database objects."""
 
 from sqlalchemy.types import TypeDecorator, CHAR, String
 from sqlalchemy.dialects.postgresql import UUID
@@ -15,6 +16,7 @@ class GUID(TypeDecorator):
     CHAR(32), storing as stringified hex values.
 
     """
+    
     impl = CHAR
 
     def load_dialect_impl(self, dialect):

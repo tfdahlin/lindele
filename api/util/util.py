@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: util/util.py
+"""Utility functions and classes for all modules."""
 
 # Native python imports
 import shlex, os, time

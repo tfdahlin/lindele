@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: users/util.py
+"""Utility functions related to music models."""
 
 # Native python imports
 import logging, threading, os, random, operator, datetime

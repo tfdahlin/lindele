@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: users/routes.py
+"""Route handlers related to user database objects."""
 
 import hashlib, secrets, binascii, logging, uuid, ipaddress, datetime
 
@@ -21,8 +22,10 @@ logging.basicConfig(level=logging.INFO)
 
 class UsersRoutes(BaseHandler):
     """Route handler for requests about users."""
+
     def get(self, username=None):
-        """GET /users/<username>
+        """GET /users/<username>.
+        
         Echoes the specified username, if it exists.
 
         Arguments:
@@ -35,9 +38,11 @@ class UsersRoutes(BaseHandler):
 
 class Login(BaseHandler):
     """Route handler for login requests."""
+
     @requires_params('email', 'password')
     def post(self):
-        """POST /login
+        """POST /login.
+
         Attempt to authenticate a user.
 
         Parameters:
@@ -90,9 +95,11 @@ class Login(BaseHandler):
 
 class Logout(BaseHandler):
     """Route handler for logout requests."""
+
     @requires_login()
     def post(self):
-        """POST /logout
+        """POST /logout.
+
         Deauthenticate the user making the request.
         """
         user = get_user_from_request(self.request)
@@ -114,7 +121,8 @@ class Register(BaseHandler):
 
     @requires_params('email', 'username', 'password', 'password_confirm')
     def post(self):
-        """POST /register
+        """POST /register.
+
         Handle account registration.
 
         This step consists of:
@@ -148,8 +156,10 @@ class Register(BaseHandler):
 
 class CurrentUser(BaseHandler):
     """Route handler for fetching the current user."""
+
     def get(self):
-        """GET /current_user
+        """GET /current_user.
+
         Fetch details and settings for the current user, as well as login status.
         """
         user = get_user_from_request(self.request)
@@ -163,10 +173,11 @@ class CurrentUser(BaseHandler):
 
 class SetUserVolume(BaseHandler):
     """Route handler for updating volume preferences."""
+
     @requires_login()
     @requires_params('volume')
     def post(self):
-        """POST /set_volume
+        """POST /set_volume.
 
         Parameters:
             volume (str): String representation of the volume level setting to store.

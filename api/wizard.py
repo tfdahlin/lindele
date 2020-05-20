@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Filename: setup.py
+# Filename: wizard.py
+"""Run this script to help generate a local_settings.py file."""
 
 # Native python imports
 import os
 
 def get_yes_no(prompt_text):
-	"""
-
-	"""
+	"""Prompt the user for a yes or no response."""
 	confirmation = input(f'{prompt_text} (y/n) ')
 	confirmation = confirmation.lower()
 	while confirmation not in ['n', 'no', 'y', 'yes']:
@@ -19,6 +18,7 @@ def get_yes_no(prompt_text):
 	return True
 
 def main():
+	"""Main function that interacts with a user to help configure a local_settings.py file."""
 	current_folder = os.path.dirname(os.path.abspath(__file__))
 	local_settings_file = os.path.join(current_folder, 'local_settings.py')
 	vars_to_set = {

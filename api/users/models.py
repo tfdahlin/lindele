@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: users/models.py
+"""Model classes for user-related database objects."""
 
 # Native python imports
 
@@ -26,6 +27,7 @@ class LoginAttempt(Base):
         source_ip (str): IP of the user attempting to login
         success (bool): Whether the login attempt was successful or not.
     """
+
     __tablename__ = 'login_attempts'
 
     id = Column(Integer, primary_key=True)
@@ -47,6 +49,7 @@ class User(Base):
         last_registration_email (datetime): Last time that an attempt was made to send a user an email.
         last_invalidated (datetime): Last time that session tokens were invalidated.
     """
+
     __tablename__ = 'user'
 
     username = Column(String)
@@ -61,4 +64,5 @@ class User(Base):
     last_invalidated = Column(DateTime)
 
     def __repr__(self):
+        """Override user representation."""
         return f'<User(username={self.username}, email={self.email})>'

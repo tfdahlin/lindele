@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: util/routes.py
+"""Utility route handlers."""
 
 # Native python imports
 import threading, logging
@@ -20,6 +21,7 @@ logging.basicConfig(level=logging.INFO)
 
 class Restart(BaseHandler):
     """Route handler for restarting the music player server."""
+
     @requires_login()
     def get(self):
         """GET /restart
@@ -33,6 +35,7 @@ class Restart(BaseHandler):
 
 class Remount(BaseHandler):
     """Route handler for restarting the media server."""
+
     @requires_login()
     def get(self):
         """GET /remount
