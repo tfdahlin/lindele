@@ -112,7 +112,7 @@ def main():
 	local_settings_string = ''
 	local_settings_string += '#!/usr/bin/env python\n'
 	local_settings_string += '# -*- coding: utf-8 -*-\n'
-	local_settings_string += 'Filename: local_settings.py\n'
+	local_settings_string += '#Filename: local_settings.py\n'
 	local_settings_string += '"""Local settings file."""\n\n'
 
 	local_settings_string += 'MUSIC_FOLDER = \''
