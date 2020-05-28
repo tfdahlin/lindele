@@ -100,9 +100,9 @@ class Audio(BaseHandler):
             range_match = range_re.match(self.request.headers['Range'])
             first_byte, last_byte = range_match.groups()
             first_byte = int(first_byte) if first_byte else 0
-            last_bytes = int(last_byte) if last_byte else file_size - 1
-            if last_byte >= int(file_size):
-                last_byte = int(file_size) - 1
+            last_byte = int(last_byte) if last_byte else file_size - 1
+            if last_byte >= file_size:
+                last_byte = file_size - 1
             length = last_byte - first_byte + 1
             wrapper = RangeFileWrapper(open(track_file, 'rb'), offset=first_byte, length=length)
             content_length = str(length)
