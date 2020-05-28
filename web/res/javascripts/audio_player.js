@@ -8,12 +8,6 @@ function time_update() {
     document.getElementById("playbacktimercontainer").innerHTML = seconds_to_minutes(current_time) + " / " + seconds_to_minutes(total_time);
 }
 
-function update_timer_container() {
-    var current_time = audio_player.currentTime;
-    var total_time = audio_player.duration;
-    document.getElementById("playbacktimercontainer").innerHTML = seconds_to_minutes(current_time) + " / " + seconds_to_minutes(total_time);
-}
-
 var shuffle = true;
 var playlist_position = 0;
 var deck = []; // This is a list of tracks, not ids.
@@ -29,7 +23,7 @@ audio_player.addEventListener('ended', play_next_song);
 audio_player.addEventListener('timeupdate', time_update);
 audio_player.addEventListener('playing', update_player_play);
 audio_player.addEventListener('pause', update_player_pause);
-audio_player.addEventListener('loadedmetadata', update_timer_container);
+audio_player.addEventListener('loadedmetadata', time_update);
 audio_player.type = 'audio/mpeg';
 audio_player.volume = document.getElementById('volume_slider').value/100;
 updateSoundIcon(audio_player.volume);
