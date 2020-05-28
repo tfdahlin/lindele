@@ -113,7 +113,7 @@ def main():
 	local_settings_string += '#!/usr/bin/env python\n'
 	local_settings_string += '# -*- coding: utf-8 -*-\n'
 	local_settings_string += 'Filename: local_settings.py\n'
-	local_settings_string += '"""Local settings file."""'
+	local_settings_string += '"""Local settings file."""\n\n'
 
 	local_settings_string += 'MUSIC_FOLDER = \''
 	local_settings_string += var_vals['MUSIC_FOLDER'] + '\'\n'
@@ -137,7 +137,7 @@ def main():
 	local_settings_string += 'ALLOWED_ORIGINS = [\n'
 	for origin in var_vals['ALLOWED_ORIGINS']:
 		local_settings_string += '    \'' + origin + '\',\n'
-	local_settings_string += ']'
+	local_settings_string += ']\n'
 
 	with open(local_settings_file, 'w') as f:
 		f.write(local_settings_string)
