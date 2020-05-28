@@ -93,7 +93,7 @@ class Audio(BaseHandler):
             self.response.set_header('Content-Type', 'audio/mpeg')
             self.response.set_header('Content-Length', str(os.path.getsize(track_file)))
             self.response.set_header('Accept-Ranges', 'bytes')
-            logger.info(response.headers)
+            logger.info(self.response.headers)
             return wrapper
 
 class Artwork(BaseHandler):
