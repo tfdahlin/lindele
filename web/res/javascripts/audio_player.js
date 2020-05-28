@@ -24,6 +24,7 @@ audio_player.addEventListener('timeupdate', time_update);
 audio_player.addEventListener('playing', update_player_play);
 audio_player.addEventListener('pause', update_player_pause);
 audio_player.addEventListener('loadedmetadata', time_update);
+audio_player.addEventListener('durationchange', time_update);
 audio_player.type = 'audio/mpeg';
 audio_player.volume = document.getElementById('volume_slider').value/100;
 updateSoundIcon(audio_player.volume);
@@ -351,7 +352,12 @@ $("a.logoutlink").click(function() {
 $("#playbackcontainer").click(function(e) {
     var percentage = e.offsetX/$(this).width();
     var time_to_set = parseInt(percentage*audio_player.duration);
-    audio_player.currentTime = time_to_set;
+    if(!isFinite(time_to_set)) {
+        console.warn('Non-finite time_to_set value.')
+        console.warn(audio_player.duration);
+    } else {
+        audio_player.currentTime = time_to_set;
+    }
 });
 
 $("#shufflebutton").click(toggle_shuffle);
