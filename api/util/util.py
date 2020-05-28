@@ -45,7 +45,7 @@ class RangeFileWrapper:
         """Returns self as iterator."""
         return self
 
-    def next(self):
+    def __next__(self):
         """Fetches next set of readable bytes."""
         if self.remaining is None:
             # If remaining is None, we're reading the entire file.
