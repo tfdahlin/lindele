@@ -97,6 +97,8 @@ class Audio(BaseHandler):
 
         if 'Range' in self.request.headers and range_re.match(self.request.headers['Range']):
             # If a range is requested, we use the RangeFileWrapper to only serve the range requested
+            # TODO: add out-of-bounds handling if no overlap of ranges. (416 code)
+            # https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests#Partial_request_responses
             range_match = range_re.match(self.request.headers['Range'])
             first_byte, last_byte = range_match.groups()
             first_byte = int(first_byte) if first_byte else 0
@@ -107,6 +109,7 @@ class Audio(BaseHandler):
             wrapper = RangeFileWrapper(open(track_file, 'rb'), offset=first_byte, length=length)
             content_length = str(length)
             self.response.set_header('Content-Range', f'bytes {first_byte}-{last_byte}/{file_size}')
+            self.response.status_code = 206
 
         else:
             # If no range is requested, we serve the whole file
