@@ -4,13 +4,13 @@
 """Route handlers related to music database objects."""
 
 # Native python imports
-import logging, os, io
+import logging, os, io, re
 from wsgiref.util import FileWrapper
 
 # Local code imports
 import users.util, music.util
 from util.decorators import requires_params, requires_login
-from util.util import BaseHandler, mount_as_needed
+from util.util import BaseHandler, mount_as_needed, RangeFileWrapper
 from settings import MISSING_ARTWORK_FILE
 
 # PIP library imports
@@ -84,17 +84,44 @@ class Audio(BaseHandler):
         #  and is separate from the main server, so it may need to be mounted before
         #  tracks can be opened.
         mount_as_needed()
-        try:
-            wrapper = FileWrapper(open(track_file, 'rb'))
-        except OSError as e:
-            logger.warn(f'Exception while loading track {songid}.')
-            return self.HTTP_400(error='Could not load track.')
+
+        # Used for parsing range requests
+        range_re = re.compile(r'bytes\s*=\s*(\d+)\s*-\s*(\d*)', re.I)
+
+        # Regardless of range, we need to know file size
+        file_size = os.path.getsize(track_file)
+
+        # These will be different depending on the range requested
+        content_length = None
+        wrapper = None
+
+        if 'Range' in self.request.headers and range_re.match(self.request.headers['Range']):
+            # If a range is requested, we use the RangeFileWrapper to only serve the range requested
+            range_match = range_re.match(self.request.headers['Range'])
+            first_byte, last_byte = range_match.groups()
+            first_byte = int(first_byte) if first_byte else 0
+            last_bytes = int(last_byte) if last_byte else file_size - 1
+            if last_byte >= size:
+                last_byte = size - 1
+            length = last_byte - first_byte + 1
+            wrapper = RangeFileWrapper(open(track_file, 'rb'), offset=first_byte, length=length)
+            content_length = str(length)
+            self.response.set_header('Content-Range', f'bytes {first_byte}-{last_byte}/{file_size}')
+
         else:
-            self.response.set_header('Content-Type', 'audio/mpeg')
-            self.response.set_header('Content-Length', str(os.path.getsize(track_file)))
-            self.response.set_header('Accept-Ranges', 'bytes')
-            logger.info(self.response.headers)
-            return wrapper
+            # If no range is requested, we serve the whole file
+            content_length = str(file_size)
+            try:
+                wrapper = FileWrapper(open(track_file, 'rb'))
+            except OSError as e:
+                logger.warn(f'Exception while loading track {songid}.')
+                return self.HTTP_400(error='Could not load track.')
+
+        self.response.set_header('Content-Type', 'audio/mpeg')
+        self.response.set_header('Content-Length', content_length)
+        self.response.set_header('Accept-Ranges', 'bytes')
+        logger.info(self.response.headers)
+        return wrapper
 
 class Artwork(BaseHandler):
     """Route handler for fetching track artwork files."""
