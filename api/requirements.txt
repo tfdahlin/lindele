@@ -1,7 +1,7 @@
 wakeonlan==1.1.6
 Pillow==6.2.2
 eyed3==0.9.5
-pycnic==0.1.3
+pycnic==0.1.4
 sqlalchemy==1.3.8
 mutagen==1.42.0
 sqlalchemy-utils==0.34.2
