@@ -64,7 +64,8 @@ class RangeFileWrapper:
 
 class BaseHandler(Handler):
     """Extension of pycnic's Handler class. 
-    Provides utility functions for inheriting in specific handlers
+
+    Provides utility functions for inheriting in specific http response handlers.
     """
     def before(self):
         """Executes on receiving a request before any other execution.
@@ -77,7 +78,8 @@ class BaseHandler(Handler):
             self.response.set_header('Access-Control-Allow-Credentials', "true")
 
     def HTTP_200(self, data={}, error=None): # 200 OK -- general success
-        """200 OK response
+        """200 OK response.
+
         General success
 
         Arguments:
@@ -95,7 +97,8 @@ class BaseHandler(Handler):
         return result
 
     def HTTP_201(self, data={}, error=None):
-        """201 Created response
+        """201 Created response.
+
         Resource has been created.
 
         Arguments:
@@ -113,7 +116,8 @@ class BaseHandler(Handler):
         return result
 
     def HTTP_400(self, data={}, error=None): # 400 Bad Request -- request not understood by server
-        """400 Bad Request response
+        """400 Bad Request response.
+
         Request not understood by server, general failure.
 
         Arguments:
@@ -131,7 +135,8 @@ class BaseHandler(Handler):
         return result
 
     def HTTP_403(self, data={}, error=None): # 403 Forbidden -- no permission
-        """403 Forbidden response
+        """403 Forbidden response.
+
         User does not have permission to access the resource
 
         Arguments:
@@ -149,7 +154,8 @@ class BaseHandler(Handler):
         return result
 
     def HTTP_404(self, data={}, error=None): # 404 Not Found -- resource not found
-        """404 Not Found response
+        """404 Not Found response.
+
         Resource not found
 
         Arguments:
@@ -166,8 +172,28 @@ class BaseHandler(Handler):
         self.response.status_code = 404
         return result
 
+    def HTTP_416(self, data={}, error=None): # 416 Requested Range Not Satisfiable -- out of bounds request
+        """416 Requested Range Not Satisfiable response.
+
+        Range requested was out of allowed bounds, e.g. "start" was beyond filesize.
+
+        Arguments:
+            data (dict): Data to be returned in the response.
+            error (str): Any error message that wants to be added to the response.
+        """
+        result = {
+            'status_code': 416,
+            'status': 'Requested Range Not Satisfiable',
+            'version': settings.API_VERSION,
+            'data': data,
+            'error': error
+        }
+        self.response.status_code = 429
+        return result
+
     def HTTP_429(self, data={}, error=None): # 429 Too Many Requests -- rate-limiting
-        """429 Too Many Requests response
+        """429 Too Many Requests response.
+
         Rate limiting applied
 
         Arguments:

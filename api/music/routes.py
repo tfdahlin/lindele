@@ -97,10 +97,13 @@ class Audio(BaseHandler):
 
         if 'Range' in self.request.headers and range_re.match(self.request.headers['Range']):
             # If a range is requested, we use the RangeFileWrapper to only serve the range requested
-            # TODO: add out-of-bounds handling if no overlap of ranges. (416 code)
+            # TODO: add if-range (hash of file, should be part of audio track model)
             # https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests#Partial_request_responses
             range_match = range_re.match(self.request.headers['Range'])
             first_byte, last_byte = range_match.groups()
+            if int(first_byte) > file_size:
+                # Out of bounds request
+                return self.HTTP_416(error='Requested range out of bounds.')
             first_byte = int(first_byte) if first_byte else 0
             last_byte = int(last_byte) if last_byte else file_size - 1
             if last_byte >= file_size:
@@ -109,6 +112,7 @@ class Audio(BaseHandler):
             wrapper = RangeFileWrapper(open(track_file, 'rb'), offset=first_byte, length=length)
             content_length = str(length)
             self.response.set_header('Content-Range', f'bytes {first_byte}-{last_byte}/{file_size}')
+            #self.response.set_header('If-Range', f'"{os.path.getmtime(track_file)}"')
             self.response.status_code = 206
 
         else:
