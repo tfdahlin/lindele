@@ -21,84 +21,83 @@ Most unsuccessful requests specify the problem in their `error` element, when
 it makes sense to provide that information to the consumer.
 
 ## User endpoints
-<details><!-- GET /users/{username} -->
-	<summary>GET /users/{username}</summary>
+<details>
+<summary>GET /users/{username}</summary>
 
 Currently only returns json with the user's username.
 
 Requirements:
-	- A user must be logged in.
+- A user must be logged in.
 
 Example response:
 
-	`{ 'username': 'AcidBurn' }`
+`{ 'username': 'AcidBurn' }`
 </details>
 
-<details><!-- POST /register -->
-	<summary>POST /register</summary>
-	Attempts to register a user account.
+<details>
+<summary>POST /register</summary>
+Attempts to register a user account.
 
-	Request parameters:
-		- email
-		- username
-		- password
-		- password_confirm
+Request parameters:
+- email
+- username
+- password
+- password_confirm
 </details>
 
-<details><!-- POST /login -->
-	<summary>POST /login</summary>
-	Authenticates credentials provided by a user.
+<details>
+<summary>POST /login</summary>
+Authenticates credentials provided by a user.
 
-	Request parameters:
-		- email
-		- password
+Request parameters:
+- email
+- password
 </details>
 
-<details><!-- POST /logout -->
-	<summary>POST /logout</summary>
-	Tells the browser to clear its cookies for the API.
+<details>
+<summary>POST /logout</summary>
+Tells the browser to clear its cookies for the API.
 
-	Requirements:
-		A user to be logged in.
+Requirements:
+- A user to be logged in.
 </details>
 
-<details><!-- GET /current_user -->
-	<summary>GET /current_user</summary>
-	Gets information about the user that is currently logged in.
+<details>
+<summary>GET /current_user</summary>
 
-	Example response:
+Gets information about the user that is currently logged in.
 
-		```
-		{
-			'logged_in:' true,
-			'user': {
-				'username': 'AcidBurn',
-				'volume': 95
-			}
+Example response:
+
+	{
+		'logged_in:' true,
+		'user': {
+			'username': 'AcidBurn',
+			'volume': 95
 		}
-		```
+	}
 </details>
 
-<details><!-- POST /set_volume -->
-	<summary>POST /set_volume</summary>
-	Stores a volume level for the user that is currently logged in.
+<details>
+<summary>POST /set_volume</summary>
+Stores a volume level for the user that is currently logged in.
 
-	Request parameters:
-		volume
+Request parameters:
+- volume
 </details>
 
 
 ## Music endpoints
 ### Track endpoints
-<details><!-- GET /songs -->
-	<summary>GET /songs</summary>
-	Provides a list of all songs currently in the database.
+<details>
+<summary>GET /songs</summary>
 
-	This list is sorted by artist name, then album name, then track title.
+Provides a list of all songs currently in the database.
 
-	Example response:
+This list is sorted by artist name, then album name, then track title.
 
-	```
+Example response:
+
 	{
 		'tracks': [
 			{
@@ -111,16 +110,15 @@ Example response:
 			...
 		]
 	}
-	```
 </details>
 
-<details><!-- GET /songs/{song_id} -->
-	<summary>GET /songs/{songid}</summary>
-	Provides track details about a specific track.
+<details>
+<summary>GET /songs/{songid}</summary>
 
-	Example response:
+Provides track details about a specific track.
 
-	```
+Example response:
+
 	{
 		'title': 'Linger Longer',
 		'artist': 'Cosmo Sheldrake',
@@ -128,39 +126,40 @@ Example response:
 		'id': 1337,
 		'length': '05:36'
 	}
-	```
 </details>
 
-<details><!-- GET /songs/{song_id}/audio -->
-	<summary>GET /songs/{song_id}/audio</summary>
-	Serves the audio for a specific track.
+<details>
+<summary>GET /songs/{song_id}/audio</summary>
 
-	This route allows handles range requests, and in those cases returns a 206
-	status code.
-	This route does not serve files with the application/json content-type 
-	header, and instead serves with the audio/mpeg content-type header.
+Serves the audio for a specific track.
+
+This route allows handles range requests, and in those cases returns a 206
+status code.
+This route does not serve files with the application/json content-type 
+header, and instead serves with the audio/mpeg content-type header.
 </details>
 
-<details><!-- GET /songs/{song_id}/artwork -->
-	<summary>GET /songs/{song_id}/artwork</summary>
-	Serves the album artwork for a specific track.
+<details>
+<summary>GET /songs/{song_id}/artwork</summary>
 
-	This route does not serve files with the application/json content-type 
-	header, and instead serves with the image/jpeg or image/png content-type 
-	header.
+Serves the album artwork for a specific track.
+
+This route does not serve files with the application/json content-type 
+header, and instead serves with the image/jpeg or image/png content-type 
+header.
 </details>
 
 
 ### Playlist endpoints
-<details><!-- GET /playlists -->
-	<summary>GET /playlists</summary>
-	Provides a list of all playlists that the current user can access.
+<details>
+<summary>GET /playlists</summary>
 
-	This includes both public playlists, and playlists owned by the current user.
+Provides a list of all playlists that the current user can access.
 
-	Example response:
+This includes both public playlists, and playlists owned by the current user.
 
-	```
+Example response:
+
 	{
 		'playlists': [
 			{
@@ -172,16 +171,15 @@ Example response:
 			...
 		]
 	}
-	```
 </details>
 
-<details><!-- GET /playlists/{playlist_id} -->
-	<summary>GET /playlists/{playlist_id}</summary>
-	Provides details about a specific playlist.
+<details>
+<summary>GET /playlists/{playlist_id}</summary>
 
-	Example response:
+Provides details about a specific playlist.
 
-	```
+Example response:
+
 	{
 		'tracks': [
 			{
@@ -197,33 +195,33 @@ Example response:
 		'name': 'Best playlist ever!!!',
 		'public': false
 	}
-	```
 </details>
 
-<details><!-- POST /playlists/create -->
-	<summary>POST /playlists/create</summary>
-	Creates a new playlist for the current user.
+<details>
+<summary>POST /playlists/create</summary>
 
-	Parameters:
-		- playlist_name
+Creates a new playlist for the current user.
 
-	Requirements:
-		- A user must be logged in.
+Parameters:
+- playlist_name
+
+Requirements:
+- A user must be logged in.
 </details>
 
-<details><!-- GET /playlists/owned -->
-	<summary>GET /playlists/owned</summary>
-	Provides a list of playlists owned by the user making the request.
+<details>
+<summary>GET /playlists/owned</summary>
 
-	This is different from the /playlists endpoint because it does not include
-	public playlists not owned by the current user.
+Provides a list of playlists owned by the user making the request.
 
-	Requirements:
-		- A user must be logged in.
+This is different from the /playlists endpoint because it does not include
+public playlists not owned by the current user.
 
-	Example response:
+Requirements:
+- A user must be logged in.
 
-	```
+Example response:
+
 	{
 		'playlists': [
 			{
@@ -235,79 +233,84 @@ Example response:
 			...
 		]
 	}
-	```
+
 </details>
 
-<details><!-- POST /playlists/{playlist_id}/add -->
-	<summary>POST /playlists/{playlist_id}/add</summary>
-	Adds a song to the specified playlist.
+<details>
+<summary>POST /playlists/{playlist_id}/add</summary>
 
-	Parameters:
-		- songid
+Adds a song to the specified playlist.
 
-	Requirements:
-		- A user must be logged in.
-		- The user must own the playlist being modified.
+Parameters:
+- songid
+
+Requirements:
+- A user must be logged in.
+- The user must own the playlist being modified.
 </details>
 
-<details><!-- POST /playlists/{playlist_id}/remove -->
-	<summary>POST /playlists/{playlist_id}/remove</summary>
-	Removes a song from the specified playlist.
+<details>
+<summary>POST /playlists/{playlist_id}/remove</summary>
 
-	Parameters:
-		- songid
+Removes a song from the specified playlist.
 
-	Requirements:
-		- A user must be logged in.
-		- The user must own the playlist being modified.
+Parameters:
+- songid
+
+Requirements:
+- A user must be logged in.
+- The user must own the playlist being modified.
 </details>
 
-<details><!-- POST /playlists/{playlist_id}/set_publicity -->
-	<summary>POST /playlists/{playlist_id}/set_publicity</summary>
-	Sets the publicity of the specified playlist.
+<details>
+<summary>POST /playlists/{playlist_id}/set_publicity</summary>
 
-	Parameters:
-		- is_public: Must be a boolean or a string that, when converted to lowercase, reads "true" or "false"
+Sets the publicity of the specified playlist.
 
-	Requirements:
-		- A user must be logged in.
-		- The user must own the playlist being modified.
+Parameters:
+- is_public: Must be a boolean or a string that, when converted to lowercase, reads "true" or "false"
+
+Requirements:
+- A user must be logged in.
+- The user must own the playlist being modified.
 </details>
 
 
 ## System control endpoints
-<details><!-- GET /refresh -->
-	<summary>GET /refresh</summary>
-	Prompts the song database to be refreshed by processing the music folder.
+<details>
+<summary>GET /refresh</summary>
+
+Prompts the song database to be refreshed by processing the music folder.
 </details>
 
-<details><!-- GET /remount -->
-	<summary>GET /remount</summary>
-	Prompts the server to attempt to remount the music folder, if applicable.
+<details>
+<summary>GET /remount</summary>
 
-	Requirements:
-		- User must be logged in.
-		- Current user must be an admin.
+Prompts the server to attempt to remount the music folder, if applicable.
+
+Requirements:
+- User must be logged in.
+- Current user must be an admin.
 </details>
 
-<details><!-- GET /restart -->
-	<summary>GET /restart</summary>
-	Prompts the server to restart after a short delay.
+<details>
+<summary>GET /restart</summary>
 
-	Requirements:
-		- User must be logged in.
-		- Current user must be an admin.
+Prompts the server to restart after a short delay.
+
+Requirements:
+- User must be logged in.
+- Current user must be an admin.
 </details>
 
-<details><!-- GET /ping -->
-	<summary>GET /ping</summary>
-	Returns a simple response to test that the server is online.
+<details>
+<summary>GET /ping</summary>
 
-	Example response:
+Returns a simple response to test that the server is online.
 
-	```
-	{
+Example response:
+
+	{ 
 		'msg': 'Pong!'
 	}
-	```
 </details>
