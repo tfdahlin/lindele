@@ -21,7 +21,8 @@ Most unsuccessful requests specify the problem in their `error` element, when
 it makes sense to provide that information to the consumer.
 
 ## User endpoints
-<details><!-- GET /users/{username} -->
+<!-- GET /users/{username} -->
+<details>
 	<summary>GET /users/{username}</summary>
 
 	Currently only returns json with the user's username.
@@ -30,7 +31,7 @@ it makes sense to provide that information to the consumer.
 		- A user must be logged in.
 
 	Example response:
-	
+
 		`{ 'username': 'AcidBurn' }`
 </details>
 
