@@ -146,8 +146,10 @@ Provides track details about a specific track.
 #### Description
 Serves the audio for a specific track.
 
-This route allows handles range requests, and in those cases returns a 206
-status code.
+This route supports requests that specify a single byte range, and will serve
+the range specified in the `Range` HTTP header of a request. If the `Range`
+header is set, this endpoint will return a 206 status code.
+
 This route does not serve files with the application/json content-type 
 header, and instead serves with the audio/mpeg content-type header.
 </details>
@@ -172,6 +174,8 @@ header.
 Provides a list of all playlists that the current user can access.
 
 This includes both public playlists, and playlists owned by the current user.
+
+The ordering of returned playlists is arbitrary.
 
 ##### Example response:
 
@@ -235,6 +239,8 @@ Provides a list of playlists owned by the user making the request.
 This is different from the /playlists endpoint because it does not include
 public playlists not owned by the current user.
 
+The ordering of returned playlists is arbitrary.
+
 Requirements:
 - A user must be logged in.
 
@@ -287,6 +293,9 @@ Removes a song from the specified playlist.
 
 #### Description
 Sets the publicity of the specified playlist.
+
+By default, playlists that a user creates are not publicly accessible. This 
+allows a user to publicly share their playlist.
 
 ##### Parameters:
 - is_public: Must be a boolean or a string that, when converted to lowercase, reads "true" or "false"
