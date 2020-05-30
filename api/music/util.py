@@ -452,6 +452,24 @@ def get_public_playlists():
             result['playlists'].append(data)
     return result
 
+def set_playlist_publicity(playlistid, publicity):
+    """Set a playlist to public or private."""
+    with access_db() as db_conn:
+        try:
+            playlist = db_conn.query(Playlist).get(playlistid)
+        except:
+            logger.warn(f'Exception encountered while trying to fetch playlist {playlistid}')
+            return False
+        else:
+            if not playlist:
+                logger.warn(f'Playlist {playlistid} does not exist.')
+                return False
+
+            playlist.public = publicity
+            db_conn.commit()
+
+    return True
+
 def get_playlists_for_user(user_guid):
     """Fetch public playlists, and playlists owned by a specific user.
 

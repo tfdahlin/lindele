@@ -78,6 +78,7 @@ class app(WSGI):
         ('/playlists/owned', music.routes.OwnedPlaylists()),
         ('/playlists/(\d+)/add', music.routes.AddToPlaylist()),
         ('/playlists/(\d+)/remove', music.routes.RemoveFromPlaylist()),
+        ('/playlists/(\d+)/set_publicity', music.routes.SetPlaylistPublicity()),
 
         # Server functionality
         ('/refresh', music.routes.BuildDatabase()),

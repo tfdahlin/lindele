@@ -9,7 +9,7 @@ from wsgiref.util import FileWrapper
 
 # Local code imports
 import users.util, music.util
-from util.decorators import requires_params, requires_login
+from util.decorators import requires_params, requires_login, requires_admin
 from util.util import BaseHandler, mount_as_needed, RangeFileWrapper
 from settings import MISSING_ARTWORK_FILE
 
@@ -102,7 +102,7 @@ class Audio(BaseHandler):
             range_match = range_re.match(self.request.headers['Range'])
             first_byte, last_byte = range_match.groups()
             if int(first_byte) > file_size:
-                # Out of bounds request
+                # Out of bounds request, return an error
                 return self.HTTP_416(error='Requested range out of bounds.')
             first_byte = int(first_byte) if first_byte else 0
             last_byte = int(last_byte) if last_byte else file_size - 1
@@ -127,7 +127,6 @@ class Audio(BaseHandler):
         self.response.set_header('Content-Type', 'audio/mpeg')
         self.response.set_header('Content-Length', content_length)
         self.response.set_header('Accept-Ranges', 'bytes')
-        logger.info(self.response.headers)
         return wrapper
 
 class Artwork(BaseHandler):
@@ -147,18 +146,34 @@ class Artwork(BaseHandler):
             return self.HTTP_404(error='Invalid song id.')
 
         try:
-            wrapper, content_type, content_length = self.get_wrapper_and_header_info(artwork_file)
+            content_type = self.get_content_type(artwork_file)
+        except:
+            return self.HTTP_400(error='Error determining album artwork content type.')
+
+        # File size is constant.
+        file_size = os.path.getsize(artwork_file)
+
+        try:
+            wrapper = self.get_wrapper(artwork_file)
         except Exception as e:
             logger.warn(f'Could not access artwork file for track with id {songid}, or missing album artwork.')
             logger.critical(e)
             return self.HTTP_400(error='Error loading album artwork.')
         else:
             self.response.set_header('Content-Length', content_length)
-            self.response.set_header('Accept-Ranges', 'bytes')
             self.response.set_header('Content-Type', content_type)
             return wrapper
 
-    def get_wrapper_and_header_info(self, filename, error=False):
+    def get_content_type(self, filename):
+        """Returns the content-type string for a given filename."""
+        if filename.endswith('.png'):
+            return 'image/png'
+        elif filename.endswith('.jpg') or filename.endswith('.jpeg'):
+            return 'image/jpeg'
+        else:
+            raise TypeError(f'File type could not be determined for {filename}')
+
+    def get_wrapper(self, filename, error=False):
         """Create wrapper for file, then return the wrapper, content-type, and file size."""
         wrapper = None
         try:
@@ -171,16 +186,12 @@ class Artwork(BaseHandler):
             else:
                 return get_file_wrapper_and_content_type(MISSING_ARTWORK_FILE, error=True)
         else:
-            if filename.endswith('.png'):
-                return wrapper, 'image/png', str(os.path.getsize(filename))
-            elif filename.endswith('.jpg') or filename.endswith('.jpeg'):
-                return wrapper, 'image/jpeg', str(os.path.getsize(filename))
-            else:
-                raise TypeError(f'File type could not be determined for {filename}')
+            return wrapper
 
 class BuildDatabase(BaseHandler):
     """Route handler for building/refreshing the track database."""
 
+    @requires_admin
     def get(self):
         """GET /refresh."""
         # Asynchronous thread that refreshes the database, so the user doesn't have to wait.
@@ -235,8 +246,6 @@ class Playlists(BaseHandler):
 
         # We only want to return the playlist data if it's public, or owned by the user.
         if playlist_data['public'] or (user and music.util.owns_playlist(playlistid, user.guid)):
-            # No need to return this information, so we strip it.
-            del(playlist_data['public'])
             return self.HTTP_200(data=playlist_data)
         else:
             return self.HTTP_403(error='You cannot access this playlist.')
@@ -244,6 +253,7 @@ class Playlists(BaseHandler):
 class OwnedPlaylists(BaseHandler):
     """Route handler for fetching owned playlists."""
 
+    @requires_login()
     def get(self):
         """GET /playlists/owned."""
         if users.util.is_logged_in(self.request):
@@ -315,3 +325,41 @@ class RemoveFromPlaylist(BaseHandler):
         songid = self.request.data['songid']
         music.util.remove_song_from_playlist(playlistid, songid)
         return self.HTTP_200()
+
+class SetPlaylistPublicity(BaseHandler):
+    """Route handler for updating the public status of a playlist."""
+
+    @requires_login()
+    @requires_params('is_public')
+    def post(self, playlistid):
+        """POST /playlists/<playlistid>/set_publicity.
+
+        Arguments:
+            playlistid (str): Integer string identifying the playlist to update the publicity of.
+
+        Parameters:
+            is_public (str): Boolean string indicating whether the playlist should be made public.
+        """
+        user = users.util.get_user_from_request(self.request)
+        if not music.util.owns_playlist(playlistid, user.guid):
+            return self.HTTP_403(error='You don\'t own this playlist.')
+
+        publicity = self.request.data['is_public']
+
+        # Convert input to boolean as appropriate
+        if not isinstance(publicity, bool):
+            if isinstance(publicity, str):
+                publicity = publicity.lower()
+                if publicity == 'true':
+                    publicity = True
+                elif publicity == 'false':
+                    publicity = False
+                else:
+                    return self.HTTP_400(error='Invalid publicity string.')
+            else:
+                return self.HTTP_400(error='Invalid publicity type.')
+
+        if music.util.set_playlist_publicity(playlistid, publicity):
+            return self.HTTP_200()
+        else:
+            return self.HTTP_400(error='Unable to update publicity.')
