@@ -24,12 +24,13 @@ it makes sense to provide that information to the consumer.
 <details>
 <summary>GET /users/{username}</summary>
 
+#### Description
 Currently only returns json with the user's username.
 
-#### Requirements:
+##### Requirements:
 - A user must be logged in.
 
-Example response:
+##### Example response:
 
 `{ 'username': 'AcidBurn' }`
 </details>
@@ -37,9 +38,10 @@ Example response:
 <details>
 <summary>POST /register</summary>
 
+#### Description
 Attempts to register a user account.
 
-#### Request parameters:
+##### Parameters:
 - email
 - username
 - password
@@ -49,9 +51,10 @@ Attempts to register a user account.
 <details>
 <summary>POST /login</summary>
 
+#### Description
 Authenticates credentials provided by a user.
 
-#### Request parameters:
+##### Parameters:
 - email
 - password
 </details>
@@ -59,18 +62,20 @@ Authenticates credentials provided by a user.
 <details>
 <summary>POST /logout</summary>
 
+#### Description
 Tells the browser to clear its cookies for the API.
 
-#### Requirements:
+##### Requirements:
 - A user to be logged in.
 </details>
 
 <details>
 <summary>GET /current_user</summary>
 
+#### Description
 Gets information about the user that is currently logged in.
 
-Example response:
+##### Example response:
 
 	{
 		'logged_in:' true,
@@ -84,9 +89,10 @@ Example response:
 <details>
 <summary>POST /set_volume</summary>
 
+#### Description
 Stores a volume level for the user that is currently logged in.
 
-#### Request parameters:
+##### Parameters:
 - volume
 </details>
 
@@ -96,11 +102,12 @@ Stores a volume level for the user that is currently logged in.
 <details>
 <summary>GET /songs</summary>
 
+#### Description
 Provides a list of all songs currently in the database.
 
 This list is sorted by artist name, then album name, then track title.
 
-Example response:
+##### Example response:
 
 	{
 		'tracks': [
@@ -119,9 +126,10 @@ Example response:
 <details>
 <summary>GET /songs/{songid}</summary>
 
+#### Description
 Provides track details about a specific track.
 
-Example response:
+##### Example response:
 
 	{
 		'title': 'Linger Longer',
@@ -135,6 +143,7 @@ Example response:
 <details>
 <summary>GET /songs/{song_id}/audio</summary>
 
+#### Description
 Serves the audio for a specific track.
 
 This route allows handles range requests, and in those cases returns a 206
@@ -146,6 +155,7 @@ header, and instead serves with the audio/mpeg content-type header.
 <details>
 <summary>GET /songs/{song_id}/artwork</summary>
 
+#### Description
 Serves the album artwork for a specific track.
 
 This route does not serve files with the application/json content-type 
@@ -158,11 +168,12 @@ header.
 <details>
 <summary>GET /playlists</summary>
 
+#### Description
 Provides a list of all playlists that the current user can access.
 
 This includes both public playlists, and playlists owned by the current user.
 
-Example response:
+##### Example response:
 
 	{
 		'playlists': [
@@ -180,9 +191,10 @@ Example response:
 <details>
 <summary>GET /playlists/{playlist_id}</summary>
 
+#### Description
 Provides details about a specific playlist.
 
-Example response:
+##### Example response:
 
 	{
 		'tracks': [
@@ -204,18 +216,20 @@ Example response:
 <details>
 <summary>POST /playlists/create</summary>
 
+#### Description
 Creates a new playlist for the current user.
 
-#### Parameters:
+##### Parameters:
 - playlist_name
 
-#### Requirements:
+##### Requirements:
 - A user must be logged in.
 </details>
 
 <details>
 <summary>GET /playlists/owned</summary>
 
+#### Description
 Provides a list of playlists owned by the user making the request.
 
 This is different from the /playlists endpoint because it does not include
@@ -224,7 +238,7 @@ public playlists not owned by the current user.
 Requirements:
 - A user must be logged in.
 
-Example response:
+##### Example response:
 
 	{
 		'playlists': [
@@ -243,12 +257,13 @@ Example response:
 <details>
 <summary>POST /playlists/{playlist_id}/add</summary>
 
+#### Description
 Adds a song to the specified playlist.
 
-#### Parameters:
+##### Parameters:
 - songid
 
-#### Requirements:
+##### Requirements:
 - A user must be logged in.
 - The user must own the playlist being modified.
 </details>
@@ -256,12 +271,13 @@ Adds a song to the specified playlist.
 <details>
 <summary>POST /playlists/{playlist_id}/remove</summary>
 
+#### Description
 Removes a song from the specified playlist.
 
-#### Parameters:
+##### Parameters:
 - songid
 
-#### Requirements:
+##### Requirements:
 - A user must be logged in.
 - The user must own the playlist being modified.
 </details>
@@ -269,12 +285,13 @@ Removes a song from the specified playlist.
 <details>
 <summary>POST /playlists/{playlist_id}/set_publicity</summary>
 
+#### Description
 Sets the publicity of the specified playlist.
 
-#### Parameters:
+##### Parameters:
 - is_public: Must be a boolean or a string that, when converted to lowercase, reads "true" or "false"
 
-#### Requirements:
+##### Requirements:
 - A user must be logged in.
 - The user must own the playlist being modified.
 </details>
@@ -290,9 +307,10 @@ Prompts the song database to be refreshed by processing the music folder.
 <details>
 <summary>GET /remount</summary>
 
+#### Description
 Prompts the server to attempt to remount the music folder, if applicable.
 
-#### Requirements:
+##### Requirements:
 - User must be logged in.
 - Current user must be an admin.
 </details>
@@ -300,9 +318,10 @@ Prompts the server to attempt to remount the music folder, if applicable.
 <details>
 <summary>GET /restart</summary>
 
+#### Description
 Prompts the server to restart after a short delay.
 
-#### Requirements:
+##### Requirements:
 - User must be logged in.
 - Current user must be an admin.
 </details>
@@ -310,9 +329,10 @@ Prompts the server to restart after a short delay.
 <details>
 <summary>GET /ping</summary>
 
+#### Description
 Returns a simple response to test that the server is online.
 
-Example response:
+##### Example response:
 
 	{ 
 		'msg': 'Pong!'
