@@ -1,3 +1,3 @@
 # Lindele API
 
-[API endpoint documentation](api/docs/endpoints.md)
+[API endpoint documentation](docs/endpoints.md)
