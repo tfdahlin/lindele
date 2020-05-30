@@ -185,9 +185,9 @@ def is_admin(request):
     if not is_logged_in(request):
         return result
 
-    # TODO: check if the user is an admin
-    # Cookies accessed by request.cookies[cookie_name]
-    # Lookup user to see if they're an admin or not.
+    user = get_user_from_request(request)
+    if user.admin:
+        result = True
     return result
 
 def generate_salt(n=32):
