@@ -21,18 +21,17 @@ Most unsuccessful requests specify the problem in their `error` element, when
 it makes sense to provide that information to the consumer.
 
 ## User endpoints
-<!-- GET /users/{username} -->
-<details>
+<details><!-- GET /users/{username} -->
 	<summary>GET /users/{username}</summary>
 
-	Currently only returns json with the user's username.
+Currently only returns json with the user's username.
 
-	Requirements:
-		- A user must be logged in.
+Requirements:
+	- A user must be logged in.
 
-	Example response:
+Example response:
 
-		`{ 'username': 'AcidBurn' }`
+	`{ 'username': 'AcidBurn' }`
 </details>
 
 <details><!-- POST /register -->
