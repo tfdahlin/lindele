@@ -9,7 +9,7 @@ import threading, logging
 # Local file imports
 import local_settings
 from users.util import get_user_from_request, is_logged_in
-from util.decorators import requires_params, requires_login
+from util.decorators import requires_params, requires_login, requires_admin
 from util.util import BaseHandler, reboot_machine_with_delay, mount_as_needed, wake_media_server
 
 # PIP library imports
@@ -22,9 +22,9 @@ logging.basicConfig(level=logging.INFO)
 class Restart(BaseHandler):
     """Route handler for restarting the music player server."""
 
-    @requires_login()
+    @requires_admin()
     def get(self):
-        """GET /restart
+        """GET /restart.
 
         Restarts the server hosting the music player."""
         logger.warn('Restarting server.')
@@ -36,9 +36,9 @@ class Restart(BaseHandler):
 class Remount(BaseHandler):
     """Route handler for restarting the media server."""
 
-    @requires_login()
+    @requires_admin()
     def get(self):
-        """GET /remount
+        """GET /remount.
 
         Wakes the media server and mounts as necessary."""
         wake_media_server()
