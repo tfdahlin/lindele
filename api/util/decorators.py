@@ -10,7 +10,7 @@ import logging
 from users.util import is_logged_in
 
 # PIP library imports
-from pycnic.errors import HTTP_400, HTTP_401
+from pycnic.errors import HTTP_400, HTTP_401, HTTP_403
 
 # Variables and settings
 logger = logging.getLogger(__name__)
@@ -59,6 +59,24 @@ def requires_login():
         def wrapped(*args, **kwargs):
             if not is_logged_in(args[0].request):
                 raise HTTP_401("You must be logged in to do this.")
+            return f(*args, **kwargs)
+        return wrapped
+    return wrapper
+
+def requires_admin():
+    """Check that the request is coming from an authenticated admin.
+
+    Raises:
+        HTTP_401: Raised if the user is not logged in.
+        HTTP_403: Raised if the user is not an admin.
+    """
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if not is_logged_in(args[0].request):
+                raise HTTP_401("You must be logged in to do this.")
+            if not is_admin(args[0].request):
+                raise HTTP_403("You must be an admin to do this.")
             return f(*args, **kwargs)
         return wrapped
     return wrapper
