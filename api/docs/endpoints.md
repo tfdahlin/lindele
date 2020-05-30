@@ -23,14 +23,15 @@ it makes sense to provide that information to the consumer.
 ## User endpoints
 <details><!-- GET /users/{username} -->
 	<summary>GET /users/{username}</summary>
-	Currently only returns json with the user's username.
-
+	<p>Currently only returns json with the user's username.</p>
+	<p>
 	Requirements:
 		- A user must be logged in.
-
+	</p>
+	<p>
 	Example response:
-
 		`{ 'username': 'AcidBurn' }`
+	</p>
 </details>
 
 <details><!-- POST /register -->
