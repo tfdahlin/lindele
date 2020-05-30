@@ -22,7 +22,7 @@ it makes sense to provide that information to the consumer.
 
 ## User endpoints
 <details>
-<summary>`/users/<username>`</summary>
+<summary>`/users/\<username>`</summary>
 Currently only returns a json with the current user's username.
 
 Requirements:
