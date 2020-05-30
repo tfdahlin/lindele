@@ -26,7 +26,7 @@ it makes sense to provide that information to the consumer.
 
 Currently only returns json with the user's username.
 
-Requirements:
+#### Requirements:
 - A user must be logged in.
 
 Example response:
@@ -36,9 +36,10 @@ Example response:
 
 <details>
 <summary>POST /register</summary>
+
 Attempts to register a user account.
 
-Request parameters:
+#### Request parameters:
 - email
 - username
 - password
@@ -47,18 +48,20 @@ Request parameters:
 
 <details>
 <summary>POST /login</summary>
+
 Authenticates credentials provided by a user.
 
-Request parameters:
+#### Request parameters:
 - email
 - password
 </details>
 
 <details>
 <summary>POST /logout</summary>
+
 Tells the browser to clear its cookies for the API.
 
-Requirements:
+#### Requirements:
 - A user to be logged in.
 </details>
 
@@ -80,9 +83,10 @@ Example response:
 
 <details>
 <summary>POST /set_volume</summary>
+
 Stores a volume level for the user that is currently logged in.
 
-Request parameters:
+#### Request parameters:
 - volume
 </details>
 
@@ -202,10 +206,10 @@ Example response:
 
 Creates a new playlist for the current user.
 
-Parameters:
+#### Parameters:
 - playlist_name
 
-Requirements:
+#### Requirements:
 - A user must be logged in.
 </details>
 
@@ -241,10 +245,10 @@ Example response:
 
 Adds a song to the specified playlist.
 
-Parameters:
+#### Parameters:
 - songid
 
-Requirements:
+#### Requirements:
 - A user must be logged in.
 - The user must own the playlist being modified.
 </details>
@@ -254,10 +258,10 @@ Requirements:
 
 Removes a song from the specified playlist.
 
-Parameters:
+#### Parameters:
 - songid
 
-Requirements:
+#### Requirements:
 - A user must be logged in.
 - The user must own the playlist being modified.
 </details>
@@ -267,10 +271,10 @@ Requirements:
 
 Sets the publicity of the specified playlist.
 
-Parameters:
+#### Parameters:
 - is_public: Must be a boolean or a string that, when converted to lowercase, reads "true" or "false"
 
-Requirements:
+#### Requirements:
 - A user must be logged in.
 - The user must own the playlist being modified.
 </details>
@@ -288,7 +292,7 @@ Prompts the song database to be refreshed by processing the music folder.
 
 Prompts the server to attempt to remount the music folder, if applicable.
 
-Requirements:
+#### Requirements:
 - User must be logged in.
 - Current user must be an admin.
 </details>
@@ -298,7 +302,7 @@ Requirements:
 
 Prompts the server to restart after a short delay.
 
-Requirements:
+#### Requirements:
 - User must be logged in.
 - Current user must be an admin.
 </details>
