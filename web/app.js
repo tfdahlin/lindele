@@ -11,6 +11,7 @@ const favicon = require('serve-favicon');
 const fs = require('fs');
 const mustache = require('mustache');
 const axios = require('axios');
+const exec = require('child_process').exec;
 
 const settings = require('./settings');
 
@@ -39,26 +40,27 @@ function fetch_file_contents(filename) {
 
 function fetch_static_javascript(filename) {
     return new Promise((resolve, reject) => {
-        var valid_files = [
-            'audio_player.js',
-            'login_controls.js',
-            'on_load.js',
-            'playlist_controls.js',
-            'registration_control.js',
-            'util.js'
-        ];
-        if (valid_files.indexOf(filename) >= 0) {
-            fetch_file_contents(path.join(javascripts_dir, filename))
-            .then((contents) => {
-                resolve(contents);
-            })
-            .catch((err) => {
-                reject(err);
-            });
-        }
-        else { // Invalid file
-            reject('Attempting to load non-existent file.');
-        }
+        var git_ls = exec('git ls-files');
+
+        // `git ls-files` always uses forward-slashes as path separator.
+        var git_filepath = `res/javascripts/${filename}`;
+        git_ls.stdout.on('data', (data) => {
+            var lines = data.split(/\r?\n/);
+            if (lines.indexOf(git_filepath) < 0) {
+                console.log(`${filename} doesn't exist.`);
+                reject('Attempting to load non-existent file.');
+                return;
+            } else {
+                fetch_file_contents(path.join(javascripts_dir, filename))
+                .then((contents) => {
+                    resolve(contents);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+                console.log(git_filepath);
+            }
+        });
     });
 }
 
