@@ -12,7 +12,6 @@ var shuffle = true;
 var playlist_position = 0;
 var deck = []; // This is a list of tracks, not ids.
 var deck_position = null; // Integer position in the deck.
-var playlist_loaded = false;
 var volume = 1.0;
 var volume_on = true;
 

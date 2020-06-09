@@ -3,7 +3,7 @@
 window.onload = function() {
     load_all_tracks()
     .then((data) => {
-        playlist_loaded = true;
+        tracks_loaded = true;
         $("#search_bar").keyup(listFilter);
         set_song_select_function();
     })
