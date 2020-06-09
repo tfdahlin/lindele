@@ -4,14 +4,14 @@
 """Route handlers related to music database objects."""
 
 # Native python imports
-import logging, os, io, re
+import logging, os, io, re, json
 from wsgiref.util import FileWrapper
 
 # Local code imports
 import users.util, music.util
 from util.decorators import requires_params, requires_login, requires_admin
 from util.util import BaseHandler, mount_as_needed, RangeFileWrapper
-from settings import MISSING_ARTWORK_FILE
+from settings import MISSING_ARTWORK_FILE, local_db_path
 
 # PIP library imports
 from pycnic.core import Handler
@@ -30,6 +30,9 @@ class Songs(BaseHandler):
         Arguments:
             songid (str): Integer string identifying that info about a single song should be fetched.
         """
+        # Reading information from the database will be faster than processing
+        # a list of all songs, so if a specific songid is requested, we use a
+        # database lookup.
         if songid:
             # If a song id is specified, fetch info about that track specifically.
             try:
@@ -41,11 +44,33 @@ class Songs(BaseHandler):
                 if data:
                     return self.HTTP_200(data=data)
                 return self.HTTP_404()
+
+        music_dir = os.path.dirname(os.path.abspath(__file__))
+        cache_dir = os.path.join(music_dir, 'cache_files')
+        songs_cache = os.path.join(cache_dir, 'songs.cache')
+
+        # Check if the cache file exists, and if so, load it if it's fresher
+        #  than the database file.
+        if os.path.exists(cache_dir):
+            if os.path.exists(songs_cache):
+                songs_cache_age = os.path.getmtime(songs_cache)
+                db_file_age = os.path.getmtime(local_db_path)
+                if songs_cache_age > db_file_age:
+                    with open(songs_cache, 'r') as f:
+                        data = json.loads(f.read())
+                        return self.HTTP_200(data=data)
         else:
-            tracks = music.util.get_all_tracks()
-            data = {
-                'tracks': tracks
-            }
+            # If the cache directory does not exist, make it.
+            os.mkdir(cache_dir)
+
+        # By this point, the cache lookup has failed, so we get all tracks from
+        # the database, save the result to file, then return the result.
+        tracks = music.util.get_all_tracks()
+        data = {
+            'tracks': tracks
+        }
+        with open(songs_cache, 'w') as f:
+            f.write(json.dumps(data))
 
         return self.HTTP_200(data=data)
 

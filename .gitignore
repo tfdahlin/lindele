@@ -114,3 +114,7 @@ api/users/.key
 web/node_modules/
 web/node_modules
 web/settings.js
+
+# Sometimes results will be cached in directories.
+# These should not be committed to github.
+cache_files/
