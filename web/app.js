@@ -40,7 +40,7 @@ function fetch_file_contents(filename) {
 
 function fetch_static_javascript(filename) {
     return new Promise((resolve, reject) => {
-        var git_ls = exec('git ls-files');
+        var git_ls = exec(`cd ${__dirname} && git ls-files`);
 
         // `git ls-files` always uses forward-slashes as path separator.
         var git_filepath = `res/javascripts/${filename}`;
