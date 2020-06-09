@@ -191,7 +191,7 @@ class Artwork(BaseHandler):
 class BuildDatabase(BaseHandler):
     """Route handler for building/refreshing the track database."""
 
-    @requires_admin
+    @requires_admin()
     def get(self):
         """GET /refresh."""
         # Asynchronous thread that refreshes the database, so the user doesn't have to wait.
