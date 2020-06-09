@@ -152,6 +152,13 @@ header is set, this endpoint will return a 206 status code.
 
 This route does not serve files with the application/json content-type 
 header, and instead serves with the audio/mpeg content-type header.
+
+If the request includes `dl=1` as a parameter, it is served with a 
+`Content-Disposition` header of `attachment; filename="{track name}.mp3"` so
+that browsers know to prompt the user to download the file.
+
+##### Parameters:
+- dl
 </details>
 
 <details>

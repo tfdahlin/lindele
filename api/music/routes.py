@@ -136,6 +136,8 @@ class Audio(BaseHandler):
             length = last_byte - first_byte + 1
             wrapper = RangeFileWrapper(open(track_file, 'rb'), offset=first_byte, length=length)
             content_length = str(length)
+            if 'dl' in self.request.args and self.request.args['dl'] == '1':
+                self.response.set_header('Content-Disposition', f'attachment; filename="{track_info["title"]}.mp3"')
             self.response.set_header('Content-Range', f'bytes {first_byte}-{last_byte}/{file_size}')
             #self.response.set_header('If-Range', f'"{os.path.getmtime(track_file)}"')
             self.response.status_code = 206
@@ -149,6 +151,8 @@ class Audio(BaseHandler):
                 logger.warn(f'Exception while loading track {songid}.')
                 return self.HTTP_400(error='Could not load track.')
 
+        if 'dl' in self.request.args and self.request.args['dl'] == '1':
+            self.response.set_header('Content-Disposition', f'attachment; filename="{track_info["title"]}.mp3"')
         self.response.set_header('Content-Type', 'audio/mpeg')
         self.response.set_header('Content-Length', content_length)
         self.response.set_header('Accept-Ranges', 'bytes')
