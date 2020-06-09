@@ -1,14 +1,18 @@
 // Take care of a bunch of setup on page load, such
 //  as fetching all tracks, enabling UI elements, etc
+let ap;
 window.onload = function() {
+    ap = new AudioPlayer();
     load_all_tracks()
     .then((data) => {
         tracks_loaded = true;
         $("#search_bar").keyup(listFilter);
-        set_song_select_function();
+        set_misc_binding_functions(ap);
+        ap.start();
     })
     .catch((err) => {
         console.log('Error loading playlist.');
+        console.log(err);
     });
 
     check_login_status()

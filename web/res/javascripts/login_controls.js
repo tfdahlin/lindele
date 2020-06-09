@@ -127,3 +127,8 @@ function set_header_logged_in() {
         }
     })
 }
+
+// Logout link
+$("a.logoutlink").click(function() {
+    window.location.href = "logout";
+});

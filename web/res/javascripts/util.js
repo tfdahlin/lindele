@@ -266,16 +266,7 @@ function populate_playlist(tracks) {
     }
 }
 
-function updateSoundIcon(playervol) {
-    var icon = document.getElementById("volume_icon");
-    if(playervol < 0.05) {
-        icon.src = "/media/very_low_volume.png";
-    } else if(playervol < 0.5) {
-        icon.src = "/media/low_volume.png";
-    } else {
-        icon.src = "/media/high_volume.png";
-    }
-}
+
 
 function seconds_to_minutes(seconds) {
     // Converts raw seconds into a more human-readable form for display
@@ -302,22 +293,6 @@ function seconds_to_minutes(seconds) {
         result += "00";
     }
     return result;
-}
-
-function update_player_play() {
-    // Update the play/pause icon to play
-    var icon = document.getElementById("play_button");
-    icon.src = "/media/pause_button.png";
-    onplaying = true;
-    onpause = false;
-}
-
-function update_player_pause() {
-    // Update the play/pause icon to pause
-    var icon = document.getElementById("play_button");
-    icon.src = "/media/play_button.png";
-    onplaying = false;
-    onpause = true;
 }
 
 function listFilter() {
