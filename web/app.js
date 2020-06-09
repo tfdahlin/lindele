@@ -58,7 +58,6 @@ function fetch_static_javascript(filename) {
                 .catch((err) => {
                     reject(err);
                 });
-                console.log(git_filepath);
             }
         });
     });
