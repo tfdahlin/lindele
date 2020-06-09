@@ -160,7 +160,7 @@ class Artwork(BaseHandler):
             logger.critical(e)
             return self.HTTP_400(error='Error loading album artwork.')
         else:
-            self.response.set_header('Content-Length', file_size)
+            self.response.set_header('Content-Length', str(file_size))
             self.response.set_header('Content-Type', content_type)
             return wrapper
 
@@ -184,7 +184,7 @@ class Artwork(BaseHandler):
             if error:
                 raise e
             else:
-                return get_file_wrapper_and_content_type(MISSING_ARTWORK_FILE, error=True)
+                return get_wrapper(MISSING_ARTWORK_FILE, error=True)
         else:
             return wrapper
 
