@@ -1,0 +1,19 @@
+[Unit]
+Description=Lindele web client
+After=network.target
+
+[Service]
+Type=simple
+# Change this as necessary
+ExecStart=/usr/bin/node /path/to/lindele/web/app.js
+
+Restart=always
+# Restart after 10 seconds if service crashes
+RestartSec=10
+# Output to syslog file
+# Change this as necessary
+StandardOutput=file:/path/to/web/output_file.log
+StandardError=file:/path/to/web/error_file.log
+
+[Install]
+WantedBy=multi-user.target

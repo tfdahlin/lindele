@@ -1,0 +1,10 @@
+[Unit]
+Description=Monitors lindele web app for changes
+
+[Path]
+Unit=lindele-web-watcher.service
+# Change this to the correct path for your system
+PathChanged=/path/to/lindele/web
+
+[Install]
+WantedBy=multi-user.target

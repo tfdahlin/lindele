@@ -1,0 +1,22 @@
+[Unit]
+Description=Monitors lindele api for changes
+
+[Path]
+Unit=lindele-api-watcher.service
+# Change this to appropriate path
+PathChanged=/path/to/lindele/api/docs
+PathChanged=/path/to/lindele/api/music
+PathChanged=/path/to/lindele/api/tests
+PathChanged=/path/to/lindele/api/users
+PathChanged=/path/to/lindele/api/util
+PathChanged=/path/to/lindele/api/album_artwork_missing.png
+PathChanged=/path/to/lindele/api/local_settings.py
+PathChanged=/path/to/lindele/api/main.py
+PathChanged=/path/to/lindele/api/README.md
+PathChanged=/path/to/lindele/api/requirements.txt
+PathChanged=/path/to/lindele/api/settings.py
+PathChanged=/path/to/lindele/api/tox.ini
+PathChanged=/path/to/lindele/api/wizard.py
+
+[Install]
+WantedBy=multi-user.target
