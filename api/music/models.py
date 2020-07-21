@@ -72,6 +72,7 @@ class Song(Base):
     album_name = Column(String, default='')
 
     track_path = Column(String)
+    track_hash = Column(String)
 
     track_length = Column(String)
 
