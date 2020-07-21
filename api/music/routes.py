@@ -85,6 +85,7 @@ class Audio(BaseHandler):
         """
         try:
             track_file = music.util.fetch_track_path(int(songid))
+            track_hash = music.util.fetch_track_hash(int(songid))
         except:
             logger.warn(f'Could not fetch track audio for song id: {songid}.')
             return self.HTTP_404(error='Invalid song id.')
@@ -139,7 +140,7 @@ class Audio(BaseHandler):
             if 'dl' in self.request.args and self.request.args['dl'] == '1':
                 self.response.set_header('Content-Disposition', f'attachment; filename="{track_info["title"]}.mp3"')
             self.response.set_header('Content-Range', f'bytes {first_byte}-{last_byte}/{file_size}')
-            #self.response.set_header('If-Range', f'"{os.path.getmtime(track_file)}"')
+            self.response.set_header('If-Range', f'"{track_hash}"')
             self.response.status_code = 206
 
         else:

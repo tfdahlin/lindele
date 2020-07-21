@@ -76,6 +76,7 @@ class BaseHandler(Handler):
         if origin in ALLOWED_ORIGINS:
             self.response.set_header('Access-Control-Allow-Origin', origin)
             self.response.set_header('Access-Control-Allow-Credentials', "true")
+        self.response.set_header('X-Robots-Tag', 'noindex, nofollow, noarchive, notranslate, noimageindex')
 
     def HTTP_200(self, data={}, error=None): # 200 OK -- general success
         """200 OK response.
