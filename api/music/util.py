@@ -4,7 +4,7 @@
 """Utility functions related to music models."""
 
 # Native python imports
-import logging, threading, os, random, operator, datetime
+import logging, threading, os, random, operator, datetime, hashlib
 
 # Local file imports
 from music.models import Playlist, Song, RefreshState
@@ -63,6 +63,25 @@ def fetch_track_path(songid):
                 logger.warn(f"No song found with id {songid}.")
                 return None
             return track.track_path
+
+def fetch_track_hash(songid):
+    """Fetch the file hash for a given track id.
+    
+    Arguments:
+        songid (str): Integer string identifying the song to fetch the file hash for.
+    """
+    with access_db() as db_conn:
+        try:
+            track = db_conn.query(Song).get(songid)
+        except:
+            logger.warn(f"Exception encountered while trying to access song id: {songid}")
+            return None
+        else:
+            if not track:
+                logger.warn(f"No song found with id {songid}.")
+                return None
+            return track.track_hash
+
 
 def fetch_artwork_path(songid):
     """Fetch the artwork file path for a given track id.
@@ -127,7 +146,8 @@ def add_track_to_database(track_info):
                     artist_name=track_info['artist'],
                     album_name=track_info['album'],
                     track_path=track_info['track_path'],
-                    track_length=track_info['track_length'])
+                    track_length=track_info['track_length'],
+                    track_hash=track_info['track_hash'])
         db_conn.add(song)
         db_conn.commit()
         return True
@@ -269,6 +289,15 @@ def load_track_data(track_path):
         track_length = "%02d:%02d" % (minutes, seconds)
     result['track_length'] = track_length
     result['track_path'] = track_path
+
+    # Create file hash string with SHA1
+    hasher = hashlib.sha1()
+    with open(track_path, 'rb') as f:
+        buf = f.read(65536)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(65536)
+    result['track_hash'] = hasher.hexdigest()
 
     return result
 
