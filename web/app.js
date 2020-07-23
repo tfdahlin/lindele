@@ -261,6 +261,13 @@ app.use('/remount', function (req, res) {
     `)
 });
 
+app.use('/robots.txt', function (req, res) {
+    res.status(200).send(`
+        User-agent: *
+        Allow: /
+    `)
+})
+
 app.use('/', function (req, res) {
     // Render the main page according to the parameters given.
     if (has_song_id(req)) {
