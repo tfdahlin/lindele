@@ -96,6 +96,9 @@ class Audio(BaseHandler):
         except:
             logger.warn(f'Could not fetch track info for song id: {songid}.')
         else:
+            if music.util.check_file_missing(int(songid)):
+                logger.warn(f'File for songid {songid} missing.')
+                return self.HTTP_400(error='Could not load track.')
             user = None
             if users.util.is_logged_in(self.request):
                 user = users.util.get_user_from_request(self.request)
