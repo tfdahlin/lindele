@@ -67,7 +67,8 @@ function load_all_tracks() {
             var track_count_div = $("#track-count");
             track_count_div.html("(0 tracks)");
             populate_playlist([]);
-            reject('Could not fetch tracks.');
+            console.log('Failed to load all tracks.');
+            reject(err);
         });
     });
 }
