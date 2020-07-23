@@ -262,10 +262,7 @@ app.use('/remount', function (req, res) {
 });
 
 app.use('/robots.txt', function (req, res) {
-    res.set('Content-Type', 'text/plain').status(200).send(`
-        User-agent: *
-        Allow: /
-    `)
+    res.set('Content-Type', 'text/plain').status(200).send('User-agent: *\nAllow: /');
 })
 
 app.use('/', function (req, res) {
