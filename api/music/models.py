@@ -76,6 +76,8 @@ class Song(Base):
 
     track_length = Column(String)
 
+    file_missing = Column(Boolean, default=False)
+
     playlists = relationship(
         "Playlist",
         secondary=association_table,
