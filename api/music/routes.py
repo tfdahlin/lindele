@@ -89,7 +89,7 @@ class Songs(BaseHandler):
             f.write(json.dumps(data))
         # Write compressed cache
         with gzip.open(gzip_songs_cache, 'wb') as f:
-            f.write(json.dumps(data).encode())
+            f.write(json.dumps(self.HTTP_200(data=data)).encode())
 
         if ('Accept-Encoding' in self.request.headers and
             'gzip' in self.request.headers['Accept-Encoding'].lower()):
