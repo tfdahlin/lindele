@@ -262,8 +262,8 @@ app.use('/remount', function (req, res) {
 });
 
 app.use('/robots.txt', function (req, res) {
-    res.status(200).send(`
-        User-agent: *\n
+    res.set('Content-Type', 'text/plain').status(200).send(`
+        User-agent: *
         Allow: /
     `)
 })
