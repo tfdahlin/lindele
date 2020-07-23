@@ -108,7 +108,7 @@ def get_all_tracks():
     """Fetch track info for all songs in the database."""
     with access_db() as db_conn:
         result = []
-        all_tracks = db_conn.query(Song).all()
+        all_tracks = db_conn.query(Song).filter(Song.track_missing==False)
 
         # Sort by artist name, then album name, then track name.
         all_tracks.sort(key=lambda x: (x.artist_name and x.artist_name.lower() or '', 
@@ -125,6 +125,39 @@ def get_all_tracks():
             result.append(track_info)
         return result
     return None
+
+def check_file_missing(songid):
+    """Check whether a specific track's file is missing in the database.
+
+    Arguments:
+        songid (int): ID for the track to be checked.
+    """
+    with access_db() as db_conn():
+        try:
+            track = db_conn.query(Song).get(songid)
+        except:
+            logger.warn(f"Exception encountered while trying to access song id: {songid}")
+            return None
+        else:
+            if not track:
+                logger.warn(f"No song found with id {songid}.")
+                return None
+            return track.file_missing
+
+
+def label_track_missing(track_path, missing):
+    """Update the track_missing flag in the database.
+
+    Arguments:
+        track_path (str): The path to the track that is missing.
+    """
+    with access_db() as db_conn:
+        track = db_conn.query(Song)\
+                       .filter(Song.track_path==track_path)\
+                       .first()
+        if track:
+            track.file_missing = missing
+            db_conn.commit()
 
 def add_track_to_database(track_info):
     """Add a track to the database.
@@ -150,6 +183,7 @@ def add_track_to_database(track_info):
             if exists and exists.file_missing:
                 # If the track hash exists, and the file is missing, update its path
                 exists.track_path = track_path
+                exists.file_missing = False
                 db_conn.commit()
                 return False
 
