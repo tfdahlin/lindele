@@ -153,7 +153,10 @@ function has_song_id(req) {
 }
 
 app.use('/javascripts/:filename', function (req, res) {
-    var context = {'api_url': settings['api_url']};
+    var context = {
+        'api_url': settings['api_url'],
+        'service_name': settings['service_name']
+    };
 
     render_static_javascript(req.params['filename'], context)
     .then((html) => {

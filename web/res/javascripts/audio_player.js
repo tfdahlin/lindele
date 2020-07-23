@@ -277,7 +277,7 @@ class AudioPlayer {
         if (artist) {
             page_title += ' - ' + artist;
         }
-        page_title += ' | Music';
+        page_title += ' | {{{service_name}}}';
 
         $('#page_title').html(page_title);
     }
