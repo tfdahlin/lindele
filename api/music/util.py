@@ -133,13 +133,25 @@ def add_track_to_database(track_info):
         track_info (dict): Specific track information to be entered into the database.
     """
     track_path = track_info['track_path']
+    track_hash = track_info['track_hash']
     with access_db() as db_conn:
         # Make sure the track doesn't already exist
+        # First by checking the track path
         exists = db_conn.query(Song)\
                         .filter(Song.track_path==track_path)\
                         .first()
         if exists:
             return False
+        else:
+            # Then by checking the track hash
+            exists = db_conn.query(Song)\
+                            .filter(Song.track_hash==track_hash)\
+                            .first()
+            if exists and exists.file_missing:
+                # If the track hash exists, and the file is missing, update its path
+                exists.track_path = track_path
+                db_conn.commit()
+                return False
 
         # Create and add ORM object to the database
         song = Song(track_name=track_info['title'],
