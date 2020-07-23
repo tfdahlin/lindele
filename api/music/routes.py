@@ -4,7 +4,7 @@
 """Route handlers related to music database objects."""
 
 # Native python imports
-import logging, os, io, re, json
+import logging, os, io, re, json, gzip
 from wsgiref.util import FileWrapper
 
 # Local code imports
@@ -48,17 +48,31 @@ class Songs(BaseHandler):
         music_dir = os.path.dirname(os.path.abspath(__file__))
         cache_dir = os.path.join(music_dir, 'cache_files')
         songs_cache = os.path.join(cache_dir, 'songs.cache')
+        gzip_songs_cache = os.path.join(cache_dir, 'songs.cache.gz')
 
         # Check if the cache file exists, and if so, load it if it's fresher
         #  than the database file.
         if os.path.exists(cache_dir):
-            if os.path.exists(songs_cache):
+            # Check for gzip cache and support for gzip in request
+            if ('Accept-Encoding' in self.request.headers and
+                'gzip' in self.request.headers['Accept-Encoding'].lower() and
+                os.path.exists(gzip_songs_cache)):
+                    songs_cache_age = os.path.getmtime(gzip_songs_cache)
+                    db_file_age = os.path.getmtime(local_db_path)
+                    if songs_cache_age > db_file_age:
+                        self.response.status_code = 200
+                        self.response.set_header('Content-Encoding', 'gzip')
+                        wrapper = FileWrapper(open(gzip_songs_cache, 'rb'))
+                        return wrapper
+            # If those requirements aren't met, return uncompressed cache when possible
+            elif os.path.exists(songs_cache):
                 songs_cache_age = os.path.getmtime(songs_cache)
                 db_file_age = os.path.getmtime(local_db_path)
                 if songs_cache_age > db_file_age:
                     with open(songs_cache, 'r') as f:
                         data = json.loads(f.read())
                         return self.HTTP_200(data=data)
+
         else:
             # If the cache directory does not exist, make it.
             os.mkdir(cache_dir)
@@ -69,10 +83,22 @@ class Songs(BaseHandler):
         data = {
             'tracks': tracks
         }
+
+        # Write uncompressed cache
         with open(songs_cache, 'w') as f:
             f.write(json.dumps(data))
+        # Write compressed cache
+        with gzip.open(gzip_songs_cache, 'wb') as f:
+            f.write(json.dumps(data).encode())
 
-        return self.HTTP_200(data=data)
+        if ('Accept-Encoding' in self.request.headers and
+            'gzip' in self.request.headers['Accept-Encoding'].lower()):
+            self.response.set_header('Content-Encoding', 'gzip')
+            self.response.status_code = 200
+            wrapper = FileWrapper(open(gzip_songs_cache, 'rb'))
+            return wrapper
+        else:
+            return self.HTTP_200(data=data)
 
 class Audio(BaseHandler):
     """Route handler for fetching track audio files."""
