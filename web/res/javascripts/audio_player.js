@@ -11,6 +11,7 @@ class AudioPlayer {
         this._volume = 1.0;
         this.audio_player = document.createElement('AUDIO');
         this.audio_player.id = 'audio_player';
+        this.song_id = null;
 
         this.audio_player.addEventListener('ended', this.playNextSong.bind(this));
         this.audio_player.addEventListener('timeupdate', this.timeUpdate.bind(this));
@@ -284,7 +285,7 @@ class AudioPlayer {
 
     setTrackDetails(track) {
         $('#song-name').html(track['title']);
-        $('#song_id').html(track['id']);
+        this.song_id = track['id'];
 
         if (track['artist']) {
             $('#artist-name').html(track['artist']);
@@ -348,7 +349,7 @@ class AudioPlayer {
         url += "//";
         url += window.location.hostname;
         url += "/?songid=";
-        var mysongid = document.getElementById("song_id").textContent;
+        var mysongid = this.song_id;
         url += mysongid;
         if(window.clipboardData && window.clipboardData.setData) {
             return clipboardData.setData("Text", url);
