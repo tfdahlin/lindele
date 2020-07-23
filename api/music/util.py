@@ -132,7 +132,7 @@ def check_file_missing(songid):
     Arguments:
         songid (int): ID for the track to be checked.
     """
-    with access_db() as db_conn():
+    with access_db() as db_conn:
         try:
             track = db_conn.query(Song).get(songid)
         except:
