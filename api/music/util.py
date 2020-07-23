@@ -212,8 +212,10 @@ def refresh_database_thread():
                 track_info = load_track_data(full_file_path)
                 if track_info:
                     add_track_to_database(track_info)
-    except:
+    except Exception as e:
         logger.warn('Exception encountered while refreshing database.')
+        logger.warn(e)
+        raise e
     finally:
         # Return to a non-refreshing state once finished.
         with access_db() as db_conn:
