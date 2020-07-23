@@ -263,7 +263,7 @@ app.use('/remount', function (req, res) {
 
 app.use('/robots.txt', function (req, res) {
     res.status(200).send(`
-        User-agent: *
+        User-agent: *\n
         Allow: /
     `)
 })
