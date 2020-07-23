@@ -298,7 +298,7 @@ def load_track_data(track_path):
         buf = f.read(65536)
         while len(buf) > 0:
             hasher.update(buf)
-            buf = afile.read(65536)
+            buf = f.read(65536)
     result['track_hash'] = hasher.hexdigest()
 
     return result
