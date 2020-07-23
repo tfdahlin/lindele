@@ -303,6 +303,7 @@ app.use('/', function (req, res) {
                 (contents) => {
                     let context = {};
                     context['service_name'] = settings['service_name'];
+                    context['api_url'] = settings['api_url'];
                     render_html(context)
                     .then(html => {
                         res.status(200).send(html);
@@ -322,6 +323,7 @@ app.use('/', function (req, res) {
     } else {
         let context = {};
         context['service_name'] = settings['service_name'];
+        context['api_url'] = settings['api_url'];
         render_html(context).then(
             (contents) => {
                 res.status(200).send(contents);
