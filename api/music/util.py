@@ -108,7 +108,7 @@ def get_all_tracks():
     """Fetch track info for all songs in the database."""
     with access_db() as db_conn:
         result = []
-        all_tracks = db_conn.query(Song).filter(Song.track_missing==False)
+        all_tracks = db_conn.query(Song).filter(Song.file_missing==False)
 
         # Sort by artist name, then album name, then track name.
         all_tracks.sort(key=lambda x: (x.artist_name and x.artist_name.lower() or '', 
