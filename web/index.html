@@ -4,9 +4,7 @@
         <!-- Want to host your own service? Check out https://github.com/tfdahlin/lindele -->
         <meta name="robots" content="noindex, nofollow, noarchive, notranslate, noimageindex"/>
         <meta property="og:site_name" content="{{service_name}}"/>
-        <link rel="stylesheet" type="text/css" href="/css/style.css"/>
-        <meta property="og:url" content="{{api_url}}{{#songid}}?songid={{song_id}}{{/songid}}"/>
-        <link rel="shortcut icon" href="/favicon.ico">
+        <meta property="og:url" content="{{api_url}}{{#songid}}?songid={{songid}}{{/songid}}"/>
         <meta name="author" content="Dookerino"/>
         <meta charset="utf-8"/>
 
@@ -24,7 +22,7 @@
         {{/title}}
 
         {{#songid}}
-        {% if song_id %}
+        {% if songid %}
         <meta property="og:type" content="music.song"/>
         <meta property="og:image" content="{{artwork_url}}"/>
         <meta property="og:audio" content="{{song_url}}"/>
@@ -37,6 +35,11 @@
         <meta property="og:image" content="/media/album_artwork_missing.png"/>
         <meta property="og:image:alt" content="No album artwork available."/>
         {{/songid}}
+
+
+        <link rel="shortcut icon" href="/favicon.ico">
+        <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+        <link rel="preconnect" href="{{api_url}}"/>
 	</head>
 	<body id="body">
         <div class="sidebar-container">
@@ -95,7 +98,7 @@
                     </center>
                 </div>
                 <div id="playlist-controls" class="playlist-controls">
-                    <b id="song_id" style="visibility: hidden;"></b>
+                    <b id="songid" style="visibility: hidden;"></b>
                 </div>
                 <div class="search-bar-container">
                     <input type="text" id="search_bar" placeholder="Search for a song...">
