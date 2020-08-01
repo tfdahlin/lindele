@@ -400,7 +400,7 @@ class AudioPlayer {
             // If we can proceed through the deck, do so
             if(this.deck_position < this.deck.length-1) {
                 this.deck_position += 1;
-                load_track(this.deck[this.deck_position]);
+                this.load_track(this.deck[this.deck_position]);
                 resolve(this.deck[this.deck_position]);
                 return;
             }
