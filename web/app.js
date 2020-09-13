@@ -25,6 +25,8 @@ app.use('/css', express.static(path.join(__dirname, 'res', 'css')));
 app.use('/media', express.static(path.join(__dirname, 'res', 'media')));
 app.use(favicon(path.join(__dirname, 'res', 'media', 'favicon.ico')));
 
+app.disable('x-powered-by');
+
 function fetch_file_contents(filename) {
     return new Promise((resolve, reject) => {
         fs.readFile(filename, 'utf-8', function (err, contents) {
