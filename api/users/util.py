@@ -133,7 +133,6 @@ def is_logged_in(request):
 
         if not user.last_invalidated:
             # If no token has ever been invalidated, return true.
-            logger.info("User has never had a session token invalidated.")
             logged_in = True
             return logged_in
         else:
@@ -143,8 +142,9 @@ def is_logged_in(request):
                 return logged_in
             else:
                 logger.info("Session token is not fresh enough.")
+                return logged_in
     else:
-        logger.info("Session token could not be interpreted.")
+        logger.warn("Session token could not be interpreted.")
     return logged_in
 
 def make_user_admin(email):
