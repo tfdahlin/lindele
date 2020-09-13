@@ -272,14 +272,11 @@ app.use('/', function (req, res) {
     // Render the main page according to the parameters given.
     if (has_song_id(req)) {
         let songid = req.query['songid'];
-        console.log(songid)
-        console.log(typeof(songid));
 
         let song_url = settings['api_url'] + '/songs/' + songid;
 
         axios.get(song_url)
         .then(response => {
-            console.log(response.data['data']);
             let full_data = response.data['data'];
             full_data['songid'] = songid;
             full_data['artwork_url'] = settings['api_url'] + '/songs/' + songid + '/artwork';
