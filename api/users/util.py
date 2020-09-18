@@ -121,7 +121,6 @@ def is_logged_in(request):
     try:
         session = request.cookies['session']
     except KeyError:
-        logger.info("User has no session cookie.")
         return logged_in
     token_details = decode_session_token(session)
     if token_details:
