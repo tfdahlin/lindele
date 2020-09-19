@@ -4,7 +4,7 @@ function set_header() {
         if (curr_user_status['logged_in']) {
             set_header_logged_in()
             .then(() => {
-                $('#header').html(`<div id="greeting" class="greeting text"></div><div class="login-controls">
+                $('#header').html(`<div id="greeting-container" class="greeting text"><div id="greeting" class="greeting text"></div></div><div class="login-controls">
                     <a href="/profile">Profile.</a>&nbsp;<a id="logout" href="/logout">Logout.</a>`);
                 $('#greeting').text(`Hello, ${curr_user_status['user']['username']}`);
                 $('#logout').click((e) => {
