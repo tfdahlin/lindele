@@ -9,7 +9,8 @@ function set_header() {
                 if (curr_user_status['user']['admin']) {
                     let refresh_button = document.createElement('div');
                     refresh_button.innerHTML = '&nbsp;Refresh track list.';
-                    refresh_button.classList.add('refresh-button')
+                    refresh_button.classList.add('refresh-button');
+                    refresh_button.id = 'refresh-button';
                     refresh_button.addEventListener('click', function() {
                         $.ajax({
                             type: 'GET',
@@ -17,8 +18,14 @@ function set_header() {
                             xhrFields: {
                                 withCredentials: true,
                             },
+                        })
+                        .done((data) => {
+                            $('#refresh-button').remove();
+                        })
+                        .fail((err) => {
+                            console.log(err);
                         });
-                    })
+                    });
                     $('#greeting-container').append(refresh_button);
                 }
                 $('#greeting').text(`Hello, ${curr_user_status['user']['username']}.`);
