@@ -169,6 +169,8 @@ class CurrentUser(BaseHandler):
             'username': user.username,
             'volume': user.volume,
         }
+        if user.admin:
+            user_data['admin'] = True
         return self.HTTP_200(data={'logged_in': True, 'user': user_data})
 
 class SetUserVolume(BaseHandler):
