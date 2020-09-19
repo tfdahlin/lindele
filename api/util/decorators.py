@@ -7,7 +7,7 @@ from functools import wraps
 import logging
 
 # Local file imports
-from users.util import is_logged_in
+from users.util import is_logged_in, is_admin
 
 # PIP library imports
 from pycnic.errors import HTTP_400, HTTP_401, HTTP_403
