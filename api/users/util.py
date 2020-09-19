@@ -168,6 +168,16 @@ def make_user_admin(email):
             logger.warning('Attempted to make a non-existant user an admin.')
     return success
 
+def get_all_admins():
+    """Fetch all admin emails from database."""
+    result = []
+    with access_db() as db_conn:
+        all_admins = db_conn.query(User).filter(User.admin==True).all()
+        for admin in all_admins:
+            result.append((admin.email, admin.username))
+
+    return result
+
 def is_admin(request):
     """Check to see whether the request includes a session token for an authenticated user.
 
