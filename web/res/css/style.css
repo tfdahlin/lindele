@@ -358,6 +358,9 @@ div.header-logged-in {
 div.greeting {
     display: flex;
 }
+div.refresh-button {
+    cursor: pointer;
+}
 div.login-controls {
     display: flex;
 }
