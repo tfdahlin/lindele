@@ -8,7 +8,8 @@ function set_header() {
                     <a href="/profile">Profile.</a>&nbsp;<a id="logout" href="/logout">Logout.</a>`);
                 if (curr_user_status['user']['admin']) {
                     let refresh_button = document.createElement('div');
-                    refresh_button.innerHTML = 'Refresh track list.';
+                    refresh_button.innerHTML = '&nbsp;Refresh track list.';
+                    refresh_button.addClass('refresh_button')
                     refresh_button.addEventListener('click', function() {
                         $.ajax({
                             type: 'GET',
