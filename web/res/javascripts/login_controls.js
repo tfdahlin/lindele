@@ -16,7 +16,7 @@ function set_header() {
                             },
                         });
                     })
-                    $('#greeting-container').appendChild(refresh_button);
+                    $('#greeting-container').append(refresh_button);
                 }
                 $('#header').html(`<div id="greeting-container" class="greeting text"><div id="greeting" class="greeting text"></div></div><div class="login-controls">
                     <a href="/profile">Profile.</a>&nbsp;<a id="logout" href="/logout">Logout.</a>`);
