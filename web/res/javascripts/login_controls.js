@@ -9,7 +9,7 @@ function set_header() {
                 if (curr_user_status['user']['admin']) {
                     let refresh_button = document.createElement('div');
                     refresh_button.innerHTML = '&nbsp;Refresh track list.';
-                    refresh_button.classList.add('refresh_button')
+                    refresh_button.classList.add('refresh-button')
                     refresh_button.addEventListener('click', function() {
                         $.ajax({
                             type: 'GET',
