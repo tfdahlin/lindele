@@ -86,47 +86,42 @@ class app(WSGI):
         ('/restart', util.routes.Restart()),
     ]
 
-def make_admin(email):
-    """Convert a normal user to and admin user.
-
-    Arguments:
-        email (str): Email of the user to make an admin.
-    """
-    # TODO: implement this
-    pass
-
 def init_database():
     """Create database and relevant tables."""
     # This should initialize the database as necessary.
     print('Initializing database.')
     Base.metadata.create_all(engine)
 
-def handle_args(args):
-    """Handle arguments from main."""
-    if args.make_admin:
+def main():
+    """Main function used for administrative tasks.
+
+    Optional arguments:
+        -a --make_admin [Email] (str): Email of a user to make an admin.
+        -i --init_database: Flag to initialize database.
+        -l --list_admins: Flag to list all admins in database.
+    """
+    parser = argparse.ArgumentParser(description="An open-source music streaming API.")
+    parser.add_argument('-a', '--make_admin', metavar='Email', nargs=1, type=str, help='Email address of the user to make an admin')
+    parser.add_argument('-l', '--list_admins', action="store_true", help='List accounts that are admins.')
+    parser.add_argument('-i', '--init_database', action='store_true', help='Initialize the database.')
+    args = parser.parse_args()
+
+    if args.init_database:
+        # Create the tables for the database
+        init_database()
+        # And asynchronously load the music
+        music.util.refresh_database()
+    elif args.list_admins:
+        admins = users.util.get_all_admins()
+        for admin_email, admin_username in admins:
+            print(f'{admin_email} - {admin_username}')
+    elif args.make_admin:
         print(f'Making user {args.make_admin} an admin.')
         success = users.util.make_user_admin(args.make_admin)
         if success:
             print(f'Successfully made {sys.argv[2]} an admin.')
         else:
             print(f'Failed to make {sys.argv[2]} an admin.')
-
-def main():
-    """Main function used for administrative tasks.
-
-    Optional arguments:
-        -a --make_admin [Email] (str): Email of a user to make an admin.
-    """
-    parser = argparse.ArgumentParser(description="An open-source music streaming API.")
-    parser.add_argument('-a', '--make_admin', metavar='Email', type=str, help='Email address of the user to make an admin')
-    args = parser.parse_args()
-    if len(sys.argv) > 1:
-        handle_args(args)
-    else:
-        # Create the tables for the database
-        init_database()
-        # And asynchronously load the music
-        music.util.refresh_database()
 
 application = app
 
