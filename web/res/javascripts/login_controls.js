@@ -4,9 +4,23 @@ function set_header() {
         if (curr_user_status['logged_in']) {
             set_header_logged_in()
             .then(() => {
+                if (curr_user_status['user']['admin']) {
+                    let refresh_button = document.createElement('div');
+                    refresh_button.innerHTML = 'Refresh track list.';
+                    refresh_button.addEventListener('click', function() {
+                        $.ajax({
+                            type: 'GET',
+                            url: '{{{api_url}}}/refresh',
+                            xhrFields: {
+                                withCredentials: true,
+                            },
+                        });
+                    })
+                    $('#greeting-container').appendChild(refresh_button);
+                }
                 $('#header').html(`<div id="greeting-container" class="greeting text"><div id="greeting" class="greeting text"></div></div><div class="login-controls">
                     <a href="/profile">Profile.</a>&nbsp;<a id="logout" href="/logout">Logout.</a>`);
-                $('#greeting').text(`Hello, ${curr_user_status['user']['username']}`);
+                $('#greeting').text(`Hello, ${curr_user_status['user']['username']}.`);
                 $('#logout').click((e) => {
                     e.preventDefault();
                     $.ajax({
