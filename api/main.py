@@ -101,7 +101,7 @@ def main():
         -l --list_admins: Flag to list all admins in database.
     """
     parser = argparse.ArgumentParser(description="An open-source music streaming API.")
-    parser.add_argument('-a', '--make_admin', metavar='Email', nargs=1, type=str, help='Email address of the user to make an admin')
+    parser.add_argument('-a', '--make_admin', metavar='Email', type=str, help='Email address of the user to make an admin')
     parser.add_argument('-l', '--list_admins', action="store_true", help='List accounts that are admins.')
     parser.add_argument('-i', '--init_database', action='store_true', help='Initialize the database.')
     args = parser.parse_args()
