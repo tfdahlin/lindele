@@ -301,8 +301,9 @@ img.download-button {
 img.download-button:hover {
     background-color: #333333;
 }
-div.flac-slider-container {
-
+div.flac-toggle-container {
+    display: flex;
+    justify-content: center;
 }
 label.flac-label {
     position: relative;
