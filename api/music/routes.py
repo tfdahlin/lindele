@@ -137,7 +137,7 @@ class Audio(BaseHandler):
         download_filename = track_info['title'] + '.mp3'
 
         # Remove .mp3 and replace with .flac, then check if file exists
-        if 'flac' in self.request.args and self.request.args['flac'] == 1:
+        if 'flac' in self.request.args:
             flac_track_file = f'{track_file[:-4]}.flac'
             print(f'Flac file: {flac_track_file}')
             if os.path.exists(flac_track_file):
