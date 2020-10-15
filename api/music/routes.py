@@ -116,12 +116,6 @@ class Audio(BaseHandler):
             logger.warn(f'Could not fetch track audio for song id: {songid}.')
             return self.HTTP_404(error='Invalid song id.')
 
-        if 'flac' in self.request.args:
-            flac_track_file = f'{track_file[:-4]}.flac'
-            print(f'Flac file: {flac_track_file}')
-            if os.path.exists(flac_track_file):
-                track_file = flac_track_file
-
         # Log which users listen to which songs.
         try:
             track_info = music.util.fetch_track_info(int(songid))
@@ -140,12 +134,15 @@ class Audio(BaseHandler):
             if track_info:
                 logger.info(f'{user} is listening to {track_info["title"]} by {track_info["artist"]}')
 
-        download_filename = track_info['title']
-        if 'flac' in self.request.args:
-            print(self.request.args['flac'])
-            download_filename += '.flac'
-        else:
-            download_filename += '.mp3'
+        download_filename = track_info['title'] + '.mp3'
+
+        # Remove .mp3 and replace with .flac, then check if file exists
+        if 'flac' in self.request.args and self.request.args['flac'] == 1:
+            flac_track_file = f'{track_file[:-4]}.flac'
+            print(f'Flac file: {flac_track_file}')
+            if os.path.exists(flac_track_file):
+                track_file = flac_track_file
+                download_filename = download_filename[:-4] + '.flac'
 
         # Only mount if we actually need to load the file.
         # This is specifically for my setup where the media server may go to sleep
@@ -196,7 +193,11 @@ class Audio(BaseHandler):
 
         if 'dl' in self.request.args and self.request.args['dl'] == '1':
             self.response.set_header('Content-Disposition', f'attachment; filename="{track_info["title"]}.mp3"')
-        self.response.set_header('Content-Type', 'audio/mpeg')
+        if download_filename.endswith('mp3'):
+            self.response.set_header('Content-Type', 'audio/mpeg')
+        elif download_filename.endswith('flac'):
+            self.response.set_header('Content-Type', 'audio/flac')
+
         self.response.set_header('Content-Length', content_length)
         self.response.set_header('Accept-Ranges', 'bytes')
         return wrapper
