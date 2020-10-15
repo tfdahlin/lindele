@@ -304,7 +304,13 @@ img.download-button:hover {
 div.flac-slider-container {
 
 }
-input.flac-input {
+label.flac-label {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+label.flac-label input {
     opacity: 0;
     width: 0;
     height: 0;
