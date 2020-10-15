@@ -116,6 +116,12 @@ class Audio(BaseHandler):
             logger.warn(f'Could not fetch track audio for song id: {songid}.')
             return self.HTTP_404(error='Invalid song id.')
 
+        if 'flac' in self.request.args:
+            flac_track_file = f'{track_file[:-4]}.flac'
+            print(f'Flac file: {flac_track_file}')
+            if os.path.exists(flac_track_file):
+                track_file = flac_track_file
+
         # Log which users listen to which songs.
         try:
             track_info = music.util.fetch_track_info(int(songid))
@@ -133,6 +139,13 @@ class Audio(BaseHandler):
                 user = 'Anonymous user'
             if track_info:
                 logger.info(f'{user} is listening to {track_info["title"]} by {track_info["artist"]}')
+
+        download_filename = track_info['title']
+        if 'flac' in self.request.args:
+            print(self.request.args['flac'])
+            download_filename += '.flac'
+        else:
+            download_filename += '.mp3'
 
         # Only mount if we actually need to load the file.
         # This is specifically for my setup where the media server may go to sleep
@@ -167,7 +180,7 @@ class Audio(BaseHandler):
             wrapper = RangeFileWrapper(open(track_file, 'rb'), offset=first_byte, length=length)
             content_length = str(length)
             if 'dl' in self.request.args and self.request.args['dl'] == '1':
-                self.response.set_header('Content-Disposition', f'attachment; filename="{track_info["title"]}.mp3"')
+                self.response.set_header('Content-Disposition', f'attachment; filename="{download_filename}"')
             self.response.set_header('Content-Range', f'bytes {first_byte}-{last_byte}/{file_size}')
             self.response.set_header('If-Range', f'"{track_hash}"')
             self.response.status_code = 206
