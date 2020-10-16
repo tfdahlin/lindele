@@ -305,6 +305,10 @@ div.flac-toggle-container {
     display: flex;
     justify-content: center;
 }
+div.flac-text {
+    align-self: center;
+    color: white;
+}
 label.flac-label {
     position: relative;
     display: inline-block;
