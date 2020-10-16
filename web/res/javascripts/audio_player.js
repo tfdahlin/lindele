@@ -238,6 +238,9 @@ class AudioPlayer {
         // Loads the given track into the audio player, and updates the progress
         //  display for the track
         var track_audio_src = '{{{api_url}}}/songs/' + track['id'] + '/audio';
+        if (this.checkFlacSetting()) {
+            track_audio_src += '?flac=1';
+        }
         this.audio_player.src = track_audio_src;
         document.getElementById("playbackprogress").style.width = "0%";
         document.getElementById("playbacktimercontainer").innerHTML = "0:00 / 0:00";
@@ -456,6 +459,11 @@ class AudioPlayer {
                 }
             }
         });
+    }
+
+    checkFlacSetting() {
+        let flac_toggle = document.getElementById('flac-checkbox');
+        return flac_toggle.checked;
     }
 }
 
