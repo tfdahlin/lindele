@@ -324,14 +324,16 @@ class AudioPlayer {
     }
 
     createDownload() {
-        var src = this.audio_player.src + '?dl=1';
+        let url = new URL(this.audio_player.src);
+        url.searchParams.append('dl', 1);
+
         var name = document.getElementById("song-name").innerHTML;
         name = name.split('.').join('');
 
         // Downloads the current song.
         var link = document.createElement("a");
         link.download = name;
-        link.href = src;
+        link.href = url.href;
         document.body.appendChild(link);
         link.click();
         link.remove();
