@@ -312,8 +312,8 @@ div.flac-text {
 label.flac-label {
     position: relative;
     display: inline-block;
-    width: 60px;
-    height: 34px;
+    width: 48px;
+    height: 28px;
 }
 label.flac-label input.flac-checkbox {
     opacity: 0;
@@ -335,8 +335,8 @@ span.flac-toggle {
 span.flac-toggle:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
+    height: 20px;
+    width: 20px;
     left: 4px;
     bottom: 4px;
     background-color: #cd853f;
@@ -350,9 +350,9 @@ input.flac-checkbox:focus + span.flac-toggle {
     box-shadow: 0 0 1px #444444;
 }
 input.flac-checkbox:checked + span.flac-toggle:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
+    -webkit-transform: translateX(20px);
+    -ms-transform: translateX(20px);
+    transform: translateX(20px);
 }
 div.playlist-controls {
     display: flex;
