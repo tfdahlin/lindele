@@ -192,7 +192,7 @@ class Audio(BaseHandler):
                 return self.HTTP_400(error='Could not load track.')
 
         if 'dl' in self.request.args and self.request.args['dl'] == '1':
-            self.response.set_header('Content-Disposition', f'attachment; filename="{track_info["title"]}.mp3"')
+            self.response.set_header('Content-Disposition', f'attachment; filename="{download_filename}"')
         if download_filename.endswith('mp3'):
             self.response.set_header('Content-Type', 'audio/mpeg')
         elif download_filename.endswith('flac'):
