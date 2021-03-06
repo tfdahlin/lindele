@@ -131,8 +131,12 @@ class AudioPlayer {
         let s = get_cookie_value('shuffle');
         if (s == 'true') {
             this.shuffle = true;
+            shuffle_icon.classList.add("shuffle-button-on");
+            shuffle_icon.classList.remove("shuffle-button-off");
         } else {
             this.shuffle = false;
+            shuffle_icon.classList.remove("shuffle-button-on");
+            shuffle_icon.classList.add("shuffle-button-off");
         }
 
         let r = get_cookie_value('repeat');
