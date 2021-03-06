@@ -88,17 +88,6 @@ class AudioPlayer {
         $(window).resize(this.resizeAlbumArtwork.bind(this));
         $("#volume_slider").on('mouseup', function() {
             set_cookie('volume', Math.trunc(this.value));
-            /*$.ajax({
-                type: 'POST',
-                url: '{{{api_url}}}/set_volume',
-                data: JSON.stringify({'volume': Math.trunc(this.value)}),
-                xhrFields: {
-                    withCredentials: true,
-                },
-            }).done((data) => {
-            }).fail((err) => {
-                console.log(err);
-            });*/
         });
     }
 
@@ -133,22 +122,6 @@ class AudioPlayer {
             this.audio_player.volume = 1.0;
             $("#volume_slider").val(100);
         }
-        /*
-        check_login_status()
-        .then((data) => {
-            if (data['user']['volume']) {
-                this.audio_player.volume = data['user']['volume']/100;
-                $("#volume_slider").val(data['user']['volume']);
-            } else {
-                this.audio_player.volume = 1.0;
-                $("#volume_slider").val(100);
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-            this.audio_player.volume = 1.0;
-            $("#volume_slider").val(100);
-        })*/
     }
 
     updateSoundIcon(playervol) {
