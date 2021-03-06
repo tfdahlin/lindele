@@ -87,7 +87,8 @@ class AudioPlayer {
         // Handles resizing the album artwork when the window gets resized
         $(window).resize(this.resizeAlbumArtwork.bind(this));
         $("#volume_slider").on('mouseup', function() {
-            $.ajax({
+            set_cookie('volume', Math.trunc(this.value));
+            /*$.ajax({
                 type: 'POST',
                 url: '{{{api_url}}}/set_volume',
                 data: JSON.stringify({'volume': Math.trunc(this.value)}),
@@ -97,7 +98,7 @@ class AudioPlayer {
             }).done((data) => {
             }).fail((err) => {
                 console.log(err);
-            });
+            });*/
         });
     }
 
@@ -124,6 +125,15 @@ class AudioPlayer {
     }
 
     loadVolumeSetting() {
+        let v = get_cookie_value('volume');
+        if (v.length > 0) {
+            this.audio_player.volume = parseInt(v)/100;
+            $("#volume_slider").val(parseInt(v));
+        } else {
+            this.audio_player.volume = 1.0;
+            $("#volume_slider").val(100);
+        }
+        /*
         check_login_status()
         .then((data) => {
             if (data['user']['volume']) {
@@ -138,7 +148,7 @@ class AudioPlayer {
             console.log(err);
             this.audio_player.volume = 1.0;
             $("#volume_slider").val(100);
-        })
+        })*/
     }
 
     updateSoundIcon(playervol) {
