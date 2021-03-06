@@ -1,7 +1,40 @@
 // Take care of a bunch of setup on page load, such
 //  as fetching all tracks, enabling UI elements, etc
 let ap;
+
+function get_cookie_value(name) {
+    /* https://coderrocketfuel.com/article/how-to-create-read-update-and-delete-cookies-in-javascript */
+    let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)");
+    if (result) {
+        return result.pop();
+    }
+    return "";
+}
+
+function delete_cookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0`;
+}
+
+function set_cookie(name, value) {
+    document.cookie = `${name}=${value}`;
+}
+
 window.onload = function() {
+    // Set the flac toggle to store its status in a cookie when checked
+    let flac_toggle = document.getElementById('flac-checkbox');
+    flac_toggle.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            set_cookie('flac', 'true');
+        } else {
+            delete_cookie('flac');
+        }
+    });
+
+    // Auto-check the toggle if the cookie has been stored.
+    if (get_cookie_value('flac') == 'true') {
+        flac_toggle.checked = true;
+    }
+
     ap = new AudioPlayer();
     load_all_tracks()
     .then((data) => {
