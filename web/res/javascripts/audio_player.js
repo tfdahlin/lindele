@@ -229,12 +229,12 @@ class AudioPlayer {
             this.shuffle = false;
             shuffle_icon.classList.remove("shuffle-button-on");
             shuffle_icon.classList.add("shuffle-button-off");
-            set_cookie('shuffle', 'true');
+            delete_cookie('shuffle');
         } else {
             this.shuffle = true;
             shuffle_icon.classList.add("shuffle-button-on");
             shuffle_icon.classList.remove("shuffle-button-off");
-            set_cookie('shuffle', 'false');
+            set_cookie('shuffle', 'true');
         }       
     }
 
