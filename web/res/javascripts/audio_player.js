@@ -128,6 +128,7 @@ class AudioPlayer {
 
     loadPlaySettings() {
         // Load shuffle/repeat options from cookies
+        var shuffle_icon = document.getElementById("shufflebutton");
         let s = get_cookie_value('shuffle');
         if (s == 'true') {
             this.shuffle = true;
