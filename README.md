@@ -40,6 +40,9 @@ eventually write a mobile application myself. For the API backend, I ended up
 falling in love with [pycnic][3], and wanted to see how quickly I could rebuild
 the Django music player with this new design principle.
 
+## Demo
+Want to see it in action? I have a demo available [over here](https://music.taylorfoxdahl.in/).
+
 [1]:https://www.elfdict.com/w/lindele
 [2]:https://github.com/tfdahlin/music_stream
 [3]:http://pycnic.nullism.com
