@@ -4,6 +4,7 @@ function time_update() {
 class AudioPlayer {
     constructor() {
         this.shuffle = true;
+        this.repeat = false;
         this.playlist_position = 0;
         this.deck = [];
         this.deck_position = null;
@@ -21,6 +22,7 @@ class AudioPlayer {
         this.audio_player.addEventListener('durationchange', this.timeUpdate.bind(this));
         this.audio_player.type = 'audio/mpeg';
         this.loadVolumeSetting();
+        this.loadPlaySettings();
         this.updateSoundIcon(this.audio_player.volume);
         this.resizeAlbumArtwork();
         this.createBindings();
@@ -124,6 +126,23 @@ class AudioPlayer {
         }
     }
 
+    loadPlaySettings() {
+        // Load shuffle/repeat options from cookies
+        let s = get_cookie_value('shuffle');
+        if (s == 'true') {
+            this.shuffle = true;
+        } else {
+            this.shuffle = false;
+        }
+
+        let r = get_cookie_value('repeat');
+        if (r == 'true') {
+            this.repeat = true;
+        } else {
+            this.repeat = false;
+        }
+    }
+
     updateSoundIcon(playervol) {
         var icon = document.getElementById("volume_icon");
         if(playervol < 0.05) {
@@ -210,10 +229,12 @@ class AudioPlayer {
             this.shuffle = false;
             shuffle_icon.classList.remove("shuffle-button-on");
             shuffle_icon.classList.add("shuffle-button-off");
+            set_cookie('shuffle', 'true');
         } else {
             this.shuffle = true;
             shuffle_icon.classList.add("shuffle-button-on");
             shuffle_icon.classList.remove("shuffle-button-off");
+            set_cookie('shuffle', 'false');
         }       
     }
 
