@@ -302,7 +302,7 @@ function time_str_to_int(str) {
 
     // Iterate forward so we multiply correctly
     for (var i = 0; i < int_arr.length; i++) {
-        var exp = 60^i;
+        var exp = 60**i;
         // 60^0 = 1 for seconds
         // 60^1 = 60 for minutes
         // 60^2 = 3600 for hours
