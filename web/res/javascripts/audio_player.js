@@ -98,6 +98,11 @@ class AudioPlayer {
         var track_length = this.deck[this.deck_position]['length'];
         // Strip leading 0's
         track_length = track_length.replace(new RegExp("^0+"), "");
+        
+        // Fix for 0-minute songs
+        if (track_length[0] == ':') {
+            track_length = '0' + track_length;
+        }
         var total_time = time_str_to_int(track_length);
 
 
