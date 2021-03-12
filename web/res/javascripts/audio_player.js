@@ -107,7 +107,7 @@ class AudioPlayer {
         var progress_bar = document.getElementById("playbackprogress");
         progress_bar.style.width = percentage.toString() + "%";
         document.getElementById("playbacktimercontainer").innerHTML = (
-            seconds_to_minutes(current_time) + " / " + track_length;
+            seconds_to_minutes(current_time) + " / " + track_length
         );
     }
 
