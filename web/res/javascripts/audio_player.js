@@ -105,9 +105,7 @@ class AudioPlayer {
         }
         var total_time = time_str_to_int(track_length);
 
-
         var current_time = this.audio_player.currentTime;
-        //var total_time = this.audio_player.duration;
         var percentage = 100*(current_time / total_time);
         var progress_bar = document.getElementById("playbackprogress");
         progress_bar.style.width = percentage.toString() + "%";
@@ -117,7 +115,10 @@ class AudioPlayer {
     }
 
     seekTrackPosition(percentage) {
-        var time_to_set = parseInt(percentage*this.audio_player.duration);
+        var track_length = this.deck[this.deck_position]['length'];
+        var duration = time_str_to_int(track_length);
+
+        var time_to_set = parseInt(percentage*duration);
         if(!isFinite(time_to_set)) {
             console.warn('Non-finite time_to_set value.')
             console.warn(this.audio_player.duration);
