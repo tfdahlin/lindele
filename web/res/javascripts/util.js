@@ -306,7 +306,7 @@ function time_str_to_int(str) {
         // 60^0 = 1 for seconds
         // 60^1 = 60 for minutes
         // 60^2 = 3600 for hours
-        total += parseInt(int_arr[i])*exp;
+        total += parseInt(int_arr[int_arr.length - i - 1])*exp;
     }
     return total;
 }
