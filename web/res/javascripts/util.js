@@ -296,6 +296,21 @@ function seconds_to_minutes(seconds) {
     return result;
 }
 
+function time_str_to_int(str) {
+    var int_arr = str.split(':');
+    var total = 0;
+
+    // Iterate forward so we multiply correctly
+    for (var i = 0; i < int_arr.length; i++) {
+        var exp = 60^i;
+        // 60^0 = 1 for seconds
+        // 60^1 = 60 for minutes
+        // 60^2 = 3600 for hours
+        total += parseInt(int_arr[i])*exp;
+    }
+    return total;
+}
+
 function listFilter() {
     // Filters the track list based on the search bar
     var punctRE = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/g;
