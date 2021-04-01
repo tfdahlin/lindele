@@ -14,6 +14,7 @@ from util.util import Session, access_db
 
 # PIP library imports
 import eyed3
+from mutagen.mp3 import MP3
 import sqlalchemy
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy import or_, func
@@ -21,6 +22,7 @@ from sqlalchemy import or_, func
 # Variables and config
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
 
 def fetch_track_info(songid):
     """Fetch detailed information about a given track.
@@ -46,6 +48,7 @@ def fetch_track_info(songid):
                 'id': track.id,
             }
 
+
 def fetch_track_path(songid):
     """Fetch the file path for a given track id.
     
@@ -63,6 +66,7 @@ def fetch_track_path(songid):
                 logger.warn(f"No song found with id {songid}.")
                 return None
             return track.track_path
+
 
 def fetch_track_hash(songid):
     """Fetch the file hash for a given track id.
@@ -104,6 +108,7 @@ def fetch_artwork_path(songid):
     logger.info(f'Missing artwork for song with id {songid}')
     return MISSING_ARTWORK_FILE
 
+
 def get_all_tracks():
     """Fetch track info for all songs in the database."""
     with access_db() as db_conn:
@@ -125,6 +130,7 @@ def get_all_tracks():
             result.append(track_info)
         return result
     return None
+
 
 def check_file_missing(songid):
     """Check whether a specific track's file is missing in the database.
@@ -158,6 +164,7 @@ def label_track_missing(track_path, missing):
         if track:
             track.file_missing = missing
             db_conn.commit()
+
 
 def add_track_to_database(track_info):
     """Add a track to the database.
@@ -199,11 +206,34 @@ def add_track_to_database(track_info):
         return True
     return False
 
+
+def remove_track_from_database(track_id):
+    """Remove a song from the database."""
+    with access_db() as db_conn:
+        track = db_conn.query(Song).get(track_id)
+        if track:
+            db_conn.delete(track)
+            db_conn.commit()
+            return True
+    return False
+
+
 def async_refresh():
     """Asynchronously call the database refresh function."""
     logger.info('Refreshing database.')
     t = threading.Thread(target=refresh_database_thread)
     t.start()
+
+
+def clean_database():
+    """Remove all missing tracks from the database."""
+    with access_db() as db_conn:
+        missing_tracks = db_conn.query(Song)\
+                                .filter(Song.file_missing == True)
+        for track in missing_tracks:
+            db_conn.delete(track)
+        db_conn.commit()
+
 
 def refresh_database():
     """Update the song database.
@@ -243,6 +273,7 @@ def refresh_database():
                 entry.last_refresh = datetime.datetime.now()
                 db_conn.commit()
 
+
 def refresh_database_thread():
     """Walk through all files in the music folder, adding them to the database as necessary."""
     logger.info('Started refreshing.')
@@ -275,6 +306,7 @@ def refresh_database_thread():
                 logger.info('Refreshing finished!')
                 return
         logger.info('Refreshing finished!')
+
 
 def load_track_data(track_path):
     """Open a track file in order to extract track info.
@@ -323,7 +355,7 @@ def load_track_data(track_path):
 
     # Fetch track length. If it doesn't exist, we don't want to display the track.
     try:
-        time_secs = audiofile.info.time_secs
+        time_secs = MP3(track_path).info.length
     except:
         logger.warn(f'Track had no track length data: {track_path}')
         return None
@@ -349,6 +381,7 @@ def load_track_data(track_path):
 
     return result
 
+
 def create_new_playlist(playlist_name, owner_guid, owner_name):
     """Create a new playlist for a user.
 
@@ -360,6 +393,7 @@ def create_new_playlist(playlist_name, owner_guid, owner_name):
         new_playlist = Playlist(name=playlist_name, owner_guid=owner_guid)
         db_conn.add(new_playlist)
         db_conn.commit()
+
 
 def owns_playlist(playlistid, owner_guid):
     """Check if a given user owns a specific playlist.
@@ -389,6 +423,7 @@ def owns_playlist(playlistid, owner_guid):
     logger.warn(f"User with guid {owner_guid} attempted to modify playlist they do not own with id {playlistid}.")
     return False
 
+
 def get_playlist_from_id(playlistid):
     """Fetch the ORM object for a given playlist id.
 
@@ -406,6 +441,7 @@ def get_playlist_from_id(playlistid):
             return None
         else:
             return playlist
+
 
 def get_playlist_data_from_id(playlistid):
     """Fetch information about a given playlist, as well as its tracks, from a unique id.
@@ -454,6 +490,7 @@ def get_playlist_data_from_id(playlistid):
                     playlist_data['tracks'].append(track_info)
             return playlist_data
 
+
 def add_song_to_playlist(playlistid, songid):
     """Adds a given song to a specified playlist.
 
@@ -478,6 +515,7 @@ def add_song_to_playlist(playlistid, songid):
 
             playlist.songs.append(song)
             db_conn.commit()
+
 
 def remove_song_from_playlist(playlistid, songid):
     """Removes a given song to a specified playlist.
@@ -508,6 +546,7 @@ def remove_song_from_playlist(playlistid, songid):
             else:
                 db_conn.commit()
 
+
 def get_public_playlists():
     """Fetch publicly available playlists."""
     result = {'playlists': []}
@@ -529,6 +568,7 @@ def get_public_playlists():
             result['playlists'].append(data)
     return result
 
+
 def set_playlist_publicity(playlistid, publicity):
     """Set a playlist to public or private."""
     with access_db() as db_conn:
@@ -546,6 +586,7 @@ def set_playlist_publicity(playlistid, publicity):
             db_conn.commit()
 
     return True
+
 
 def get_playlists_for_user(user_guid):
     """Fetch public playlists, and playlists owned by a specific user.
@@ -573,6 +614,7 @@ def get_playlists_for_user(user_guid):
             result['playlists'].append(data)
     return result
 
+
 def get_playlists_owned_by_user(user_guid):
     """Fetch playlists owned by a specific user.
 
@@ -592,4 +634,3 @@ def get_playlists_owned_by_user(user_guid):
             }
             result['playlists'].append(data)
     return result
-
