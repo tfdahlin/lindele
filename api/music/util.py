@@ -125,7 +125,7 @@ def get_all_tracks():
                 'artist': track.artist_name,
                 'album': track.album_name,
                 'id': track.id,
-                'length': track.track_length
+                'track_length': track.track_length
             }
             result.append(track_info)
         return result

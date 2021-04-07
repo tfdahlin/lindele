@@ -95,7 +95,7 @@ class AudioPlayer {
 
     timeUpdate() {
         // Updates the progress bar and time display for the current track.
-        var track_length = this.deck[this.deck_position]['length'];
+        var track_length = this.deck[this.deck_position]['track_length'];
         // Strip leading 0's
         track_length = track_length.replace(new RegExp("^0+"), "");
         
@@ -115,7 +115,7 @@ class AudioPlayer {
     }
 
     seekTrackPosition(percentage) {
-        var track_length = this.deck[this.deck_position]['length'];
+        var track_length = this.deck[this.deck_position]['track_length'];
         var duration = time_str_to_int(track_length);
 
         var time_to_set = parseInt(percentage*duration);

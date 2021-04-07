@@ -245,7 +245,7 @@ function populate_playlist(tracks) {
         if (!track_album) {
             track_album = '';
         }
-        var track_length = track['length'];
+        var track_length = track['track_length'];
         if (!track_length) {
             continue;
         }
