@@ -338,12 +338,35 @@ class AudioPlayer {
     }
 
     playPrevSong() {
-        // Moves to the previous song in the deck, if it can, otherwise
-        //  reload the current song.
-        if(this.deck_position > 0) {
-            this.deck_position -= 1;
+        // If <=5% of the song has played, attempts to go to the previous song
+        //  in the deck.
+        // If >5% of the song has played, rewinds to start.
+        var track_length = this.deck[this.deck_position]['track_length'];
+        // Strip leading 0's
+        track_length = track_length.replace(new RegExp("^0+"), "");
+
+        // Fix for 0-minute songs
+        if (track_length[0] == ':') {
+            track_length = '0' + track_length;
         }
-        this.loadTrack(this.deck[this.deck_position]);
+        var total_time = time_str_to_int(track_length);
+
+        var current_time = this.audio_player.currentTime;
+        var percentage = 100*(current_time / total_time);
+        if (percentage <= 5.0) {
+            // Moves to the previous song in the deck, if it can, otherwise
+            //  reload the current song.
+            if(this.deck_position > 0) {
+                this.deck_position -= 1;
+            }
+            this.loadTrack(this.deck[this.deck_position]);
+        } else {
+            // Rewinds track to start.
+            seekTrackPosition(0);
+        }
+
+
+
     }
 
     createDownload() {
