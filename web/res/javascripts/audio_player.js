@@ -362,7 +362,7 @@ class AudioPlayer {
             this.loadTrack(this.deck[this.deck_position]);
         } else {
             // Rewinds track to start.
-            seekTrackPosition(0);
+            this.seekTrackPosition(0);
         }
 
 
