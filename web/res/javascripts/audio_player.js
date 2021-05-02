@@ -20,6 +20,8 @@ class AudioPlayer {
         this.audio_player.addEventListener('pause', this.updatePlayerPause.bind(this));
         this.audio_player.addEventListener('loadedmetadata', this.timeUpdate.bind(this));
         this.audio_player.addEventListener('durationchange', this.timeUpdate.bind(this));
+        // Skip songs that can't be loaded
+        this.audio_player.addEventListener('error', this.playNextSong.bind(this));
         this.audio_player.type = 'audio/mpeg';
         this.loadVolumeSetting();
         this.loadPlaySettings();
