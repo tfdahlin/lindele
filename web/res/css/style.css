@@ -249,15 +249,15 @@ input.volume-slider {
 input.volume-slider::-webkit-slider-thumb { /* Most browsers */
     -webkit-appearance: none;
     appearance: none;
-    width:5px;
+    width: 5px;
     height: 5px;
     border-radius: 50%;
     background: #cd853f;
     cursor: pointer;
 }
 input.volume-slider::-moz-range-thumb { /* Firefox */
-    width: 25px;
-    height: 25px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: #cd853f;
     cursor: pointer;
