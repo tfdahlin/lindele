@@ -12,11 +12,11 @@ function get_cookie_value(name) {
 }
 
 function delete_cookie(name) {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0`;
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; secure`;
 }
 
 function set_cookie(name, value) {
-    document.cookie = `${name}=${value}`;
+    document.cookie = `${name}=${value}; secure`;
 }
 
 window.onload = function() {
