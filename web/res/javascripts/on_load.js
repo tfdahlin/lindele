@@ -12,11 +12,21 @@ function get_cookie_value(name) {
 }
 
 function delete_cookie(name) {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; secure`;
+    let cookie_str = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0`;
+    if (location.protocol !== 'https:') {
+        document.cookie = cookie_str;
+    } else {
+        document.cookie = `${cookie_str}; secure`;
+    }
 }
 
 function set_cookie(name, value) {
-    document.cookie = `${name}=${value}; secure`;
+    let cookie_str = `${name}=${value}`;
+    if (location.protocol !== 'https:') {
+        document.cookie = cookie_str;
+    } else {
+        document.cookie = `${cookie_str}; secure`;
+    }
 }
 
 window.onload = function() {
