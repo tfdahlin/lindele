@@ -162,7 +162,7 @@ app.use('/javascripts/:filename', function (req, res) {
 
     render_static_javascript(req.params['filename'], context)
     .then((html) => {
-        res.status(200).type('application/json').send(html);
+        res.status(200).type('text/javascript').send(html);
     })
     .catch((err) => {
         console.log(err);
