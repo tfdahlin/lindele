@@ -338,6 +338,10 @@ def load_track_data(track_path):
     except:
         logger.warn(f'Track had no title: {track_path}')
         return None
+    else:
+        if not result['title']:
+            logger.warn(f'Track had no title: {track_path}')
+            return None
 
     # Load track artist. It might not exist, and that's fine.
     try:
