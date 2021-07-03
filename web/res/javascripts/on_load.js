@@ -54,7 +54,7 @@ window.onload = function() {
             clearTimeout(typing_timer);
             typing_timer = setTimeout(listFilter, 500); // After 0.5s, apply search
         });
-        $("#search_bar").on('keydown' function () {
+        $("#search_bar").on('keydown', function() {
             clearTimeout(typing_timer);
         });
         set_misc_binding_functions(ap);
