@@ -52,7 +52,7 @@ window.onload = function() {
         tracks_loaded = true;
         $("#search_bar").on('keyup', function() {
             clearTimeout(typing_timer);
-            typing_timer = setTimeout(listFilter, 500); // After 0.5s, apply search
+            typing_timer = setTimeout(listFilter, 200); // After 0.2s, apply search
         });
         $("#search_bar").on('keydown', function() {
             clearTimeout(typing_timer);
