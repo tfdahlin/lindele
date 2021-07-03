@@ -1,6 +1,7 @@
 // Take care of a bunch of setup on page load, such
 //  as fetching all tracks, enabling UI elements, etc
 let ap;
+let typing_timer;
 
 function get_cookie_value(name) {
     /* https://coderrocketfuel.com/article/how-to-create-read-update-and-delete-cookies-in-javascript */
@@ -49,7 +50,13 @@ window.onload = function() {
     load_all_tracks()
     .then((data) => {
         tracks_loaded = true;
-        $("#search_bar").keyup(listFilter);
+        $("#search_bar").on('keyup', function() {
+            clearTimeout(typing_timer);
+            typing_timer = setTimeout(listFilter, 500); // After 0.5s, apply search
+        });
+        $("#search_bar").on('keydown' function () {
+            clearTimeout(typing_timer);
+        });
         set_misc_binding_functions(ap);
         ap.start();
     })
