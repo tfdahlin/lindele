@@ -4,10 +4,11 @@
 """Utility functions and classes for all modules."""
 
 # Native python imports
-import shlex, os, time
+from datetime import datetime
+import os
 from pathlib import Path
-from subprocess import call
-import subprocess
+import time
+from wsgiref.handlers import format_date_time
 
 # Local file imports
 import local_settings
@@ -23,6 +24,7 @@ from wakeonlan import send_magic_packet
 # Variables and settings
 engine = create_engine(db_uri)
 Session = sessionmaker(bind=engine)
+
 
 class RangeFileWrapper:
     """FileWrapper with support for byte ranges.
@@ -62,6 +64,7 @@ class RangeFileWrapper:
             self.remaining -= len(data)
             return data
 
+
 class BaseHandler(Handler):
     """Extension of pycnic's Handler class. 
 
@@ -77,6 +80,9 @@ class BaseHandler(Handler):
             self.response.set_header('Access-Control-Allow-Origin', origin)
             self.response.set_header('Access-Control-Allow-Credentials', "true")
         self.response.set_header('X-Robots-Tag', 'noindex, nofollow, noarchive, notranslate, noimageindex')
+
+        next_day = datetime.now() + timedelta(days=1)
+        self.response.set_header('Expires', format_date_time(next_day.timestamp()))
 
     def HTTP_200(self, data={}, error=None): # 200 OK -- general success
         """200 OK response.
@@ -211,6 +217,7 @@ class BaseHandler(Handler):
         self.response.status_code = 429
         return result
 
+
 class access_db:
     """Wrapper class to use when accessing the database.
 
@@ -231,16 +238,17 @@ class access_db:
         """Closes the database connection as part of the teardown process."""
         self.db_conn.close()
 
+
 def reboot_machine_with_delay():
     """Reboot the server after 30 seconds."""
     time.sleep(30)
     reboot_machine()
 
+
 def reboot_machine():
     """Reboot the server."""
     cmd = 'sudo systemctl reboot'
     os.system(cmd)
-
 
 
 def mount_as_needed():
@@ -264,6 +272,7 @@ def mount_as_needed():
     logger.warn('Remounting media server.')
     mount_smb()
 
+
 def is_mounted() -> bool:
     """Check if the media server is mounted or not."""
     # If we don't need to mount, pretend it's mounted.
@@ -275,6 +284,7 @@ def is_mounted() -> bool:
     result = p.is_mount()
     return result
 
+
 def unmount_smb():
     """Unmount the music directory, if necessary."""
     # If we don't need to mount, skip this.
@@ -282,6 +292,7 @@ def unmount_smb():
         return
 
     os.system(f'sudo {settings.UNMOUNT_SHARE_SCRIPT}')
+
 
 def mount_smb():
     """Mount the SMB drive specified in the local_settings file, if necessary.
@@ -298,6 +309,7 @@ def mount_smb():
     wake_media_server()
 
     os.system(f'sudo {settings.MOUNT_SHARE_SCRIPT}')
+
 
 def wake_media_server():
     """Wake the media server by sending it a magic packet."""
