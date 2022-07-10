@@ -4,7 +4,7 @@
 """Utility functions and classes for all modules."""
 
 # Native python imports
-from datetime import datetime, timdelta
+from datetime import datetime, timedelta
 import os
 from pathlib import Path
 import time
