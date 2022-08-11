@@ -196,7 +196,7 @@ app.use('/refresh', function (req, res) {
             xhrFields: {
                 withCredentials: true,
             },
-            url: 'https://${api_url}/refresh'
+            url: '${api_url}/refresh'
         })
         .done((data) => {
             window.location.href = '/';
